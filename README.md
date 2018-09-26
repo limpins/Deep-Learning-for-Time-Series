@@ -1,6 +1,6 @@
-# Deep-Learning-for-Time-series
+# Deep Learning for Time Series
 
-- [Deep-Learning-for-Time-series](#deep-learning-for-time-series)
+- [Deep Learning for Time Series](#deep-learning-for-time-series)
     - [Theory](#theory)
     - [Note](#note)
     - [Citation](#citation)
