@@ -79,4 +79,4 @@ class Timer():
         print(f'Time taken: {end_dt - self.start_dt}')
 
 
-def set_device(): return 'cuda: 0' if torch.cuda.is_available() else 'cpu'
+def set_device(): return torch.device('cuda: 0' if torch.cuda.is_available() else 'cpu')
