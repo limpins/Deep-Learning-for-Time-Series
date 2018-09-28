@@ -3,21 +3,25 @@ Email: autuanliu@163.com
 Date: 2018/9/28
 """
 
+import datetime as dt
+
 import numpy as np
 import scipy.io as sio
+import torch
+from sklearn import preprocessing
 
 
 class Data_pre:
     """Data pre-processing.
     """
-    @staticmethod
-    def get_batch_sequence(x, seq_length=10, num_shift=1):
-        """Get sequence data.
+
+    def get_batch_sequence(self, x, seq_length=10, num_shift=1):
+        """Get batch sequence data.
 
         Args:
             x (matrix): num_points * num_channel.
             seq_length (int, optional): Defaults to 10. length of sequence.
-            num_shift (int, optional): Defaults to 1. [description]
+            num_shift (int, optional): Defaults to 1. step of slide windows.
 
         Returns:
             tuple: (samples, timesteps, input_dim)
@@ -43,3 +47,36 @@ class Data_pre:
         targets = targets[idx]
 
         return inputs, targets
+
+    def get_seq_data(self, file_name, scaler='min-max'):
+        """Get sequence data.
+
+        Args:
+            file_name (str): file name
+            scaler (str, optional): Defaults to 'min-max'. method for normalizing data.('min-max', 'standard')
+        """
+
+        data = sio.loadmat(file_name)['data'].transpose()  # load '*.mat' data
+        self.num_channel = data.shape[1]
+        # scaler = preprocessing.StandardScaler().fit(data) # Data normalization
+        # data = scaler.transform(data)
+        min_max_scaler = preprocessing.MinMaxScaler()
+        data = min_max_scaler.fit_transform(data)  # scale data to [0. 1]
+        x, y = self.get_batch_sequence(
+            data, num_shift=self.num_shift, seq_length=self.seq_length)
+
+
+class Timer():
+
+    def __init__(self):
+        self.start_dt = None
+
+    def start(self):
+        self.start_dt = dt.datetime.now()
+
+    def stop(self):
+        end_dt = dt.datetime.now()
+        print(f'Time taken: {end_dt - self.start_dt}')
+
+
+def set_device(): return 'cuda: 0' if torch.cuda.is_available() else 'cpu'
