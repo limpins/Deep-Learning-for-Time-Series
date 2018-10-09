@@ -69,7 +69,7 @@ class Data_pre:
 class Timer():
 
     def __init__(self):
-        self.start_dt = None
+        pass
 
     def start(self):
         self.start_dt = dt.datetime.now()

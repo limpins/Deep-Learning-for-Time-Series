@@ -5,4 +5,10 @@
 4. [Time-series---deep-learning---state-of-the-art: Scientific time series and deep learning state of the art](https://github.com/FrancisArgnR/Time-series---deep-learning---state-of-the-art)
 5. [Time Series Prediction Using LSTM Deep Neural Networks](https://www.altumintelligence.com/articles/a/Time-Series-Prediction-Using-LSTM-Deep-Neural-Networks)
 6. [LSTM Neural Networks for Time Series Prediction](https://www.youtube.com/watch?v=2np77NOdnwk)
-7. 
+7. [Time Series Anomaly Detection Algorithms](https://blog.statsbot.co/time-series-anomaly-detection-algorithms-1cef5519aef2)
+8. [使用LSTM循环神经网络的时间序列预测实例：预测未来的货币汇率](http://www.atyun.com/7541.html)
+9. [How to Convert a Time Series to a Supervised Learning Problem in Python](https://machinelearningmastery.com/convert-time-series-supervised-learning-problem-python/)
+10. [Time Series Forecasting as Supervised Learning](https://machinelearningmastery.com/time-series-forecasting-supervised-learning/)
+11. [How To Backtest Machine Learning Models for Time Series Forecasting](https://machinelearningmastery.com/backtest-machine-learning-models-time-series-forecasting/)
+12. [机器学习与时间序列预测](https://www.jianshu.com/p/e81ab6846214)
+13. 
