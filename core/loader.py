@@ -3,12 +3,12 @@ Email: autuanliu@163.com
 Date: 2018/9/28
 """
 
-from torch.utils.data import DataSet
+from torch.utils.data import Dataset
 import scipy.io as sio
 import pandas as pd
 
 
-class Data(DataSet):
+class Data(Dataset):
     def __init__(self, file_name):
         super(Data, self).__init__()
         pass
