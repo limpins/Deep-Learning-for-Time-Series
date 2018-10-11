@@ -70,7 +70,8 @@ class MakeSeqData(Dataset):
         # 获取子序列（窗口）数据
         num_point, _ = data.shape
         inputs, targets = [], []
-        for idx in range(0, num_point - seq_length - num_shift - 1, num_shift):
+        for idx in range(0, num_point - seq_length - num_shift + 1, num_shift):
+            print(idx, idx + seq_length)
             inputs.append(data[idx:(idx + seq_length), :])
             targets.append(data[idx + seq_length, :])
         self.data = torch.tensor(inputs)
