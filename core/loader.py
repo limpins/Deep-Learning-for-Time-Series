@@ -13,18 +13,19 @@ from sklearn import preprocessing as skp
 from torch.utils.data import Dataset
 
 
-def get_mat_data(file_name):
+def get_mat_data(file_name, var_name):
     """从文件中读取出原始数据并转换为 numpy.array 类型
 
     Args:
         file_name (str): 数据存储的完整路径，如 'datastes/abc.mat'
+        var_name (str): 存储数据的变量名
 
     Returns:
         numpy.array: 将读取到的原始数据转换为 numpy.ndarray 类型
     """
 
     data_dict = sio.loadmat(file_name)
-    return data_dict['data']
+    return data_dict[var_name]
 
 
 def get_csv_data(file_name, sep=',', skiprows=0, dtype=np.float32):
@@ -73,8 +74,8 @@ class MakeSeqData(Dataset):
         for idx in range(0, num_point - seq_length - num_shift + 1, num_shift):
             inputs.append(data[idx:(idx + seq_length), :])
             targets.append(data[idx + seq_length, :])
-        self.data = torch.tensor(inputs, dtype=torch.float64)
-        self.target = torch.tensor(targets, dtype=torch.float64)
+        self.data = torch.tensor(inputs)
+        self.target = torch.tensor(targets)
 
     def __getitem__(self, index):
         return self.data[index], self.target[index]
@@ -89,4 +90,4 @@ if __name__ == "__main__":
     train_loader = torch.utils.data.DataLoader(dataset=dataset, batch_size=20, shuffle=True, num_workers=2)
 
     for i, (src, target) in enumerate(train_loader):
-        print(i, "data", src)
+        print(i, src, target)

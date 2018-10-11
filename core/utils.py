@@ -6,6 +6,7 @@ Date: 2018/9/28
 import datetime as dt
 
 import torch
+import numpy as np
 from torch import nn
 
 
@@ -60,3 +61,25 @@ def one_hot_encoding(labels, num_classes):
     """
     y = torch.eye(num_classes)  # [D,D]
     return y[labels]            # [N,D]
+
+
+def train_test_split(data: np.ndarray, split: float = 0.8):
+    """序列数据的 train、test 划分
+
+    Args:
+        data (np.ndarray): 原始或者待划分的时间序列数据
+        spilt (float, optional): Defaults to 0.8. 分割时序数据的分割比例，spilt之前的为训练集
+
+    Returns:
+        train_subseq, test_subseq (tuple): train_subseq, test_subseq
+    """
+
+    split_point = int(np.ceil(data.shape[0] * split))
+    return data[:split_point, :], data[split_point:, :]
+
+def repackage_hidden(h):
+    """Wraps hidden states in new Tensors, to detach them from their history."""
+    if isinstance(h, torch.Tensor):
+        return h.detach()
+    else:
+        return tuple(repackage_hidden(v) for v in h)

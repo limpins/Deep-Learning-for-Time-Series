@@ -13,7 +13,7 @@ from torch import nn
 
 
 class RNN_Net(nn.Module):
-    """带有NUE策略的LSTM模型或者GRU模型
+    """sequence数据预测的LSTM模型或者GRU模型
 
     Args:
         input_dim (int): 输入维度
@@ -32,7 +32,7 @@ class RNN_Net(nn.Module):
         dropout = 0. if num_layers == 1 else dropout
         if rnn_type in ['LSTM', 'GRU']:
             self.rnn = getattr(nn, rnn_type)(
-                input_dim, hidden_dim, num_layers=1, batch_first=True, dropout=dropout)
+                input_dim, hidden_dim, num_layers=num_layers, batch_first=True, dropout=dropout)
         else:
             raise ValueError(
                 """An invalid option was supplied, options are ['LSTM', 'GRU']""")
@@ -46,8 +46,10 @@ class RNN_Net(nn.Module):
             hidden (tuple): 初始化隐变量
         """
 
-        y, hidden = self.rnn(x, hidden)
-        return self.fc(y), hidden
+        y, hn = self.rnn(x, hidden)
+        # pytorch的输入会记录所有时间点的输出，这里输出维度为 batchsize*seq_length*hidden_dim
+        # 因为我们做的是预测模型也即多对一的RNN模型，所以取最后一个为输出即预测结果
+        return self.fc(y[:, -1, :]), hn
 
     def initHidden(self, batchsize):
         """初始化RNN的隐变量
@@ -59,9 +61,10 @@ class RNN_Net(nn.Module):
             tuple: 返回初始化的隐变量
         """
 
-        h0 = torch.zeros(self.num_layers, batchsize, self.hidden_dim)
-        c0 = torch.zeros(self.num_layers, batchsize, self.hidden_dim)
+        # 获取并创建与weight属性相同的变量，数据类型，运行设备，requires——grad等
+        weight = next(self.parameters())
+        h0 = weight.new_zeros(self.num_layers, batchsize, self.hidden_dim)
         if self.rnn_type == 'LSTM':
-            return (h0, c0)
+            return (h0, h0)
         else:
             return h0
