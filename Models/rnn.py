@@ -12,7 +12,7 @@ import torch.nn.functional as F
 from torch import nn
 
 
-class RNN_NUE(nn.Module):
+class RNN_Net(nn.Module):
     """带有NUE策略的LSTM模型或者GRU模型
 
     Args:

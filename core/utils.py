@@ -21,7 +21,7 @@ class Timer():
 
     def stop(self):
         end_dt = dt.datetime.now()
-        print(f'Time taken: {end_dt - self.start_dt}')
+        print(f'Time taken: {(end_dt - self.start_dt).total_seconds():.2f}s')
 
 
 def set_device():

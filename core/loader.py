@@ -54,10 +54,10 @@ class MakeSeqData(Dataset):
         或者自定义的 lambda 函数
 
     Returns:
-        (torch.utils.data.Dataset) Dataset 子类，可以使用 DataLoader
+        (torch.utils.data.Dataset) Dataset 子类，可以使用 DataLoader(数据类型为 tensor)
     """
 
-    def __init__(self, data, seq_length, num_shift: int = 1, scaler_type: str = 'MinMaxScaler'):
+    def __init__(self, data: np.ndarray, seq_length: int = 20, num_shift: int = 1, scaler_type: str = 'MinMaxScaler'):
         super(MakeSeqData, self).__init__()
         if scaler_type in ['MinMaxScaler', 'StandardScaler']:
             scaler = getattr(skp, scaler_type)()
@@ -71,14 +71,22 @@ class MakeSeqData(Dataset):
         num_point, _ = data.shape
         inputs, targets = [], []
         for idx in range(0, num_point - seq_length - num_shift + 1, num_shift):
-            print(idx, idx + seq_length)
             inputs.append(data[idx:(idx + seq_length), :])
             targets.append(data[idx + seq_length, :])
-        self.data = torch.tensor(inputs)
-        self.target = torch.tensor(targets)
+        self.data = torch.tensor(inputs, dtype=torch.float64)
+        self.target = torch.tensor(targets, dtype=torch.float64)
 
     def __getitem__(self, index):
         return self.data[index], self.target[index]
 
     def __len__(self):
         return self.data.shape[0]
+
+
+# Test the loader(MakeSeqData)
+if __name__ == "__main__":
+    dataset = MakeSeqData(np.random.randn(2000, 5))
+    train_loader = torch.utils.data.DataLoader(dataset=dataset, batch_size=20, shuffle=True, num_workers=2)
+
+    for i, (src, target) in enumerate(train_loader):
+        print(i, "data", src)
