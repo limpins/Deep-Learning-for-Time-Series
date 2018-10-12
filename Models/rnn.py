@@ -31,11 +31,9 @@ class RNN_Net(nn.Module):
         self.rnn_type = rnn_type
         dropout = 0. if num_layers == 1 else dropout
         if rnn_type in ['LSTM', 'GRU']:
-            self.rnn = getattr(nn, rnn_type)(
-                input_dim, hidden_dim, num_layers=num_layers, batch_first=True, dropout=dropout)
+            self.rnn = getattr(nn, rnn_type)(input_dim, hidden_dim, num_layers=num_layers, batch_first=True, dropout=dropout)
         else:
-            raise ValueError(
-                """An invalid option was supplied, options are ['LSTM', 'GRU']""")
+            raise ValueError("""An invalid option was supplied, options are ['LSTM', 'GRU']""")
         self.fc = nn.Linear(hidden_dim, output_dim)
 
     def forward(self, x, hidden):
@@ -61,10 +59,27 @@ class RNN_Net(nn.Module):
             tuple: 返回初始化的隐变量
         """
 
-        # 获取并创建与weight属性相同的变量，数据类型，运行设备，requires——grad等
+        # 获取并创建与weight属性相同的变量，数据类型，运行设备，requires_grad等
         weight = next(self.parameters())
         h0 = weight.new_zeros(self.num_layers, batchsize, self.hidden_dim)
         if self.rnn_type == 'LSTM':
             return (h0, h0)
         else:
             return h0
+
+    def repackage_hidden(self, hn):
+        """Wraps hidden states in new Tensors, to detach them from their history.
+
+        The hn.requires_grad == False should always be True.
+
+        Args:
+            hn (tuple or torch.tensor): hidden state((hn, cn) in LSTM and (hn) in GRU).
+
+        Returns:
+            (tuple or torch.tensor): detach hidden state.
+        """
+
+        if isinstance(hn, torch.Tensor):
+            return hn.detach()
+        else:
+            return tuple(self.repackage_hidden(v) for v in hn)
