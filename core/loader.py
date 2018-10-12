@@ -10,7 +10,7 @@ import pandas as pd
 import scipy.io as sio
 import torch
 from sklearn import preprocessing as skp
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import Dataset
 from .utils import train_test_split
 
 

@@ -90,13 +90,13 @@ class Modeler:
         
         Returns:
             out (torch.tensor): output, prediction.
-            err (float): prediction error.
+            err (float): prediction error. (pred - target)
         """
         
         x, y = self.tsfm(x), self.tsfm(y)
         hidden = self.model.initHidden(x.size(0))
         out, _ = self.model(x, hidden)
-        return out, F.mse_loss(out, y).item()
+        return out, out - y
 
     def save_trained_model(self, path):
         """save trained model's weightsself.
