@@ -26,6 +26,7 @@ class Modeler:
         self.criterion = criterion
         self.batchsize = batchsize
         self.dev = device
+        self.tsfm = lambda a: a.to(self.dev).float()
 
     def train_model(self, loaders):
         """train model on each epoch.
@@ -42,7 +43,7 @@ class Modeler:
 
         # train over minibatch
         for data, target in loaders:
-            data, target = data.to(self.dev).float(), target.to(self.dev).float()
+            data, target = self.tsfm(data), self.tsfm(target)
             # Starting each batch, we detach the hidden state from how it was previously produced.
             # If we didn't, the model would try backpropagating all the way to start of the dataset.
             hidden = self.model.repackage_hidden(hidden)
@@ -58,6 +59,7 @@ class Modeler:
             self.opt.step()
         return loss.item()
 
+    @torch.no_grad()
     def evaluate_model(self, loaders):
         """evaluate or test modelself.
         
@@ -71,16 +73,30 @@ class Modeler:
         self.model.eval()
         hidden = self.model.initHidden(self.batchsize)
 
-        with torch.no_grad():
-            # test over minibatch
-            for data, target in loaders:
-                data, target = data.to(self.dev).float(), target.to(self.dev).float()
-                out, hidden = self.model(data, hidden)
-                loss = self.criterion(out, target)
+        # test over minibatch
+        for data, target in loaders:
+            data, target = self.tsfm(data), self.tsfm(target)
+            out, hidden = self.model(data, hidden)
+            loss = self.criterion(out, target)
         return loss.item()
 
-    def predit_point_by_point(self, x):
-        pass
+    @torch.no_grad()
+    def predit_point_by_point(self, x, y):
+        """predict the sequence with point by point method on the whole sequence.
+        
+        Args:
+            x (torch.tensor): input data.
+            y (torch.tensor): target.
+        
+        Returns:
+            out (torch.tensor): output, prediction.
+            err (float): prediction error.
+        """
+        
+        x, y = self.tsfm(x), self.tsfm(y)
+        hidden = self.model.initHidden(x.size(0))
+        out, _ = self.model(x, hidden)
+        return out, F.mse_loss(out, y).item()
 
     def save_trained_model(self, path):
         """save trained model's weightsself.
@@ -88,6 +104,6 @@ class Modeler:
         Args:
             path (str): the path to save checkpoint.
         """
-        
+
         # save model weights
         torch.save(self.model.state_dict(), path)

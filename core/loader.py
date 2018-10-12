@@ -75,6 +75,11 @@ class MakeSeqData(Dataset):
             targets.append(data[idx + seq_length, :])
         self.data = torch.tensor(inputs)
         self.target = torch.tensor(targets)
+    
+    def get_tensor_data(self):
+        """获取处理后的序列数据"""
+
+        return self.data, self.target 
 
     def __getitem__(self, index):
         return self.data[index], self.target[index]
