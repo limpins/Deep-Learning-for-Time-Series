@@ -77,6 +77,7 @@ def train_test_split(data: np.ndarray, split: float = 0.8):
     split_point = int(np.ceil(data.shape[0] * split))
     return data[:split_point, :], data[split_point:, :]
 
+
 def repackage_hidden(h):
     """Wraps hidden states in new Tensors, to detach them from their history."""
     if isinstance(h, torch.Tensor):

@@ -10,7 +10,8 @@ import pandas as pd
 import scipy.io as sio
 import torch
 from sklearn import preprocessing as skp
-from torch.utils.data import Dataset
+from torch.utils.data import Dataset, DataLoader
+from .utils import train_test_split
 
 
 def get_mat_data(file_name, var_name):
@@ -39,8 +40,7 @@ def get_txt_data(file_name, delimiter=',', dtype=np.float32):
 
 
 def get_excel_data(file_name, sheet_name, skiprows=0, dtype=np.float32):
-    data_df = pd.read_excel(
-        file_name, sheet_name=sheet_name, skiprows=skiprows, dtype=dtype)
+    data_df = pd.read_excel(file_name, sheet_name=sheet_name, skiprows=skiprows, dtype=dtype)
     return data_df.values
 
 
@@ -66,8 +66,7 @@ class MakeSeqData(Dataset):
         elif isfunction(scaler_type):
             data = scaler_type(data)
         else:
-            raise ValueError(
-                """An invalid option was supplied, options are ['MinMaxScaler', 'StandardScaler', None] or lambda function.""")
+            raise ValueError("""An invalid option was supplied, options are ['MinMaxScaler', 'StandardScaler', None] or lambda function.""")
         # 获取子序列（窗口）数据
         num_point, _ = data.shape
         inputs, targets = [], []
@@ -82,12 +81,3 @@ class MakeSeqData(Dataset):
 
     def __len__(self):
         return self.data.shape[0]
-
-
-# Test the loader(MakeSeqData)
-if __name__ == "__main__":
-    dataset = MakeSeqData(np.random.randn(2000, 5))
-    train_loader = torch.utils.data.DataLoader(dataset=dataset, batch_size=20, shuffle=True, num_workers=2)
-
-    for i, (src, target) in enumerate(train_loader):
-        print(i, src, target)

@@ -1,6 +1,6 @@
 """
 Email: autuanliu@163.com
-Date: 2018/9/28
+Date: 2018/10/11
 """
 
 import torch
@@ -16,11 +16,10 @@ num_epoch = 50
 seq_len = 20
 device = set_device()
 seqdata = get_mat_data('Data/linear_signals.mat', 'linear_signals')
-train_subseq, valid_subseq = train_test_split(seqdata, split=0.8)
+train_subseq, valid_subseq = train_test_split(seqdata, split=0.7)
 train_subseq = MakeSeqData(train_subseq, seq_length=seq_len)
 valid_subseq = MakeSeqData(valid_subseq, seq_length=seq_len)
-train_loader = DataLoader(train_subseq, batch_size=bt_sz,
-                          shuffle=True, drop_last=True)
+train_loader = DataLoader(train_subseq, batch_size=bt_sz, shuffle=True, drop_last=True)
 valid_loader = DataLoader(valid_subseq, batch_size=bt_sz, drop_last=True)
 
 
