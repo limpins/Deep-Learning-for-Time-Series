@@ -44,6 +44,7 @@ class Modeler:
         # train over minibatch
         for data, target in loaders:
             data, target = self.tsfm(data), self.tsfm(target)
+            
             # Starting each batch, we detach the hidden state from how it was previously produced.
             # If we didn't, the model would try backpropagating all the way to start of the dataset.
             hidden = self.model.repackage_hidden(hidden)
@@ -89,8 +90,8 @@ class Modeler:
             y (torch.tensor): target.
         
         Returns:
-            out (torch.tensor): output, prediction.
-            err (float): prediction error. (pred - target)
+            out (torch.tensor): output, prediction, num_point*out_dim.
+            err (float): prediction error. (pred - target), num_point*out_dim.
         """
         
         x, y = self.tsfm(x), self.tsfm(y)

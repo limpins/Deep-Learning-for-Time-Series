@@ -105,3 +105,4 @@ venv.bak/
 
 # other dir ignore
 .vscode/
+.idea/

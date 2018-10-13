@@ -63,24 +63,47 @@ def one_hot_encoding(labels, num_classes):
     return y[labels]            # [N,D]
 
 
-def train_test_split(data: np.ndarray, split: float = 0.8):
-    """序列数据的 train、test 划分
-
-    Args:
-        data (np.ndarray): 原始或者待划分的时间序列数据
-        spilt (float, optional): Defaults to 0.8. 分割时序数据的分割比例，spilt之前的为训练集
-
-    Returns:
-        train_subseq, test_subseq (tuple): train_subseq, test_subseq
-    """
-
-    split_point = int(np.ceil(data.shape[0] * split))
-    return data[:split_point, :], data[split_point:, :]
-
-
 def repackage_hidden(h):
     """Wraps hidden states in new Tensors, to detach them from their history."""
     if isinstance(h, torch.Tensor):
         return h.detach()
     else:
         return tuple(repackage_hidden(v) for v in h)
+
+
+def get_Granger_Causality(err_cond, err_all):
+    """计算 Granger Causality matrix. (err_cond, err_all 应该有相同的数据形式)
+    
+    Args:
+        err_cond (matrix like data, numpy.ndarray or torch.Tensor): 条件误差, num_channel * n_point * num_channel
+        err_all (matrix like data, numpy.ndarray or torch.Tensor): 整体误差, n_point * num_channel
+    
+    Returns:
+        (np.ndarray) Granger Causality matrix.
+    """
+
+    if isinstance(err_cond, np.ndarray) and isinstance(err_all, np.ndarray):
+        gc_matrix = np.double(err_cond).var(1) / np.double(err_all).var(0)
+        gc_matrix = np.log(gc_matrix.clip(min=1.))
+    elif isinstance(err_cond, torch.Tensor) and isinstance(err_all, torch.Tensor):
+        gc_matrix = err_cond.double().var(1) / err_all.double().var(0)
+        gc_matrix = gc_matrix.clamp(min=1.).log().cpu().numpy()
+    else:
+        raise ValueError('input variables should have the same type(numpy.ndarray or torch.tensor).')
+    
+    np.fill_diagonal(gc_matrix, 0.)   # 不考虑自身影响, 对角线为 0.
+    return gc_matrix
+
+
+def get_gc_precent(gc_matrix):
+    """获取 Granger Causality matrix 的百分比矩阵(当前 i 信号对 j 信号影响的百分比)
+    
+    Args:
+        gc_matrix (np.ndarray): Granger Causality matrix.
+    """
+
+    deno = np.sum(gc_matrix, axis=0)
+    deno[deno == np.zeros(1)] = np.nan
+    gc_precent = gc_matrix / deno
+    gc_precent[np.isnan(gc_precent)] = 0.
+    return gc_precent
