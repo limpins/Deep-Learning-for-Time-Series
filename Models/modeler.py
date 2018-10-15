@@ -100,7 +100,7 @@ class Modeler:
         return out, out - y
 
     def save_trained_model(self, path):
-        """save trained model's weightsself.
+        """save trained model's weights.
         
         Args:
             path (str): the path to save checkpoint.
@@ -108,3 +108,13 @@ class Modeler:
 
         # save model weights
         torch.save(self.model.state_dict(), path)
+
+    def load_best_model(self, path):
+        """load best model's weights.
+        
+        Args:
+            path (str): the path to saved checkpoint.
+        """
+
+        # load model weights
+        self.model.load_state_dict(torch.load(path))

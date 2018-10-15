@@ -8,7 +8,7 @@ nlen = 6000;        % 仿真信号的总长度
 nchannel = 5;       % 信号的维度
 max_lag = 20;       % 最大时延
 lags = [2, 2, 2];   % 分别对应于各个信号的延迟 lag
-err_var = 0.5;        % 噪音的方差
+err_var = 1;        % 噪音的方差
 err_mean = 0;       % 噪音的均值
 noise = make_noise(nlen, nchannel, err_mean, err_var);
 init = init_signal(max_lag, nchannel);
@@ -30,6 +30,9 @@ end
 % 设置线性信号并保存仿真数据
 linear_signals = [x1, x2, x3, x4, x5];
 linear_signals = linear_signals((max_lag+1):(max_lag+npoint), :);
+plot(linear_signals);
+title('Linear Signals')
+saveas(gcf, '../images/linear_signals_info.png')
 save('linear_signals.mat', 'linear_signals');
 
 % 非线性信号
@@ -44,6 +47,9 @@ end
 % 设置非线性信号并保存仿真数据
 nonlinear_signals = [x1, x2, x3, x4, x5];
 nonlinear_signals = nonlinear_signals((max_lag+1):(max_lag+npoint), :);
+plot(nonlinear_signals);
+title('Nonlinear Signals')
+saveas(gcf, '../images/nonlinear_signals_info.png')
 save('nonlinear_signals.mat', 'nonlinear_signals');
 
 % 长时延非线性信号
@@ -58,7 +64,13 @@ end
 % 设置长时延非线性信号并保存仿真数据
 longlag_nonlinear_signals = [x1, x2, x3, x4, x5];
 longlag_nonlinear_signals = longlag_nonlinear_signals((max_lag+1):(max_lag+npoint), :);
+plot(longlag_nonlinear_signals);
+title('Long-lag Nonlinear Signals')
+saveas(gcf, '../images/longlag_nonlinear_signals_info.png')
 save('longlag_nonlinear_signals.mat', 'longlag_nonlinear_signals');
+
+% 后续处理
+close all;
 
 function noise = make_noise(npoint, nchannel, mean_v, variance)
     noise = randn(npoint, nchannel);

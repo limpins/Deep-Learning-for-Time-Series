@@ -5,9 +5,12 @@ Date: 2018/9/28
 
 import datetime as dt
 
-import torch
+import matplotlib.pyplot as plt
 import numpy as np
-from torch import nn
+import torch
+import torch.nn as nn
+
+from .loader import get_txt_data
 
 
 class Timer():
@@ -107,3 +110,40 @@ def get_gc_precent(gc_matrix):
     gc_precent = gc_matrix / deno
     gc_precent[np.isnan(gc_precent)] = 0.
     return gc_precent
+
+
+def early_stopping(val_loss, patience: int = 5, min_val_loss: float = 0.5):
+    """使用 early_stopping 策略，判断是否要停止训练
+    
+    Args:
+        val_loss (np.ndarray or list or tuple): 验证损失, 维度(patience,)
+        patience (int, optional): Defaults to 5. 保持的长度，即验证损失不再提升的状态应保持 patience 个 epoch
+        min_val_loss (float, optional): Defaults to 0.5. 到目前 epoch 为止的最小验证损失
+    
+    Returns:
+        bool: 是否要停止训练
+    """
+
+    val_loss = np.array(val_loss).reshape(-1,)
+    if val_loss.shape[0] == patience:
+        return not np.any(val_loss - min_val_loss <= 0.)
+    else:
+        raise ValueError(f'val_loss.shape[1] or val_loss.shape[0] must be {patience}!')
+
+
+def plot_save_gc_precent(txt_path: str, save_png_path: str, png_title: str, save_txt_path: str):
+    """画图并保存 Granger Causality matrix 的百分比矩阵
+    
+    Args:
+        txt_path (str): the path to Granger Causality matrix have been saved.
+        save_png_path (str): the path to save figures.
+        png_title (str): the title display as figure's title.
+        save_txt_path (str): the path to save txt files.
+    """
+
+    data = get_txt_data(txt_path, delimiter=' ')
+    gc_precent = get_gc_precent(data)
+    plt.matshow(gc_precent)
+    plt.title(png_title)
+    plt.savefig(save_png_path)
+    np.savetxt(save_txt_path, gc_precent)

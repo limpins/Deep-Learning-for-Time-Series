@@ -10,7 +10,8 @@ from torch import nn, optim
 from torch.nn import functional as F
 from torch.utils.data import DataLoader
 
-from core import MakeSeqData, Timer, get_mat_data, set_device, train_test_split, get_Granger_Causality, make_loader
+from core import (MakeSeqData, Timer, early_stopping, get_Granger_Causality,
+                  get_mat_data, make_loader, set_device, train_test_split)
 from models import Modeler, RNN_Net
 
 
@@ -22,15 +23,28 @@ def train_valid(in_dim, hidden_dim, out_dim, ckpt, x, y, train_loader, test_load
     criterion = nn.MSELoss()  # 损失函数定义，由于是回归预测，所以设为 MSE loss
     model = Modeler(net, opt, criterion, device, batchsize=bt_sz)
 
+    val_loss = []
+    min_val_loss = 0.5
     for epoch in range(num_epoch):
         train_loss = model.train_model(train_loader)   # 当前 epoch 的训练损失
         test_loss = model.evaluate_model(test_loader)  # 当前 epoch 的验证损失
+
+        # 增加 early_stopping 策略
+        if test_loss <= min_val_loss:
+            min_val_loss = test_loss
+            model.save_trained_model(ckpt)    # 保存最好模型
+        # val_loss.append(test_loss)
+        # if len(val_loss) == es_patience and early_stopping(val_loss, es_patience, min_val_loss):
+        #     break
+        # val_loss = val_loss[1:] if len(val_loss) == es_patience else val_loss
+
         print(f'[{epoch+1}/{num_epoch}] ===>> train_loss: {train_loss: .4f} test_loss: {test_loss: .4f}')
 
     # 保存训练好的模型
-    model.save_trained_model(ckpt)
+    # model.save_trained_model(ckpt)
 
     # 预测并计算误差
+    model.load_best_model(ckpt)   # 使用最好的模型进行预测
     err = model.predit_point_by_point(x, y)[1]
     return err
 
@@ -72,8 +86,9 @@ if __name__ == '__main__':
     num_epoch = 30
     num_channel = 5
     seq_len = 20
-    num_trial = 5
+    num_trial = 1
     threshold = 0.1
+    es_patience = 3
     device = set_device()
     all_signal_type = ['linear_signals', 'nonlinear_signals', 'longlag_nonlinear_signals']
 
