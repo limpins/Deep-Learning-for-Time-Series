@@ -57,7 +57,6 @@ def main():
     temp = torch.stack(temp)   # num_channel * num_point * out_dim
 
     # 扩充对角线
-
     err_cond = temp.new_zeros(temp.size(0), temp.size(1), num_channel)
     for idx in range(num_channel):
         col = list(set(range(num_channel)) - {idx})
@@ -74,7 +73,7 @@ if __name__ == '__main__':
     num_channel = 5
     seq_len = 20
     num_trial = 5
-    threshold = 0.05
+    threshold = 0.1
     device = set_device()
     all_signal_type = ['linear_signals', 'nonlinear_signals', 'longlag_nonlinear_signals']
 
