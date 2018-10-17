@@ -34,7 +34,7 @@ class Modeler:
         """close the tensorboard write."""
         self.write.close()
 
-    def train_model(self, loaders):
+    def train_model(self, loaders, epoch=None):
         """train model on each epoch.
 
         Args:
@@ -64,15 +64,17 @@ class Modeler:
             self.opt.zero_grad()
             loss.backward()
             self.opt.step()
-        self.write.add_scalar('train loss', loss.item())
+        if epoch is not None:
+            self.write.add_scalar('train loss', loss.item(), epoch)
         return loss.item()
 
     @torch.no_grad()
-    def evaluate_model(self, loaders):
+    def evaluate_model(self, loaders, epoch=None):
         """evaluate or test modelself.
         
         Args:
             loaders (DataLoader): dataset for evaluatingself.
+            epoch (int): Defaults to None
         
         Returns:
             float: elementwise mean loss on each epoch.
@@ -86,7 +88,8 @@ class Modeler:
             data, target = self.tsfm(data), self.tsfm(target)
             out, hidden = self.model(data, hidden)
             loss = self.criterion(out, target)
-        self.write.add_scalar('evaluate loss', loss.item())
+        if epoch is not None:
+            self.write.add_scalar('evaluate loss', loss.item(), epoch)
         return loss.item()
 
     @torch.no_grad()
