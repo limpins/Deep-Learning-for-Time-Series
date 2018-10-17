@@ -7,7 +7,7 @@ from core import plot_save_gc_precent
 
 
 def main():
-    for policy in ['with_NUE', 'without_NUE']:
+    for policy in ['without_NUE', 'with_NUE']:
         for signal_type in ['linear_signals', 'nonlinear_signals', 'longlag_nonlinear_signals']:
             in1 = f'checkpoints/{policy}/{signal_type}_granger_matrix.txt'
             in2 = f'images/{policy}/{signal_type}_granger_matrix%.png'

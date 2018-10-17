@@ -3,6 +3,8 @@ Email: autuanliu@163.com
 Date: 2018/10/13
 """
 
+import copy
+
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
@@ -10,7 +12,8 @@ from torch import nn, optim
 from torch.nn import functional as F
 from torch.utils.data import DataLoader
 
-from core import MakeSeqData, Timer, get_mat_data, set_device, train_test_split, get_Granger_Causality, make_loader
+from core import (MakeSeqData, Timer, get_Granger_Causality, get_mat_data,
+                  make_loader, set_device, train_test_split)
 from models import Modeler, RNN_Net
 
 
@@ -46,56 +49,60 @@ def main():
     seqdata_all = get_mat_data(f'Data/{signal_type}.mat', f'{signal_type}')   # 读取数据
 
     # 使用NUE策略训练模型
-    deno = []
+    err_all = []
     im_IS = {}
-    for i in range(num_channel):
-        print(f'signal {i}')
-        CS = list(range(num_channel))
-        IS = []
-        err_min_mse = 0
-        while len(CS) > 0:
-            err_min = 1e7
-            err_min_all = None
-            x_min = []
-            for t in CS:
-                S_tmp = IS
-                S_tmp += [t]
-                train_loader, test_loader = make_loader(seqdata_all, S_tmp, i, split=0.7, seq_len=20, bt_sz=32)
-                x, y = MakeSeqData(seqdata_all, S_tmp, i, seq_length=20).get_tensor_data()
+    for k in range(num_channel):
+        # 求当前信号的预测误差
+        channel_set = list(range(num_channel))   # 每个信号都有可能由 0~channel 信号所影响
+        input_set = []  # 当前信号的输入集合
+        last_error = 1.5  # 当前信号的上一次(添加当前信号之前)预测误差, 初始化不能为 0
+        min_err_all = 0
 
-                err_tmp = train_valid(len(S_tmp), 15, 1, f'checkpoints/with_NUE/{signal_type}_model_weights_all{i}.pth', x, y.view(-1, 1), train_loader, test_loader)
-                err_tmp_mse = F.mse_loss(err_tmp, y.float().to(device)).item()
-                if err_tmp_mse < err_min:
-                    err_min = err_tmp_mse
-                    err_min_all = err_tmp
-                    x_min = [t]
-                print(f'{t} is over')
-            
-            deno += [err_min_all]
-            IS = IS + x_min
-            CS = list(set(CS) - set(x_min))
-            err_min_mse = err_min
+        for i in range(num_channel):
+            # 这里相当于一个搜索的过程(总共选择num_channel 次)
+            min_error = 1.     # 最小的误差值, 不能为0且初始状态为min_error<last_error, 要设置大一点
+            min_idx = 0       # 最小误差出现的信号
 
-            rel_err = abs((err_min_mse - err_min)/err_min_mse)
-            print(rel_err)
-            if rel_err < beta:
+            for x_idx in channel_set:
+                tmp_set = copy.copy(input_set)
+                tmp_set.append(x_idx)
+                train_loader, test_loader = make_loader(seqdata_all, tmp_set, k, split=0.7, seq_len=20, bt_sz=32)
+                x, y = MakeSeqData(seqdata_all, tmp_set, k, seq_length=20).get_tensor_data()
+                err_tmp = train_valid(len(tmp_set), 15, 1, f'checkpoints/with_NUE/{signal_type}_model_weights_{x_idx}.pth', x, y, train_loader, test_loader)
+                tmp_error = F.mse_loss(err_tmp.view_as(y), y.float().to(device)).item()
+
+                # 求最小error和其x_idx
+                if tmp_error < min_error:
+                    min_error = tmp_error
+                    min_idx = x_idx
+                    min_err_all = err_tmp
+
+            # 停止选择的条件
+            if i != 0 and (np.abs(last_error - min_error) / last_error < beta or last_error < min_error):
+                print('break!!!')
                 break
-        im_IS[i] = IS
-    print(im_IS)
+            input_set.append(min_idx)
+            channel_set.remove(min_idx)
+            last_error = min_error
+        
+        err_all.append(min_err_all)
+        im_IS[k] = input_set
+        print(f'the {k} model of all input is {input_set}')
+    err_all = torch.stack(err_all).squeeze()
     # end of NUE
 
     # 计算 err_cond
-    err_cond = np.zeros((num_channel, num_channel))
+    err_cond = err_all.new_zeros(num_channel, err_all.size(1), num_channel)
     for j in range(num_channel):
         for i in range(num_channel):
             if i not in im_IS[j]:
-                err_cond[i, :, j] = deno[:, j]
+                err_cond[i, :, j] = err_all[j, :].squeeze()
             else:
                 train_loader, test_loader = make_loader(seqdata_all, im_IS[j], j, split=0.7, seq_len=20, bt_sz=32)
                 x, y = MakeSeqData(seqdata_all, im_IS[j], j, seq_length=20).get_tensor_data()
-                err_cond[i, :, j] = train_valid(len(im_IS[j]), 15, 1, f'checkpoints/with_NUE/{signal_type}_model_weights_cond{j}.pth', x, y.view(-1, 1), train_loader, test_loader).t_()
+                err_cond[i, :, j] = train_valid(len(im_IS[j]), 15, 1, f'checkpoints/with_NUE/{signal_type}_model_weights_cond{j}.pth', x, y, train_loader, test_loader).squeeze()
 
-    return get_Granger_Causality(torch.from_numpy(err_cond).to(device), deno)
+    return get_Granger_Causality(err_cond, err_all.t())
 
 
 if __name__ == '__main__':
@@ -103,12 +110,12 @@ if __name__ == '__main__':
     timer = Timer()
     timer.start()
     bt_sz = 32
-    num_epoch = 1
+    num_epoch = 30
     num_channel = 5
     seq_len = 20
     num_trial = 1
     threshold = 0.05
-    beta = 0.05  # beta in [0, 1], 95%
+    beta = 0.02  # beta in [0, 1], 98%
     device = set_device()
     all_signal_type = ['linear_signals', 'nonlinear_signals', 'longlag_nonlinear_signals']
 
@@ -121,10 +128,11 @@ if __name__ == '__main__':
         avg_gc_matrix /= num_trial
         avg_gc_matrix[avg_gc_matrix < threshold] = 0.  # 阈值处理
         plt.matshow(avg_gc_matrix)
+        plt.title(f'{signal_type} Granger Causality Matrix')
 
         # 保存结果
-        np.savetxt(f'checkpoints/{signal_type}_granger_matrix.txt', avg_gc_matrix)
-        plt.savefig(f'images/{signal_type}.png')
+        np.savetxt(f'checkpoints/with_NUE/{signal_type}_granger_matrix.txt', avg_gc_matrix)
+        plt.savefig(f'images/with_NUE/{signal_type}.png')
 
     # 计时结束
     timer.stop()

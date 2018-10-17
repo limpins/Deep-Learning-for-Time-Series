@@ -13,3 +13,7 @@ Email: autuanliu@163.com
 3. Gómez-García J A, Godino-Llorente J I, Castellanos-Dominguez G. Non uniform Embedding based on Relevance Analysis with reduced computational complexity: Application to the detection of pathologies from biosignal recordings[J]. Neurocomputing, 2014, 132(7):148-158.
 4. Smith, L. N. (2015). Cyclical learning rates for training neural networks. Computer Science, 464-472.
 5. Loshchilov, I., & Hutter, F. (2016). Sgdr: stochastic gradient descent with warm restarts.
+
+
+* Notes
+> The code is for research use only.

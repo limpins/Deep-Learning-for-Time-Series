@@ -6,6 +6,7 @@ Ref: https://github.com/pytorch/examples/blob/master/word_language_model/main.py
 
 import torch
 import torch.nn.functional as F
+from tensorboardX import SummaryWriter
 from torch import nn
 
 
@@ -27,6 +28,11 @@ class Modeler:
         self.batchsize = batchsize
         self.dev = device
         self.tsfm = lambda a: a.to(self.dev).float()
+        self.write = SummaryWriter('log/')
+    
+    def __del__(self):
+        """close the tensorboard write."""
+        self.write.close()
 
     def train_model(self, loaders):
         """train model on each epoch.
@@ -58,6 +64,7 @@ class Modeler:
             self.opt.zero_grad()
             loss.backward()
             self.opt.step()
+        self.write.add_scalar('train loss', loss.item())
         return loss.item()
 
     @torch.no_grad()
@@ -79,6 +86,7 @@ class Modeler:
             data, target = self.tsfm(data), self.tsfm(target)
             out, hidden = self.model(data, hidden)
             loss = self.criterion(out, target)
+        self.write.add_scalar('evaluate loss', loss.item())
         return loss.item()
 
     @torch.no_grad()

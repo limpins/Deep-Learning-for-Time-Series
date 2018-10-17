@@ -83,7 +83,7 @@ if __name__ == '__main__':
     timer = Timer()
     timer.start()
     bt_sz = 32
-    num_epoch = 50
+    num_epoch = 30
     num_channel = 5
     seq_len = 20
     num_trial = 5
