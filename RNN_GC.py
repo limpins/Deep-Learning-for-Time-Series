@@ -50,14 +50,14 @@ def train_valid(in_dim, hidden_dim, out_dim, ckpt, x, y, train_loader, test_load
 
 
 def main():
-    """RNN_GC 算法的实现，对应论文中的算法1(返回格兰杰矩阵)"""
+    """RNN_GC with NUE(non-uniform embedding) 算法的实现，对应论文中的算法2(返回格兰杰矩阵)"""
 
     seqdata_all = get_mat_data(f'Data/{signal_type}.mat', f'{signal_type}')   # 读取数据
 
     # 在完整数据集上训练模型
     train_loader, test_loader = make_loader(seqdata_all, split=0.7, seq_len=20, bt_sz=32)
-    x_all, y_all = MakeSeqData(seqdata_all, seq_length=20, scaler_type = 'MinMaxScaler').get_tensor_data()
-    err_all = train_valid(5, 15, 5, f'checkpoints/{signal_type}_model_weights.pth', x_all, y_all, train_loader, test_loader)
+    x_all, y_all = MakeSeqData(seqdata_all, seq_length=20, scaler_type='MinMaxScaler').get_tensor_data()
+    err_all = train_valid(5, 15, 5, f'checkpoints/without_NUE/{signal_type}_model_weights.pth', x_all, y_all, train_loader, test_loader)
 
     # 去掉一个变量训练模型
     temp = []
@@ -66,7 +66,7 @@ def main():
         seq_data = seqdata_all[:, idx]   # 当前的序列数据
         train_loader, test_loader = make_loader(seq_data, split=0.7, seq_len=20, bt_sz=32)
         x, y = MakeSeqData(seq_data, seq_length=20).get_tensor_data()
-        err = train_valid(4, 15, 4, f'checkpoints/{signal_type}_model_weights{ch}.pth', x, y, train_loader, test_loader)
+        err = train_valid(4, 15, 4, f'checkpoints/without_NUE/{signal_type}_model_weights{ch}.pth', x, y, train_loader, test_loader)
         temp += [err]
     temp = torch.stack(temp)   # num_channel * num_point * out_dim
 
@@ -83,14 +83,15 @@ if __name__ == '__main__':
     timer = Timer()
     timer.start()
     bt_sz = 32
-    num_epoch = 30
+    num_epoch = 50
     num_channel = 5
     seq_len = 20
-    num_trial = 1
+    num_trial = 5
     threshold = 0.1
     es_patience = 3
     device = set_device()
-    all_signal_type = ['linear_signals', 'nonlinear_signals', 'longlag_nonlinear_signals']
+    all_signal_type = ['linear_signals',
+                       'nonlinear_signals', 'longlag_nonlinear_signals']
 
     # RNN_GC
     avg_gc_matrix = 0
@@ -104,8 +105,8 @@ if __name__ == '__main__':
         plt.title(f'{signal_type} Granger_Causality Matrix')
 
         # 保存结果
-        np.savetxt(f'checkpoints/{signal_type}_granger_matrix.txt', avg_gc_matrix)
-        plt.savefig(f'images/{signal_type}.png')
+        np.savetxt(f'checkpoints/without_NUE/{signal_type}_granger_matrix.txt', avg_gc_matrix)
+        plt.savefig(f'images/without_NUE/{signal_type}_Granger_Matrix.png')
 
     # 计时结束
     timer.stop()
