@@ -28,8 +28,8 @@ def train_valid(in_dim, hidden_dim, out_dim, ckpt, x, y, train_loader, test_load
     val_loss = []
     min_val_loss = 0.5
     for epoch in range(num_epoch):
-        train_loss = model.train_model(train_loader)   # 当前 epoch 的训练损失
-        test_loss = model.evaluate_model(test_loader)  # 当前 epoch 的验证损失
+        train_loss = model.train_model(train_loader, epoch)   # 当前 epoch 的训练损失
+        test_loss = model.evaluate_model(test_loader, epoch)  # 当前 epoch 的验证损失
 
         # 增加 early_stopping 策略
         if test_loss <= min_val_loss:
