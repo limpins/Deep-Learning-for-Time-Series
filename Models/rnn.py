@@ -44,10 +44,10 @@ class RNN_Net(nn.Module):
             hidden (tuple): 初始化隐变量
         """
 
-        y, hn = self.rnn(x, hidden)
+        y, hidden = self.rnn(x, hidden)
         # pytorch的输入会记录所有时间点的输出，这里输出维度为 batchsize*seq_length*hidden_dim
         # 因为我们做的是预测模型也即多对一的RNN模型，所以取最后一个为输出即预测结果
-        return self.fc(y[:, -1, :]), hn
+        return self.fc(y[:, -1, :]), hidden
 
     def initHidden(self, batchsize):
         """初始化RNN的隐变量

@@ -3,14 +3,24 @@ Email: autuanliu@163.com
 Date: 2018/9/28
 """
 
+import json
 from inspect import isfunction
 
 import numpy as np
 import pandas as pd
 import scipy.io as sio
 import torch
+import yaml
 from sklearn import preprocessing as skp
 from torch.utils.data import DataLoader, Dataset
+
+
+def get_json_data(file_name):
+    return json.load(open(file_name, 'r'))
+
+
+def get_yaml_data(file_name):
+    return yaml.load(open(file_name, 'r'))
 
 
 def get_mat_data(file_name, var_name):

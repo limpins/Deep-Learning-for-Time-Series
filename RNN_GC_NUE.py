@@ -1,6 +1,7 @@
 """
 Email: autuanliu@163.com
 Date: 2018/10/13
+暂时放弃该代码的开发
 """
 
 import copy
@@ -66,9 +67,9 @@ def main():
             for x_idx in channel_set:
                 tmp_set = copy.copy(input_set)
                 tmp_set.append(x_idx)
-                train_loader, test_loader = make_loader(seqdata_all, tmp_set, k, split=0.7, seq_len=20, bt_sz=32)
-                x, y = MakeSeqData(seqdata_all, tmp_set, k, seq_length=20).get_tensor_data()
-                err_tmp = train_valid(len(tmp_set), 15, 1, f'checkpoints/with_NUE/{signal_type}_model_weights_{x_idx}.pth', x, y, train_loader, test_loader)
+                train_loader, test_loader = make_loader(seqdata_all, tmp_set, k, split=split, seq_len=seq_len, bt_sz=bt_sz)
+                x, y = MakeSeqData(seqdata_all, tmp_set, k, seq_length=seq_len).get_tensor_data()
+                err_tmp = train_valid(len(tmp_set), num_hidden, 1, f'checkpoints/with_NUE/{signal_type}_model_weights_{x_idx}.pth', x, y, train_loader, test_loader)
                 tmp_error = F.mse_loss(err_tmp.view_as(y), y.float().to(device)).item()
 
                 # 求最小error和其x_idx
@@ -98,9 +99,9 @@ def main():
             if i not in im_IS[j]:
                 err_cond[i, :, j] = err_all[j, :].squeeze()
             else:
-                train_loader, test_loader = make_loader(seqdata_all, im_IS[j], j, split=0.7, seq_len=20, bt_sz=32)
-                x, y = MakeSeqData(seqdata_all, im_IS[j], j, seq_length=20).get_tensor_data()
-                err_cond[i, :, j] = train_valid(len(im_IS[j]), 15, 1, f'checkpoints/with_NUE/{signal_type}_model_weights_cond{j}.pth', x, y, train_loader, test_loader).squeeze()
+                train_loader, test_loader = make_loader(seqdata_all, im_IS[j], j, split=split, seq_len=seq_len, bt_sz=bt_sz)
+                x, y = MakeSeqData(seqdata_all, im_IS[j], j, seq_length=seq_len).get_tensor_data()
+                err_cond[i, :, j] = train_valid(len(im_IS[j]), num_hidden, 1, f'checkpoints/with_NUE/{signal_type}_model_weights_cond{j}.pth', x, y, train_loader, test_loader).squeeze()
 
     return get_Granger_Causality(err_cond, err_all.t())
 
@@ -109,9 +110,11 @@ if __name__ == '__main__':
     # 基本设置
     timer = Timer()
     timer.start()
-    bt_sz = 32
-    num_epoch = 30
+    bt_sz = 16
+    num_epoch = 20
     num_channel = 5
+    num_hidden = 10
+    split = 0.7
     seq_len = 20
     num_trial = 1
     threshold = 0.05

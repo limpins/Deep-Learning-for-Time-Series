@@ -21,11 +21,10 @@ class Modeler:
             batchsize (int, optional): Defaults to 32.
     """
 
-    def __init__(self, network, opt, criterion, device, batchsize=32):
+    def __init__(self, network, opt, criterion, device):
         self.model = nn.DataParallel(network).to(device) if torch.cuda.device_count() > 1 else network.to(device)
         self.opt = opt
         self.criterion = criterion
-        self.batchsize = batchsize
         self.dev = device
         self.tsfm = lambda a: a.to(self.dev).float()
         self.write = SummaryWriter('log/')
@@ -45,7 +44,7 @@ class Modeler:
         """
 
         self.model.train()
-        hidden = self.model.initHidden(self.batchsize)
+        hidden = self.model.initHidden(next(iter(loaders))[0].size(0))
 
         # train over minibatch
         for data, target in loaders:
@@ -81,7 +80,7 @@ class Modeler:
         """
 
         self.model.eval()
-        hidden = self.model.initHidden(self.batchsize)
+        hidden = self.model.initHidden(next(iter(loaders))[0].size(0))
 
         # test over minibatch
         for data, target in loaders:
