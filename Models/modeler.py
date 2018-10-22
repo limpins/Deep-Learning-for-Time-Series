@@ -18,26 +18,30 @@ class Modeler:
             opt (torch.optim): the optimizer for network training.
             criterion (nn.Module): the criterion for network training.
             device (torch.device): the device setting for network training.
-            batchsize (int, optional): Defaults to 32.
+            visualization (bool, optional): Defaults to False.
     """
 
-    def __init__(self, network, opt, criterion, device):
+    def __init__(self, network, opt, criterion, device, visualization=False):
         self.model = nn.DataParallel(network).to(device) if torch.cuda.device_count() > 1 else network.to(device)
         self.opt = opt
         self.criterion = criterion
         self.dev = device
         self.tsfm = lambda a: a.to(self.dev).float()
-        self.write = SummaryWriter('log/')
+        self.visualization = visualization
+        if self.visualization:
+            self.write = SummaryWriter('log/')
     
     def __del__(self):
         """close the tensorboard write."""
-        self.write.close()
+        if self.visualization:
+            self.write.close()
 
     def train_model(self, loaders, epoch=None):
         """train model on each epoch.
 
         Args:
             loaders (DataLoader): dataset for training.
+            epoch (int): if epoch is an interger, then visualization.
 
         Returns:
             [float]: elementwise mean loss on each epoch.

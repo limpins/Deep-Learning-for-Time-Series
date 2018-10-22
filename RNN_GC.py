@@ -31,12 +31,13 @@ def train_valid(in_dim, hidden_dim, out_dim, ckpt, test_data, loaders):
         valid_loss = model.evaluate_model(loaders['valid'])  # 当前 epoch 的验证损失
 
         # 增加 early_stopping 策略
-        if valid_loss <= min_val_loss:
-            min_val_loss = valid_loss
-            model.save_trained_model(ckpt)
+        # if valid_loss <= min_val_loss:
+        #     min_val_loss = valid_loss
+        #     model.save_trained_model(ckpt)
         print(f"[{epoch+1}/{cfg['num_epoch']}] ===>> train_loss: {train_loss: .4f} | valid_loss: {valid_loss: .4f}")
 
     # 预测并计算误差
+    model.save_trained_model(ckpt)
     model.load_best_model(ckpt)   # 使用最好的模型进行预测
     err = model.predit_point_by_point(*test_data)[1]
     return err
