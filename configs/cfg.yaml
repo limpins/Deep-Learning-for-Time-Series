@@ -20,15 +20,15 @@ nonlinear_signals:
   dropout: 0.0
   lr_rate: 0.001
   momentum: 0.9
-  weight_decay: 0.0
+  weight_decay: 0.0001
   bt_sz: 32
   seq_len: 20
-  num_hidden: 10
+  num_hidden: 15
   tt_split: 0.7
   tv_split: 0.8
   num_trial: 1
   threshold: 0.1
-  num_epoch: 20
+  num_epoch: 30
 
 longlag_nonlinear_signals:
   rnn_type: 'LSTM'
