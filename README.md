@@ -3,7 +3,11 @@
 ```
 Email: autuanliu@163.com
 ```
-
+- [Deep Learning for Time Series](#deep-learning-for-time-series)
+    - [RNN Granger Causality](#rnn-granger-causality)
+        - [Simulation Model](#simulation-model)
+    - [Theory](#theory)
+  
 ## RNN Granger Causality
 ### Simulation Model
 1. Linear model
