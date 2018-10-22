@@ -4,8 +4,41 @@
 Email: autuanliu@163.com
 ```
 
-- [Deep Learning for Time Series](#deep-learning-for-time-series)
-    - [Theory](#theory)
+## RNN Granger Causality
+### Simulation Model
+1. Linear model
+    * formula
+  
+    ![Linear-Signals](images/Linear-Signals.png)
+    * signals
+  
+    ![Linear-Signals](images/linear_signals_info.png)
+    * Granger Causality Matrix
+    
+    ![Linear-Signals](images/without_NUE/linear_signals_Granger_Matrix.png)
+
+2. NonLinear model
+    * formula
+  
+    ![nonLinear-Signals](images/NonLinear-Signals.png)
+    * signals
+  
+    ![nonLinear-Signals](images/nonlinear_signals_info.png)
+    * Granger Causality Matrix
+    
+    ![nonLinear-Signals](images/without_NUE/nonlinear_signals_Granger_Matrix.png)
+
+3. Long-lag NonLinear model
+    * formula
+  
+    ![nonLinear-Signals](images/Long-lag-NonLinear-Signals.png)
+    * signals
+  
+    ![nonLinear-Signals](images/longlag_nonlinear_signals_info.png)
+    * Granger Causality Matrix
+    
+    ![nonLinear-Signals](images/without_NUE/longlag_nonlinear_signals_Granger_Matrix.png)
+
 
 ## Theory
 1. Wang, Y., Lin, K., Qi, Y., Lian, Q., Feng, S., Wu, Z., & Pan, G. (2018). Estimating Brain Connectivity With Varying-Length Time Lags Using a Recurrent Neural Network. IEEE Transactions on Biomedical Engi-neering, 65, 1953-1963.
