@@ -16,10 +16,10 @@ linear_signals:
 
 nonlinear_signals:
   rnn_type: 'LSTM'
-  num_layers: 1
+  num_layers: 2
   dropout: 0.0
   lr_rate: 0.001
-  momentum: 0.9
+  momentum: 0.0
   weight_decay: 0.0001
   bt_sz: 32
   seq_len: 20
@@ -27,8 +27,8 @@ nonlinear_signals:
   tt_split: 0.7
   tv_split: 0.8
   num_trial: 1
-  threshold: 0.1
-  num_epoch: 30
+  threshold: 0.00001
+  num_epoch: 50
 
 longlag_nonlinear_signals:
   rnn_type: 'LSTM'
