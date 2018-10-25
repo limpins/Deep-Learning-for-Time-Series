@@ -7,6 +7,7 @@ Email: autuanliu@163.com
     - [RNN Granger Causality](#rnn-granger-causality)
         - [Simulation Model](#simulation-model)
     - [Theory](#theory)
+    - [Reference](#reference)
   
 ## RNN Granger Causality
 ### Simulation Model
@@ -51,6 +52,9 @@ Email: autuanliu@163.com
 4. Smith, L. N. (2015). Cyclical learning rates for training neural networks. Computer Science, 464-472.
 5. Loshchilov, I., & Hutter, F. (2016). Sgdr: stochastic gradient descent with warm restarts.
 
+
+## Reference
+1. [RNN-GC](https://github.com/shaozhefeng/RNN-GC)
 
 * Notes
 > The code is for research use only.

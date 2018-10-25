@@ -7,12 +7,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch
 from torch import nn, optim
-from torch.nn import functional as F
-from torch.utils.data import DataLoader
 
-from core import (MakeSeqData, Timer, early_stopping, get_Granger_Causality,
-                  get_mat_data, get_yaml_data, make_loader, set_device,
-                  train_test_split)
+from core import (Timer, get_Granger_Causality, get_mat_data, get_yaml_data,
+                  make_loader, set_device)
 from models import Modeler, RNN_Net
 
 
@@ -49,22 +46,18 @@ def main():
     seqdata_all = get_mat_data(f'Data/{signal_type}.mat', f'{signal_type}')   # 读取数据
 
     # 在完整数据集上训练模型
-    train_data, test_data = train_test_split(seqdata_all, split=cfg['tt_split'])
-    train_loader, valid_loader = make_loader(train_data, split=cfg['tv_split'], seq_len=cfg['seq_len'], bt_sz=cfg['bt_sz'])
+    train_loader, valid_loader, test_loader = make_loader(seqdata_all, tt_split=cfg['tt_split'], tv_split=cfg['tv_split'], seq_len=cfg['seq_len'], bt_sz=cfg['bt_sz'])
     loaders = {'train': train_loader, 'valid': valid_loader}
-    test = (x_all, y_all) = MakeSeqData(test_data, seq_length=cfg['seq_len'], scaler_type='MinMaxScaler').get_tensor_data()
-    err_all = train_valid(5, cfg['num_hidden'], 5, f'checkpoints/without_NUE/{signal_type}_model_weights.pth', test, loaders)
+    err_all = train_valid(5, cfg['num_hidden'], 5, f'checkpoints/without_NUE/{signal_type}_model_weights.pth', test_loader.dataset.get_tensor_data(), loaders)
 
     # 去掉一个变量训练模型
     temp = []
     for ch in range(num_channel):
         idx = list(set(range(num_channel)) - {ch})   # 剩余变量的索引
         seq_data = seqdata_all[:, idx]   # 当前的序列数据
-        train_data, test_data = train_test_split(seq_data, split=cfg['tt_split'])
-        train_loader, valid_loader = make_loader(train_data, split=cfg['tv_split'], seq_len=cfg['seq_len'], bt_sz=cfg['bt_sz'])
-        test = (x, y) = MakeSeqData(test_data, seq_length=cfg['seq_len']).get_tensor_data()
+        train_loader, valid_loader, test_loader = make_loader(seq_data, tt_split=cfg['tt_split'], tv_split=cfg['tv_split'], seq_len=cfg['seq_len'], bt_sz=cfg['bt_sz'])
         loaders = {'train': train_loader, 'valid': valid_loader}
-        err = train_valid(4, cfg['num_hidden'], 4, f'checkpoints/without_NUE/{signal_type}_model_weights{ch}.pth', test, loaders)
+        err = train_valid(4, cfg['num_hidden'], 4, f'checkpoints/without_NUE/{signal_type}_model_weights{ch}.pth', test_loader.dataset.get_tensor_data(), loaders)
         temp += [err]
     temp = torch.stack(temp)   # num_channel * num_point * out_dim
 
