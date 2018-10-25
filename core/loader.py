@@ -136,7 +136,6 @@ def series2xy(series_data: np.ndarray, idx_x = None, idx_y = None, seq_length: i
         else:
             inputs.append(series_data[idx:(idx + seq_length), idx_x])
             targets.append(series_data[idx + seq_length, idx_y])
-    
     return np.array(inputs), np.array(targets)
 
 
@@ -177,12 +176,15 @@ def make_loader(seq_data: np.ndarray, idx_x = None, idx_y = None, tt_split = 0.7
         seq_data (np.ndarray): 原始的序列数据
         idx_x (list or tuple or index slice or int): x 的索引位置, defaults to None.
         idx_y (list or tuple or index slice or int): y 的索引位置, defaults to None.
-        tt_split (float, optional): Defaults to 0.7. 训练集所占的比例
+        tt_split (float, optional): Defaults to 0.7. 训练集测试集划分时训练集所占的比例
+        tv_split (float, optional): Defaults to 0.7. 训练集验证集划分时训练集所占的比例
         seq_len (int, optional): Defaults to 20. 窗口的长度
+        num_shift (int, optional): Defaults to 1. 窗口每次平移的距离
         bt_sz (int, optional): Defaults to 32. batchsize
+        s_type (str, optional): Defaults to 'MinMaxScaler'. 归一化方式
 
     Returns:
-        [torch.utils.data.DataLoader]: train_loader, test_loader
+        [torch.utils.data.DataLoader]: train_loader, valid_loader, test_loader
     """
 
     # 训练集、测试集数据分割
