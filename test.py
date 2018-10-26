@@ -32,6 +32,7 @@ for idx, (data, label) in enumerate(datasets):
 # get data and configures
 net = RNN_Net(5, 12, 5)
 opt = optim.Adam(net.parameters(), lr=1e-3)
+lr_decay = optim.lr_scheduler.ReduceLROnPlateau(opt)
 seq = get_mat_data(f'Data/linear_signals.mat', f'linear_signals')
 # train_test_split1 测试
 train_sub, test_sub = train_test_split1(seq)
@@ -63,6 +64,7 @@ sub_model = Modeler(net, opt, criterion, device, visualization=True)
 for epoch in range(1):
     loss1 = sub_model.train_model(train_loader, epoch)
     loss2 = sub_model.evaluate_model(test_loader, epoch)
+    lr_decay.step(loss2)
 
 # 计时结束
 tim.stop()

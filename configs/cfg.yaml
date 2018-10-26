@@ -39,7 +39,7 @@ longlag_nonlinear_signals:
   weight_decay: 0.0
   bt_sz: 32
   seq_len: 20
-  num_hidden: 20
+  num_hidden: 18
   tt_split: 0.7
   tv_split: 0.8
   num_trial: 1
