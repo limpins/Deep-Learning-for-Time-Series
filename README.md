@@ -14,15 +14,22 @@ Email: autuanliu@163.com
 ### Granger Causality Definition$^1$
 Suppose $x$ is a stationary multivariate time series. Multivariate Granger causality analysis is estimated by fitting a vector autoregressive model (VAR) to the time series with time lag of $P$ :
 
-$$\vec x(t)=\sum_{p=1}^P A_p \vec x(t-p)+bias+\epsilon(t)$$
+$$
+\tag{1}\vec x(t)=\sum_{p=1}^P A_p \vec x(t-p)+bias+\epsilon(t)
+$$
 
 where $A$ is the coefficient matrix, $bias$ is a vector and $\epsilon(t)$ is Gaussian noise. A time series $x_i$ is a Granger cause of $x_j$, if $x_i$ is significantly contributed in prediction of $x_j$. To quantitatively measure the contribution, we fit another VAR as follows:
 
-$$\vec x_{\\x_i}(t)=\sum_{p^*=1}^{P^*} A_{p*}^* \vec x_{\\x_i}(t-p^*)+bias^*+\epsilon_{\\x_i}^*(t)$$
+$$
+\tag{2}\vec x_{\backslash x_i}(t)=\sum_{p^*=1}^{P^*} A_{p*}^* \vec x_{\backslash x_i}(t-p^*)+bias^*+\epsilon_{\backslash x_i}^*(t)
+$$
 
-where $A^*$ is the model coefficients, $bias^*$ is a vector, $\epsilon_{\\x_i}^*(t)$ is Gaussian noise, and $\vec x_{\\x_i}(t)$ is a vector without containing $x_i$. Then we could define the Granger causality from $x_i$ to $x_j$ as:
+where $A^*$ is the model coefficients, $bias^*$ is a vector, $\epsilon_{\backslash x_i}^*(t)$ is Gaussian noise, and $\vec x_{\backslash x_i}(t)$ is a vector without containing $x_i$. Then we could define the Granger causality from $x_i$ to $x_j$ as:
 
-$$G_{x_i\rightarrow x_j}=\ln\frac{var\;{\epsilon_{x_j\\x_i}^*(t)}}{var\;{\epsilon_{x_j}(t)}}$$
+$$
+\tag{3}G_{x_i\rightarrow x_j}=\ln\frac{var\;{\epsilon_{x_j\backslash x_i}^*(t)}}{var\;{\epsilon_{x_j}(t)}}
+$$
+
 ### Simulation Model
 1. Linear model
     * formula
