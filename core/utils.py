@@ -147,3 +147,36 @@ def plot_save_gc_precent(txt_path: str, save_png_path: str, png_title: str, save
     plt.title(png_title)
     plt.savefig(save_png_path)
     np.savetxt(save_txt_path, gc_precent)
+
+
+def matshow(data: np.ndarray, xlabel: str, ylabel: str, title: str, png_name: str):
+    """绘制矩阵图
+    
+    Args:
+        data (np.ndarray): 要绘制的数据
+        xlabel (str): 横向的标签
+        ylabel (str): 纵向的标签
+        title (str): 图像的名字
+        png_name (str): 要保存的图像名字
+    """
+    
+    fig, ax = plt.subplots()
+    img = ax.imshow(data, cmap="YlGn")
+    # ax.matshow(data, cmap="YlGn")
+    # We want to show all ticks...
+    ax.set_xticks(np.arange(len(xlabel)))
+    ax.set_yticks(np.arange(len(ylabel)))
+    # ... and label them with the respective list entries
+    ax.set_xticklabels(xlabel)
+    ax.set_yticklabels(ylabel)
+    # Rotate the tick labels and set their alignment.
+    plt.setp(ax.get_xticklabels(), rotation=45, ha="right", rotation_mode="anchor")
+    # Create colorbar
+    cbar = ax.figure.colorbar(img, ax=ax)
+    cbar.ax.set_ylabel(title, rotation=-90, va="bottom")
+    # Loop over data dimensions and create text annotations.
+    for i in range(len(xlabel)):
+        for j in range(len(ylabel)):
+            ax.text(j, i, round(data[i, j], 4) if not abs(data[i, j]) < 1e-8 else None, ha="center", va="center", color="k")
+    fig.tight_layout()
+    plt.savefig(png_name)

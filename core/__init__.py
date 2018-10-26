@@ -10,4 +10,4 @@ torch.backends.cudnn.enabled = True
 
 __all__ = ['Timer', 'set_device', 'get_mat_data', 'get_csv_data', 'get_txt_data', 'repackage_hidden', 'make_loader', 'get_gc_precent',
            'get_excel_data', 'MakeSeqData', 'init_params', 'one_hot_encoding', 'train_test_split1', 'get_Granger_Causality', 'early_stopping',
-           'plot_save_gc_precent', 'normalize', 'series2xy', 'train_test_split2']
+           'plot_save_gc_precent', 'normalize', 'series2xy', 'train_test_split2', 'matshow']

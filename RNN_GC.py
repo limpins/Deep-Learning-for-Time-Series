@@ -3,15 +3,14 @@ Email: autuanliu@163.com
 Date: 2018/10/11
 """
 
-import matplotlib.pyplot as plt
 import numpy as np
 import torch
 from torch import nn, optim
 
 from core import (Timer, get_Granger_Causality, get_mat_data, get_yaml_data,
-                  make_loader, set_device)
-from tools import cyclical_lr
+                  make_loader, matshow, set_device)
 from models import Modeler, RNN_Net
+from tools import cyclical_lr
 
 
 def train_valid(in_dim, hidden_dim, out_dim, ckpt, test_data, loaders):
@@ -56,23 +55,23 @@ def main():
     # 在完整数据集上训练模型
     train_loader, valid_loader, test_loader = make_loader(seqdata_all, tt_split=cfg['tt_split'], tv_split=cfg['tv_split'], seq_len=cfg['seq_len'], bt_sz=cfg['bt_sz'])
     loaders = {'train': train_loader, 'valid': valid_loader}
-    err_all = train_valid(5, cfg['num_hidden'], 5, f'checkpoints/without_NUE/{signal_type}_model_weights.pth', test_loader.dataset.get_tensor_data(), loaders)
+    err_all = train_valid(cfg['in_dim'], cfg['num_hidden'], cfg['out_dim'], f'checkpoints/without_NUE/{signal_type}_model_weights.pth', test_loader.dataset.get_tensor_data(), loaders)
 
     # 去掉一个变量训练模型
     temp = []
-    for ch in range(num_channel):
-        idx = list(set(range(num_channel)) - {ch})   # 剩余变量的索引
+    for ch in range(cfg['num_channel']):
+        idx = list(set(range(cfg['num_channel'])) - {ch})   # 剩余变量的索引
         seq_data = seqdata_all[:, idx]   # 当前的序列数据
         train_loader, valid_loader, test_loader = make_loader(seq_data, tt_split=cfg['tt_split'], tv_split=cfg['tv_split'], seq_len=cfg['seq_len'], bt_sz=cfg['bt_sz'])
         loaders = {'train': train_loader, 'valid': valid_loader}
-        err = train_valid(4, cfg['num_hidden'], 4, f'checkpoints/without_NUE/{signal_type}_model_weights{ch}.pth', test_loader.dataset.get_tensor_data(), loaders)
+        err = train_valid(cfg['in_dim'] - 1, cfg['num_hidden'], cfg['out_dim'] - 1, f'checkpoints/without_NUE/{signal_type}_model_weights{ch}.pth', test_loader.dataset.get_tensor_data(), loaders)
         temp += [err]
-    temp = torch.stack(temp)   # num_channel * num_point * out_dim
+    temp = torch.stack(temp)   # cfg['num_channel'] * num_point * out_dim
 
     # 扩充对角线
-    err_cond = temp.new_zeros(temp.size(0), temp.size(1), num_channel)
-    for idx in range(num_channel):
-        col = list(set(range(num_channel)) - {idx})
+    err_cond = temp.new_zeros(temp.size(0), temp.size(1), cfg['num_channel'])
+    for idx in range(cfg['num_channel']):
+        col = list(set(range(cfg['num_channel'])) - {idx})
         err_cond[idx, :, col] = temp[idx]
     return get_Granger_Causality(err_cond, err_all)
 
@@ -81,27 +80,25 @@ if __name__ == '__main__':
     # 基本设置
     timer = Timer()
     timer.start()
-    num_channel = 5
     config = get_yaml_data('configs/cfg.yaml')
     device = set_device()
-    all_signal_type = ['linear_signals', 'nonlinear_signals', 'longlag_nonlinear_signals']
+    all_signal_type = ['linear_signals', 'nonlinear_signals', 'longlag_nonlinear_signals', 'iEEG_o']
 
     # RNN_GC
     avg_gc_matrix = 0
     # for signal_type in all_signal_type:
-    signal_type = all_signal_type[2]
+    signal_type = all_signal_type[3]
     print(f'signal type: {signal_type}')
     cfg = config[signal_type]
     for _ in range(cfg['num_trial']):
         avg_gc_matrix += main()
     avg_gc_matrix /= cfg['num_trial']
     avg_gc_matrix[avg_gc_matrix < cfg['threshold']] = 0.  # 阈值处理
-    plt.matshow(avg_gc_matrix)
-    plt.title(f'{signal_type} Granger_Causality Matrix')
+    label = ['ch' + str(t + 1) for t in range(cfg['num_channel'])]
+    matshow(avg_gc_matrix, label, label, f'{signal_type} Granger_Causality Matrix', f'images/without_NUE/{signal_type}_Granger_Matrix.png')
 
     # 保存结果
     np.savetxt(f'checkpoints/without_NUE/{signal_type}_granger_matrix.txt', avg_gc_matrix)
-    plt.savefig(f'images/without_NUE/{signal_type}_Granger_Matrix.png')
 
     # 计时结束
     timer.stop()
