@@ -4,14 +4,14 @@
 Email: autuanliu@163.com
 ```
 - [Deep Learning for Time Series](#deep-learning-for-time-series)
-    - [RNN Granger Causality](#rnn-granger-causality)
-        - [Granger Causality Definition$^1$](#granger-causality-definition1)
-        - [Simulation Model](#simulation-model)
-    - [Theory](#theory)
-    - [Reference](#reference)
+    - [1 RNN Granger Causality](#1-rnn-granger-causality)
+        - [1.1 Granger Causality Definition$^1$](#11-granger-causality-definition1)
+        - [1.2 Simulation Model](#12-simulation-model)
+    - [2 Theory](#2-theory)
+    - [3 Reference](#3-reference)
   
-## RNN Granger Causality
-### Granger Causality Definition$^1$
+## 1 RNN Granger Causality
+### 1.1 Granger Causality Definition$^1$
 Suppose $x$ is a stationary multivariate time series. Multivariate Granger causality analysis is estimated by fitting a vector autoregressive model (VAR) to the time series with time lag of $P$ :
 
 $$
@@ -27,10 +27,10 @@ $$
 where $A^\star$ is the model coefficients, $bias^\star$ is a vector, $\epsilon_{\backslash x_i}^\star(t)$ is Gaussian noise, and $\vec x_{\backslash x_i}(t)$ is a vector without containing $x_i$. Then we could define the Granger causality from $x_i$ to $x_j$ as:
 
 $$
-\tag{3}G_{x_i\rightarrow x_j}=\ln\frac{var\medspace{\epsilon_{x_j\backslash x_i}^\star(t)}}{var\medspace{\epsilon_{x_j}(t)}}
+\tag{3}G_{x_i\rightarrow x_j}=\ln\frac{var\quad{\epsilon_{x_j\backslash x_i}^\star(t)}}{var\quad{\epsilon_{x_j}(t)}}
 $$
 
-### Simulation Model
+### 1.2 Simulation Model
 1. Linear model
     * formula
   
@@ -65,7 +65,7 @@ $$
     ![nonLinear-Signals](images/without_NUE/longlag_nonlinear_signals_Granger_Matrix.png)
 
 
-## Theory
+## 2 Theory
 1. Wang, Y., Lin, K., Qi, Y., Lian, Q., Feng, S., Wu, Z., & Pan, G. (2018). Estimating Brain Connectivity With Varying-Length Time Lags Using a Recurrent Neural Network. IEEE Transactions on Biomedical Engi-neering, 65, 1953-1963.
 2. Montalto, A., Stramaglia, S., Faes, L., Tessitore, G., Prevete, R., & Marinazzo, D. (2015). Neural networks with non-uniform embedding and explicit validation phase to assess granger causality. Neural Net-works,71(C), 159-171.
 3. Gómez-García J A, Godino-Llorente J I, Castellanos-Dominguez G. Non uniform Embedding based on Relevance Analysis with reduced computational complexity: Application to the detection of pathologies from biosignal recordings[J]. Neurocomputing, 2014, 132(7):148-158.
@@ -73,7 +73,7 @@ $$
 5. Loshchilov, I., & Hutter, F. (2016). Sgdr: stochastic gradient descent with warm restarts.
 
 
-## Reference
+## 3 Reference
 1. [RNN-GC](https://github.com/shaozhefeng/RNN-GC)
 
 * Notes

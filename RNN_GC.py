@@ -10,6 +10,7 @@ from torch import nn, optim
 
 from core import (Timer, get_Granger_Causality, get_mat_data, get_yaml_data,
                   make_loader, set_device)
+from tools import cyclical_lr
 from models import Modeler, RNN_Net
 
 
@@ -18,16 +19,21 @@ def train_valid(in_dim, hidden_dim, out_dim, ckpt, test_data, loaders):
 
     net = RNN_Net(in_dim, hidden_dim, out_dim, rnn_type=cfg['rnn_type'], num_layers=cfg['num_layers'], dropout=cfg['dropout'])  # 创建模型实例
     opt = optim.RMSprop(net.parameters(), lr=cfg['lr_rate'], momentum=cfg['momentum'], weight_decay=cfg['weight_decay'])  # 优化器定义
-    lr_decay = optim.lr_scheduler.ReduceLROnPlateau(opt, patience=5)  # 学习率衰减
+    lr_decay2 = optim.lr_scheduler.ReduceLROnPlateau(opt, patience=5)  # 学习率衰减
+    # CLR policy
+    # step_size = 5
+    # clr = cyclical_lr(step_size, min_lr=0.001, max_lr=0.005)
+    # lr_decay1 = lr_scheduler.LambdaLR(optimizer, [clr])
     criterion = nn.MSELoss()  # 损失函数定义，由于是回归预测，所以设为 MSE loss
     model = Modeler(net, opt, criterion, device)
 
     val_loss = []
     min_val_loss = 0.5
     for epoch in range(cfg['num_epoch']):
+        # lr_decay1.step()
         train_loss = model.train_model(loaders['train'])   # 当前 epoch 的训练损失
         valid_loss = model.evaluate_model(loaders['valid'])  # 当前 epoch 的验证损失
-        lr_decay.step(valid_loss)
+        lr_decay2.step(valid_loss)
 
         # 增加 early_stopping 策略
         # if valid_loss <= min_val_loss:
