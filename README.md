@@ -66,6 +66,13 @@ $$
     ![nonLinear-Signals](images/without_NUE/longlag_nonlinear_signals_Granger_Matrix.png)
 
 ### 1.3 EEG Signals
+* signals
+
+![iEEG](images/iEEG_o_info.png)
+* Granger Causality Matrix
+    
+![iEEG-Signals](images/without_NUE/iEEG_o_Granger_Matrix.png)
+
 
 ## Theory
 1. **Wang, Y., Lin, K., Qi, Y., Lian, Q., Feng, S., Wu, Z., & Pan, G. (2018). Estimating Brain Connectivity With Varying-Length Time Lags Using a Recurrent Neural Network. IEEE Transactions on Biomedical Engi-neering, 65, 1953-1963.**
