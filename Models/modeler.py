@@ -48,18 +48,13 @@ class Modeler:
         """
 
         self.model.train()
-        hidden = self.model.initHidden(next(iter(loaders))[0].size(0))
 
         # train over minibatch
         for data, target in loaders:
             data, target = self.tsfm(data), self.tsfm(target)
             
-            # Starting each batch, we detach the hidden state from how it was previously produced.
-            # If we didn't, the model would try backpropagating all the way to start of the dataset.
-            hidden = self.model.repackage_hidden(hidden)
-
             # forward
-            out, hidden = self.model(data, hidden)
+            out = self.model(data)
             loss = self.criterion(out, target)
 
             # backward in training phrase
@@ -84,12 +79,11 @@ class Modeler:
         """
 
         self.model.eval()
-        hidden = self.model.initHidden(next(iter(loaders))[0].size(0))
 
         # test over minibatch
         for data, target in loaders:
             data, target = self.tsfm(data), self.tsfm(target)
-            out, hidden = self.model(data, hidden)
+            out = self.model(data)
             loss = self.criterion(out, target)
         if epoch is not None:
             self.write.add_scalar('evaluate loss', loss.item(), epoch)
@@ -109,8 +103,7 @@ class Modeler:
         """
         
         x, y = self.tsfm(x), self.tsfm(y)
-        hidden = self.model.initHidden(x.size(0))
-        out, _ = self.model(x, hidden)
+        out = self.model(x)
         return out, out - y
 
     def save_trained_model(self, path):

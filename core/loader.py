@@ -199,5 +199,5 @@ def make_loader(seq_data: np.ndarray, idx_x = None, idx_y = None, tt_split = 0.7
     # 构造数据集
     sub = [train_subseq, valid_subseq, test_subseq] = [MakeSeqData(x, y) for x, y in zip([X_train, X_valid, X_test], [y_train, y_valid, y_test])]
     # 为了保证维度的匹配，需要去掉不满足一个batchsize的其余数据，测试集不需要随机打乱
-    [train_loader, valid_loader, test_loader] = [DataLoader(t, batch_size=bt_sz, shuffle=sf, drop_last=True) for t, sf in zip(sub, [True, False, False])]
+    [train_loader, valid_loader, test_loader] = [DataLoader(t, batch_size=bt_sz, shuffle=sf, drop_last=False) for t, sf in zip(sub, [True, False, False])]
     return train_loader, valid_loader, test_loader

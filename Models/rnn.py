@@ -36,18 +36,18 @@ class RNN_Net(nn.Module):
             raise ValueError("""An invalid option was supplied, options are ['LSTM', 'GRU']""")
         self.fc = nn.Linear(hidden_dim, output_dim)
 
-    def forward(self, x, hidden):
+    def forward(self, x):
         """网络的前向传播
 
         Args:
             x (tensor): 输入
-            hidden (tuple): 初始化隐变量
         """
+        hidden = self.initHidden(x.size(0))
+        y, _ = self.rnn(x, hidden)
 
-        y, hidden = self.rnn(x, hidden)
         # pytorch的输入会记录所有时间点的输出，这里输出维度为 batchsize*seq_length*hidden_dim
         # 因为我们做的是预测模型也即多对一的RNN模型，所以取最后一个为输出即预测结果
-        return self.fc(y[:, -1, :]), hidden
+        return self.fc(y[:, -1, :])
 
     def initHidden(self, batchsize):
         """初始化RNN的隐变量
