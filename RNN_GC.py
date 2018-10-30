@@ -87,7 +87,7 @@ if __name__ == '__main__':
     # RNN_GC
     avg_gc_matrix = 0
     # for signal_type in all_signal_type:
-    signal_type = all_signal_type[3]
+    signal_type = all_signal_type
     print(f'signal type: {signal_type}')
     cfg = config[signal_type]
     for _ in range(cfg['num_trial']):
