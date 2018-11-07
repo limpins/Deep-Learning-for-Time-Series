@@ -109,3 +109,4 @@ venv.bak/
 log/
 checkpoints/with_NUE/*.pth
 checkpoints/without_NUE/*.pth
+runs/
