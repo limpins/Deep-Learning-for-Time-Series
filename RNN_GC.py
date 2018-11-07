@@ -85,6 +85,16 @@ if __name__ == '__main__':
     all_signal_type = ['linear_signals', 'nonlinear_signals', 'longlag_nonlinear_signals', 'iEEG_o']
 
     # RNN_GC
+    # ground truth
+    ground_truth = np.zeros((5, 5))
+    ground_truth[0, 1] = 1
+    ground_truth[0, 2] = 1
+    ground_truth[0, 3] = 1
+    ground_truth[3, 4] = 1
+    ground_truth[4, 3] = 1
+    label = ['ch' + str(t + 1) for t in range(5)]
+    matshow(ground_truth, label, label, f'Ground truth Granger Causality Matrix', f'images/Ground_truth_Granger_Matrix.png')
+
     avg_gc_matrix = 0
     # for signal_type in all_signal_type:
     signal_type = all_signal_type
@@ -95,7 +105,7 @@ if __name__ == '__main__':
     avg_gc_matrix /= cfg['num_trial']
     avg_gc_matrix[avg_gc_matrix < cfg['threshold']] = 0.  # 阈值处理
     label = ['ch' + str(t + 1) for t in range(cfg['num_channel'])]
-    matshow(avg_gc_matrix, label, label, f'{signal_type} Granger_Causality Matrix', f'images/without_NUE/{signal_type}_Granger_Matrix.png')
+    matshow(avg_gc_matrix, label, label, f'{signal_type} Granger Causality Matrix', f'images/without_NUE/{signal_type}_Granger_Matrix.png')
 
     # 保存结果
     np.savetxt(f'checkpoints/without_NUE/{signal_type}_granger_matrix.txt', avg_gc_matrix)
