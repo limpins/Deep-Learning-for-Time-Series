@@ -103,7 +103,7 @@ class Modeler:
         """
         
         x, y = self.tsfm(x), self.tsfm(y)
-        out = self.model(x)
+        out = self.model(x).detach()
         return out, out - y
 
     def save_trained_model(self, path):

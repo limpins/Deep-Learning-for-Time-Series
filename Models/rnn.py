@@ -61,7 +61,7 @@ class RNN_Net(nn.Module):
 
         # 获取并创建与weight属性相同的变量，数据类型，运行设备，requires_grad等
         weight = next(self.parameters())
-        h0 = weight.new_zeros(self.num_layers, batchsize, self.hidden_dim)
+        h0 = weight.new_zeros(self.num_layers, batchsize, self.hidden_dim).requires_grad_(False)
         if self.rnn_type == 'LSTM':
             return (h0, h0)
         else:
