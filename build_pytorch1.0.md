@@ -20,7 +20,7 @@ cd pytorch
 **Switch to pytorch dirtory firstly.**
 
 ```bat
-set "VS150COMNTOOLS=C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build"
+set "VS150COMNTOOLS=D:\Softwares\visualStudio\VC\Auxiliary\Build"
 set CMAKE_GENERATOR=Visual Studio 15 2017 Win64
 set DISTUTILS_USE_SDK=1
 call "%VS150COMNTOOLS%\vcvarsall.bat" x64
