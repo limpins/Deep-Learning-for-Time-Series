@@ -50,21 +50,26 @@ def train_valid(in_dim, hidden_dim, out_dim, ckpt, test_data, loaders):
 def main():
     """RNN_GC with NUE(non-uniform embedding) 算法的实现，对应论文中的算法2(返回格兰杰矩阵)"""
 
-    seqdata_all = get_mat_data(f'Data/{signal_type}.mat', f'{signal_type}')   # 读取数据
+    seqdata_all = get_mat_data(
+        f'Data/{signal_type}.mat', f'{signal_type}')   # 读取数据
 
     # 在完整数据集上训练模型
-    train_loader, valid_loader, test_loader = make_loader(seqdata_all, tt_split=cfg['tt_split'], tv_split=cfg['tv_split'], seq_len=cfg['seq_len'], bt_sz=cfg['bt_sz'])
+    train_loader, valid_loader, test_loader = make_loader(seqdata_all, tt_split=cfg['tt_split'],
+                                                          tv_split=cfg['tv_split'], seq_len=cfg['seq_len'], bt_sz=cfg['bt_sz'])
     loaders = {'train': train_loader, 'valid': valid_loader}
-    err_all = train_valid(cfg['in_dim'], cfg['num_hidden'], cfg['out_dim'], f'checkpoints/without_NUE/{signal_type}_model_weights.pth', test_loader.dataset.get_tensor_data(), loaders)
+    err_all = train_valid(cfg['in_dim'], cfg['num_hidden'], cfg['out_dim'],
+                          f'checkpoints/without_NUE/{signal_type}_model_weights.pth', test_loader.dataset.get_tensor_data(), loaders)
 
     # 去掉一个变量训练模型
     temp = []
     for ch in range(cfg['num_channel']):
         idx = list(set(range(cfg['num_channel'])) - {ch})   # 剩余变量的索引
         seq_data = seqdata_all[:, idx]   # 当前的序列数据
-        train_loader, valid_loader, test_loader = make_loader(seq_data, tt_split=cfg['tt_split'], tv_split=cfg['tv_split'], seq_len=cfg['seq_len'], bt_sz=cfg['bt_sz'])
+        train_loader, valid_loader, test_loader = make_loader(
+            seq_data, tt_split=cfg['tt_split'], tv_split=cfg['tv_split'], seq_len=cfg['seq_len'], bt_sz=cfg['bt_sz'])
         loaders = {'train': train_loader, 'valid': valid_loader}
-        err = train_valid(cfg['in_dim'] - 1, cfg['num_hidden'], cfg['out_dim'] - 1, f'checkpoints/without_NUE/{signal_type}_model_weights{ch}.pth', test_loader.dataset.get_tensor_data(), loaders)
+        err = train_valid(cfg['in_dim'] - 1, cfg['num_hidden'], cfg['out_dim'] - 1,
+                          f'checkpoints/without_NUE/{signal_type}_model_weights{ch}.pth', test_loader.dataset.get_tensor_data(), loaders)
         temp += [err]
     temp = torch.stack(temp)   # cfg['num_channel'] * num_point * out_dim
 
@@ -82,7 +87,10 @@ if __name__ == '__main__':
     timer.start()
     config = get_yaml_data('configs/cfg.yaml')
     device = set_device()
-    all_signal_type = ['linear_signals', 'nonlinear_signals', 'longlag_nonlinear_signals', 'iEEG_o']
+    all_signal_type = [
+        'linear_signals', 'nonlinear_signals',
+        'longlag_nonlinear_signals', 'iEEG_o'
+                       ]
 
     # RNN_GC
     # ground truth
