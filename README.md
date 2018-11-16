@@ -9,6 +9,7 @@ Email: autuanliu@163.com
         - [1.2 Simulation Model](#12-simulation-model)
         - [1.3 EEG Signals](#13-eeg-signals)
     - [Theory](#theory)
+    - [Docs](#docs)
     - [Reference](#reference)
   
 ## 1 RNN Granger Causality
@@ -81,6 +82,8 @@ $$
 4. **Smith, L. N. (2015). Cyclical learning rates for training neural networks. Computer Science, 464-472.**
 5. **Loshchilov, I., & Hutter, F. (2016). Sgdr: stochastic gradient descent with warm restarts.**
 
+## Docs
+1. [深度学习在EEG数据的应用探索以及实验](./Docs/深度学习在EEG数据的应用探索以及实验NickName.pdf)
 
 ## Reference
 1. [RNN-GC](https://github.com/shaozhefeng/RNN-GC)
