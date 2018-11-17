@@ -90,7 +90,7 @@ if __name__ == '__main__':
     all_signal_type = [
         'linear_signals', 'nonlinear_signals',
         'longlag_nonlinear_signals', 'iEEG_o'
-                       ]
+    ]
 
     # RNN_GC
     # ground truth
