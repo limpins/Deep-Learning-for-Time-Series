@@ -81,6 +81,7 @@ $$
 * signals
 
 ![EEG64s](images/EEG64s.png)
+![EEG64s_mesh](images/EEG64s_mesh.png)
 * Granger Causality Matrix
     
 ![EEG64s-Signals](images/without_NUE/EEG64s_Granger_Matrix.png)
@@ -89,6 +90,7 @@ $$
 * signals
 
 ![EEG72s](images/EEG72s.png)
+![EEG72s_mesh](images/EEG72s_mesh.png)
 * Granger Causality Matrix
     
 ![EEG72s-Signals](images/without_NUE/EEG72s_Granger_Matrix.png)
