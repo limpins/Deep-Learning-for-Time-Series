@@ -175,8 +175,9 @@ def matshow(data: np.ndarray, xlabel: str, ylabel: str, title: str, png_name: st
     cbar = ax.figure.colorbar(img, ax=ax)
     cbar.ax.set_ylabel(title, rotation=-90, va="bottom")
     # Loop over data dimensions and create text annotations.
-    for i in range(len(xlabel)):
-        for j in range(len(ylabel)):
-            ax.text(j, i, round(data[i, j], 4) if not abs(data[i, j]) < 1e-8 else '', ha="center", va="center", color="k")
+    if data.shape[0] < 5:
+        for i in range(len(xlabel)):
+            for j in range(len(ylabel)):
+                ax.text(j, i, round(data[i, j], 4) if not abs(data[i, j]) < 1e-8 else '', ha="center", va="center", color="k")
     fig.tight_layout()
     plt.savefig(png_name)

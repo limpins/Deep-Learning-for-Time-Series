@@ -54,6 +54,8 @@ def main():
         f'Data/{signal_type}.mat', f'{signal_type}')   # 读取数据
 
     # 在完整数据集上训练模型
+    model_id = 1
+    print(f'model_id: {model_id}')
     train_loader, valid_loader, test_loader = make_loader(seqdata_all, tt_split=cfg['tt_split'],
                                                           tv_split=cfg['tv_split'], seq_len=cfg['seq_len'], bt_sz=cfg['bt_sz'])
     loaders = {'train': train_loader, 'valid': valid_loader}
@@ -63,6 +65,8 @@ def main():
     # 去掉一个变量训练模型
     temp = []
     for ch in range(cfg['num_channel']):
+        model_id += 1
+        print(f'model_id: {model_id}')
         idx = list(set(range(cfg['num_channel'])) - {ch})   # 剩余变量的索引
         seq_data = seqdata_all[:, idx]   # 当前的序列数据
         train_loader, valid_loader, test_loader = make_loader(
@@ -88,24 +92,24 @@ if __name__ == '__main__':
     config = get_yaml_data('configs/cfg.yaml')
     device = set_device()
     all_signal_type = [
-        'linear_signals', 'nonlinear_signals',
-        'longlag_nonlinear_signals', 'iEEG_o'
+        'linear_signals', 'nonlinear_signals', 'longlag_nonlinear_signals', 
+        'iEEG_o', 'EEG64s', 'EEG72s'
     ]
 
     # RNN_GC
     # ground truth
-    ground_truth = np.zeros((5, 5))
-    ground_truth[0, 1] = 1
-    ground_truth[0, 2] = 1
-    ground_truth[0, 3] = 1
-    ground_truth[3, 4] = 1
-    ground_truth[4, 3] = 1
-    label = ['ch' + str(t + 1) for t in range(5)]
-    matshow(ground_truth, label, label, f'Ground truth Granger Causality Matrix', f'images/Ground_truth_Granger_Matrix.png')
+    # ground_truth = np.zeros((5, 5))
+    # ground_truth[0, 1] = 1
+    # ground_truth[0, 2] = 1
+    # ground_truth[0, 3] = 1
+    # ground_truth[3, 4] = 1
+    # ground_truth[4, 3] = 1
+    # label = ['ch' + str(t + 1) for t in range(5)]
+    # matshow(ground_truth, label, label, f'Ground truth Granger Causality Matrix', f'images/Ground_truth_Granger_Matrix.png')
 
     avg_gc_matrix = 0
     # for signal_type in all_signal_type:
-    signal_type = all_signal_type[3]
+    signal_type = all_signal_type[5]
     print(f'signal type: {signal_type}')
     cfg = config[signal_type]
     for _ in range(cfg['num_trial']):

@@ -8,6 +8,9 @@ Email: autuanliu@163.com
         - [1.1 Granger Causality Definition$^1$](#11-granger-causality-definition1)
         - [1.2 Simulation Model](#12-simulation-model)
         - [1.3 EEG Signals](#13-eeg-signals)
+        - [1.4 EEG64s Signals](#14-eeg64s-signals)
+        - [1.5 EEG72s Signals](#15-eeg72s-signals)
+        - [1.6 Network](#16-network)
     - [Theory](#theory)
     - [Docs](#docs)
     - [Reference](#reference)
@@ -73,6 +76,25 @@ $$
 * Granger Causality Matrix
     
 ![iEEG-Signals](images/without_NUE/iEEG_o_Granger_Matrix.png)
+
+### 1.4 EEG64s Signals
+* signals
+
+![EEG64s](images/EEG64s.png)
+* Granger Causality Matrix
+    
+![EEG64s-Signals](images/without_NUE/EEG64s_Granger_Matrix.png)
+
+### 1.5 EEG72s Signals
+* signals
+
+![EEG72s](images/EEG72s.png)
+* Granger Causality Matrix
+    
+![EEG72s-Signals](images/without_NUE/EEG72s_Granger_Matrix.png)
+
+### 1.6 Network
+![model](images/network.png)
 
 
 ## Theory
