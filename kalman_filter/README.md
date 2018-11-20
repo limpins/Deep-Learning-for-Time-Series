@@ -23,7 +23,10 @@ $$x_k=ax_{k-1}+bu_k+w_k$$
 
 $$z_k=cx_k+v_k$$
 
-$$p(w)\sim\mathcal{N}(0, Q)\\p(v)\sim\mathcal{N}(0, R)$$
+$$\begin{aligned}
+    p(w)&\sim\mathcal{N}(0, Q)\\
+    p(v)&\sim\mathcal{N}(0, R)
+\end{aligned}$$
 
 #### 1.1.2 计算过程
 * step 1: Predict
