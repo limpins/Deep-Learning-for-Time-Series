@@ -30,11 +30,13 @@ $$p(v)\sim\mathcal{N}(0, R)$$
 
 #### 1.1.2 计算过程
 * step 1: Predict
+
 $$\hat{{x}_k}=a\hat{{x}_{k-1}}+bu_k$$
 
 $$p_k=ap_{k-1}a + Q$$
 
 * step 2: Update
+
 $$g_k=p_k c/(cp_k c+r)$$
 
 $$\hat{x}_k\leftarrow \hat{x}_k+g_k(z_k-c\hat{x}_k)$$
@@ -52,11 +54,13 @@ $$z_k=Cx_k+v_k$$
 
 #### 1.2.2 计算过程
 * step 1: Predict
+
 $$\hat{{x}_k}=A\hat{{x}_{k-1}}+Bu_k$$
 
 $$P_k=AP_{k-1}A^T+Q$$
 
 * step 2: Update
+
 $$G_k=P_k C^T(C{P_k} C^T+R)^{-1}$$
 
 $$\hat{x}_k\leftarrow \hat{x}_k+G_k(z_k-C\hat{x}_k)$$
@@ -73,11 +77,13 @@ $$z_k=h(x_k)+v_k$$
 
 #### 1.3.2 计算过程
 * step 1: Predict
+
 $$\hat{{x}_k}=f(\hat{{x}_{k-1}},u_k)$$
 
 $$P_k=F_{k-1}P_{k-1}F_{k-1}^T+Q_{k-1}$$
 
 * step 2: Update
+
 $$G_k=P_k H_k^T(H_k{P_k} H_k^T+R)^{-1}$$
 
 $$\hat{x}_k\leftarrow \hat{x}_k+G_k(z_k-h(\hat{x}_k))$$
