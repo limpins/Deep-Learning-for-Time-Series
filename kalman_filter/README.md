@@ -31,7 +31,9 @@ $$p(v)\sim\mathcal{N}(0, R)$$
 #### 1.1.2 计算过程
 * step 1: Predict
 
-$$\hat{{x}_k}=a\hat{{x}_{k-1}}+bu_k$$
+$$
+\hat{{x}_k}=a\hat{{x}_{k-1}}+bu_k
+$$
 
 $$p_k=ap_{k-1}a + Q$$
 
