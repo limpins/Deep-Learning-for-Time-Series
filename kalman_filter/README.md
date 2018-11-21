@@ -31,9 +31,7 @@ $$p(v)\sim\mathcal{N}(0, R)$$
 #### 1.1.2 计算过程
 * step 1: Predict
 
-$$
-\hat{{x}_k}=a\hat{{x}_{k-1}}+bu_k
-$$
+$$\hat{{x}_k}=a\hat{{x}_{k-1}}+bu_k$$
 
 $$p_k=ap_{k-1}a + Q$$
 
@@ -94,6 +92,8 @@ $$P_k\leftarrow (I-G_k H_k)P_k$$
 
 这里 $F_{k-1}$, $H_k$ 分别表示非线性函数 $f$, $h$ 的雅克比矩阵。
 
+
+
 ## Reference
 1. [An implementation of kalman-filters for multivariate time-series in PyTorch](https://github.com/strongio/torch-kalman)
 2. [Analysis of financial time series using Kalman filter.](https://github.com/noureldien/TimeSeriesAnalysis)
@@ -107,3 +107,6 @@ $$P_k\leftarrow (I-G_k H_k)P_k$$
 10. [CoursePack.book](http://www.cs.unc.edu/~tracker/media/pdf/SIGGRAPH2001_CoursePack_08.pdf)
 11. [Kalman Filter: An Algorithm for making sense from the insights of various sensors fused together.](https://towardsdatascience.com/kalman-filter-an-algorithm-for-making-sense-from-the-insights-of-various-sensors-fused-together-ddf67597f35e)
 12. [kalman_intro_chinese.pdf](https://www.cs.unc.edu/~welch/kalman/media/pdf/kalman_intro_chinese.pdf)
+13. [autoregressive model - Different state-space representations for Auto-Regression and Kalman filter - Signal Processing Stack Exchange](https://dsp.stackexchange.com/questions/2197/different-state-space-representations-for-auto-regression-and-kalman-filter)
+14. [14_state_space.pdf](http://www-stat.wharton.upenn.edu/~stine/stat910/lectures/14_state_space.pdf)
+15. [kalman.pdf](https://eml.berkeley.edu/~rothenbe/Fall2007/kalman.pdf)
