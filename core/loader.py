@@ -24,14 +24,14 @@ def get_yaml_data(file_name):
 
 
 def get_mat_data(file_name, var_name):
-    """从文件中读取出原始数据并转换为 numpy.array 类型
+    """从文件中读取出原始数据并转换为 np.array 类型
 
     Args:
         file_name (str): 数据存储的完整路径，如 'datastes/abc.mat'
         var_name (str): 存储数据的变量名
 
     Returns:
-        numpy.array: 将读取到的原始数据转换为 numpy.ndarray 类型
+        np.array: 将读取到的原始数据转换为 np.ndarray 类型
     """
 
     data_dict = sio.loadmat(file_name)

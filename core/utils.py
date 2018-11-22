@@ -56,6 +56,7 @@ def init_params(net):
 
 def one_hot_encoding(labels, num_classes):
     """Embedding labels to one-hot.
+    
     Args:
       labels: (LongTensor) class labels, sized [N,].
       num_classes: (int) number of classes.

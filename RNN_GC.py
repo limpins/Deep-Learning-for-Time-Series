@@ -51,7 +51,7 @@ def main():
     """RNN_GC with NUE(non-uniform embedding) 算法的实现，对应论文中的算法2(返回格兰杰矩阵)"""
 
     seqdata_all = get_mat_data(
-        f'Data/{signal_type}.mat', f'{signal_type}')   # 读取数据
+        f'Data/{signal_type}_noise1.mat', f'{signal_type}')   # 读取数据
 
     # 在完整数据集上训练模型
     model_id = 1
@@ -109,7 +109,7 @@ if __name__ == '__main__':
 
     avg_gc_matrix = 0
     # for signal_type in all_signal_type:
-    signal_type = all_signal_type[5]
+    signal_type = all_signal_type[1]
     print(f'signal type: {signal_type}')
     cfg = config[signal_type]
     for _ in range(cfg['num_trial']):
