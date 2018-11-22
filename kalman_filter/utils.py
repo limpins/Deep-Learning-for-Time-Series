@@ -1,6 +1,6 @@
 """
 Email: autuanliu@163.com
-Date: 2018/9/28
+Date: 2018/11/21
 
 Ref:
 1. Dynamic Granger causality based on Kalman filter for evaluation of functional network connectivity in fMRI data

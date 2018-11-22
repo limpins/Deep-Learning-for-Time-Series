@@ -41,7 +41,8 @@ class Linear_Kalman_Estimation(KalmanFilter):
         self.signals = signals
         self.N = n_row     # 信号的长度
         self.ndim = n_col  # 信号的维数
-        self.uc = uc
+        self.uc = uc       # update coefficient
+        self.z_s = 0       # 滤波器最后得到的观测值估计序列
         self.init()
 
     def init(self):
@@ -115,6 +116,9 @@ class Linear_Kalman_Estimation(KalmanFilter):
         Args:
             t (int): 当前时间点
             z (np.array): column vector, 当前观测值
+        
+        Returns:
+            z_s (np.array): column vector, 当前的预测值
         """
 
         self.predict()
@@ -122,30 +126,45 @@ class Linear_Kalman_Estimation(KalmanFilter):
         self.update_R(z)
         self.update_H(t)
         self.update(z.T)
+        return self.z
 
     def forward(self):
         """滤波器的前向操作。
+
+        Returns:
+            x: (np.array) 经过滤波器后状态的最终估计值
+            P: (np.array) 经过滤波器后最终的预测误差
+            z_s: (np.array) 经过滤波器后观测值的估计值
         """
 
+        z_s = []
         for time, z in enumerate(self.signals[self.max_lag:]):
-            self.filter(time + self.max_lag, z.T)
-        return self.x, self.P
+            z_s.append(self.filter(time + self.max_lag, z.T))
+        self.z_s = np.array(z_s).squeeze()
+        return self.x, self.P, self.z_s
 
     def backward(self):
         """滤波器的后向操作。这里使用同一个滤波器先进行前行操作，之后进行后向操作的连续过程，参看
         smoother 方法，避免使用两个滤波器，在进行后向操作还要使用前向操作的最终状态进行初始化的问题。
+
+        Returns:
+            x: (np.array) 经过滤波器后状态的最终估计值
+            P: (np.array) 经过滤波器后最终的预测误差
+            z_s: (np.array) 经过滤波器后观测值的估计值
         """
 
+        z_s = []
         for time, z in enumerate(self.signals[:(self.max_lag-1):-1]):
-            self.filter(self.N - 1 - time, z.T)
-        return self.x, self.P
+            z_s.append(self.filter(self.N - 1 - time, z.T))
+        self.z_s = np.array(z_s).squeeze()
+        return self.x, self.P, self.z_s[::-1]
 
     def smoother(self):
         """根据 forward 和 backward 得到的数值进行光滑处理，参考文献 3
         """
 
-        x_f, P_f = self.forward()
-        x_b, P_b = self.backward()
+        x_f, P_f, _ = self.forward()
+        x_b, P_b, _ = self.backward()
         factor1 = self.inv(self.inv(P_f) + self.inv(P_b))
         factor2 = dot(self.inv(P_f), x_f) + dot(self.inv(P_b), x_b)
         x_s = dot(factor1, factor2)
@@ -204,7 +223,7 @@ class Linear_Kalman_Estimation(KalmanFilter):
             A_coef += [y_coef[:, m:(m+self.ndim)]]
         return y_coef, np.array(A_coef)
 
-    def AIC(self):
+    def AIC(self, p):
         """Akaike information criterion.
         A major concern with parametric analysis methods is the order selection of the autoregressive (AR) model. 
         If the order is too small, the frequency content in the data cannot be resolved and the spectral estimates will be biased and smoothed and consequently, 
@@ -217,10 +236,10 @@ class Linear_Kalman_Estimation(KalmanFilter):
             the AIC value of self.max_lag
         """
      
-        aic = lambda p: np.log(np.linalg.det(self.R)) + 2*p*(self.ndim**2)/self.N
-        return aic(self.max_lag)
+        aic = np.log(np.linalg.det(self.R)) + 2*p*(self.ndim**2)/self.N
+        return aic
 
-    def BIC(self):
+    def BIC(self, p):
         """Bayesian information criterion.
         p is the model order, T is the length of time series, R is the covariance matrix of the measurement noise, 
         and d is the number of the time series under investigation. Both of these criteria using maximum likelihood principle make a compromise 
@@ -233,5 +252,17 @@ class Linear_Kalman_Estimation(KalmanFilter):
             the BIC value of self.max_lag
         """
         
-        bic = lambda p: np.log(np.linalg.det(self.R)) + np.log(self.N)*p*(self.ndim**2)/self.N
-        return bic(self.max_lag)
+        bic = np.log(np.linalg.det(self.R)) + np.log(self.N)*p*(self.ndim**2)/self.N
+        return bic
+
+    @property
+    def aic(self):
+        return self.AIC(self.max_lag)
+
+    @property
+    def bic(self):
+        return self.BIC(self.max_lag)
+    
+    @property
+    def mse_loss(self):
+        return np.sum((self.z_s - self.signals[self.max_lag:]) ** 2) / (self.N - self.max_lag)
