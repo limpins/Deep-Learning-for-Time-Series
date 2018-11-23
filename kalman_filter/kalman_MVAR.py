@@ -8,13 +8,16 @@ Copyright:
     Date: 2018/11/20
 """
 
-import pathlib
+from pathlib import Path
 
 import numpy as np
-from filter import Linear_Kalman_Estimation
 
-from utils import get_mat_data, normalize
+from filter import Linear_Kalman_Estimation
 from tools import *
+from utils import *
+
+timer = Timer()
+timer.start()
 
 # get data
 file_path = './kalman_filter/data/linear_signals5D_noise1.mat'
@@ -36,8 +39,31 @@ uc_range = np.arange(0.001, 0.01, 0.001)
 # 构造 Kalman Filter
 # 初始化
 max_lag = 5
-kf = Linear_Kalman_Estimation(data, max_lag, uc=0.005)
-y_coef, A_coef = kf.estimate_coef(0.1)
+n_trial = 10
+y_coef, A_coef = 0, 0
+for t in range(n_trial):
+    timer0 = Timer()
+    timer0.start()
+    kf = Linear_Kalman_Estimation(data, max_lag, uc=0.01)
+    y, A = kf.estimate_coef(0.1)
+    y_coef += y
+    A_coef += A
+    print(f'trial id: {t+1}', end=', ')
+    timer0.stop()
+y_coef /= n_trial
+A_coef /= n_trial
 
-# 保存结果
-np.savetxt('./kalman_filter/data/y_coef.txt', y_coef, fmt='%.4f', delimiter=', ')
+# 保存结果2D
+# Write the array to disk
+file_path0 = Path('./kalman_filter/data/y_coef.txt')
+save_2Darray(file_path0, y_coef)
+
+# 保存结果3D
+# Write the array to disk
+file_path1 = Path('./kalman_filter/data/A_coef.txt')
+save_3Darray(file_path1, A_coef)
+
+# load data
+# new_data = np.loadtxt(file_path1).reshape(A_coef.shape)
+
+timer.stop()

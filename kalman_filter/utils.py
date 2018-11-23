@@ -4,13 +4,18 @@ Date: 2018/11/21
 
 Ref:
 1. Dynamic Granger causality based on Kalman filter for evaluation of functional network connectivity in fMRI data
+2. https://stackoverflow.com/questions/3685265/how-to-write-a-multidimensional-array-to-a-text-file
 """
 
+import datetime as dt
 from inspect import isfunction
 
 import numpy as np
 import scipy.io as sio
 from sklearn import preprocessing as skp
+
+__all__ = ['get_mat_data', 'normalize',
+           'save_2Darray', 'save_3Darray', 'Timer']
 
 
 def get_mat_data(file_name, var_name):
@@ -41,5 +46,51 @@ def normalize(data, scaler_type: str = 'MinMaxScaler'):
     elif isfunction(scaler_type):
         data = scaler_type(data)
     else:
-        raise ValueError("""An invalid option was supplied, options are ['MinMaxScaler', 'StandardScaler', None] or lambda function.""")
+        raise ValueError(
+            """An invalid option was supplied, options are ['MinMaxScaler', 'StandardScaler', None] or lambda function.""")
     return data
+
+
+def save_2Darray(file_path, data):
+    """save np.array(2D) into txt file.(Ref2)
+
+    Args:
+        file_path (str or instance of Path(windowns or linux)): the file path to save data.
+        data (np.array): the data need be saved.
+    """
+
+    with open(file_path, 'w') as outfile:
+        outfile.write(f'# Array shape: {data.shape}\n')
+        np.savetxt(outfile, data, fmt='%.4f')
+
+
+def save_3Darray(file_path, data):
+    """save np.array(3D) into txt file.(Ref2)
+
+    Args:
+        file_path (str or instance of Path(windowns or linux)): the file path to save data.
+        data (np.array): the data need be saved.
+    """
+
+    with open(file_path, 'w') as outfile:
+        # I'm writing a header here just for the sake of readability
+        # Any line starting with "#" will be ignored by numpy.loadtxt
+        outfile.write(f'# Array shape: {data.shape}\n')
+
+        # Iterating through a ndimensional array produces slices along
+        # the last axis. This is equivalent to data[i,:,:] in this case
+        for data_slice in data:
+            np.savetxt(outfile, data_slice, fmt='%.4f')
+            # Writing out a break to indicate different slices...
+            outfile.write('# New slice\n')
+
+
+class Timer():
+    """计时器类"""
+
+    def start(self):
+        self.start_dt = dt.datetime.now()
+
+    def stop(self):
+        end_dt = dt.datetime.now()
+        print(f'Time taken: {(end_dt - self.start_dt).total_seconds():.2f}s')

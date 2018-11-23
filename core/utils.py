@@ -14,11 +14,7 @@ from .loader import get_txt_data
 
 
 class Timer():
-    """计时器类
-    """
-
-    def __init__(self):
-        pass
+    """计时器类"""
 
     def start(self):
         self.start_dt = dt.datetime.now()
@@ -164,10 +160,10 @@ def matshow(data: np.ndarray, xlabel: str, ylabel: str, title: str, png_name: st
     fig, ax = plt.subplots()
     img = ax.imshow(data, cmap="YlGn")
     # ax.matshow(data, cmap="YlGn")
-    # We want to show all ticks...
+    # We want to show all ticks
     ax.set_xticks(np.arange(len(xlabel)))
     ax.set_yticks(np.arange(len(ylabel)))
-    # ... and label them with the respective list entries
+    # and label them with the respective list entries
     ax.set_xticklabels(xlabel)
     ax.set_yticklabels(ylabel)
     # Rotate the tick labels and set their alignment.
