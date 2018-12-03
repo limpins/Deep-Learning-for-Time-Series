@@ -14,6 +14,7 @@ Email: autuanliu@163.com
     - [Theory](#theory)
     - [Docs](#docs)
     - [Reference](#reference)
+    - [Useful website](#useful-website)
   
 ## 1 RNN Granger Causality
 ### 1.1 Granger Causality Definition$^1$
@@ -115,3 +116,6 @@ $$
 
 * Notes
 > The code is for research use only.
+
+## Useful website
+1. [explainshell.com - match command-line arguments to their help text](https://explainshell.com/)
