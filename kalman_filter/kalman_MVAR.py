@@ -38,7 +38,7 @@ uc_range = np.arange(0.001, 0.01, 0.001)
 
 # 构造 Kalman Filter
 # 初始化
-max_lag = 5
+max_lag = 4
 n_trial = 10
 y_coef, A_coef = 0, 0
 for t in range(n_trial):
