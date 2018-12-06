@@ -104,7 +104,7 @@ if __name__ == '__main__':
 
     avg_gc_matrix = 0
     # for signal_type in all_signal_type:
-    signal_type = all_signal_type[2]
+    signal_type = all_signal_type[0]
     print(f'signal type: {signal_type}')
     cfg = config[signal_type]
     for _ in range(cfg['num_trial']):

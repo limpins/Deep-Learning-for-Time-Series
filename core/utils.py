@@ -5,7 +5,6 @@ Date: 2018/9/28
 
 import datetime as dt
 
-import matplotlib.pyplot as plt
 import numpy as np
 import torch
 import torch.nn as nn
@@ -138,6 +137,7 @@ def plot_save_gc_precent(txt_path: str, save_png_path: str, png_title: str, save
         save_txt_path (str): the path to save txt files.
     """
 
+    import matplotlib.pyplot as plt
     data = get_txt_data(txt_path, delimiter=' ')
     gc_precent = get_gc_precent(data)
     plt.matshow(gc_precent)
@@ -157,6 +157,7 @@ def matshow(data: np.ndarray, xlabel: str, ylabel: str, title: str, png_name: st
         png_name (str): 要保存的图像名字
     """
 
+    import matplotlib.pyplot as plt
     fig, ax = plt.subplots()
     img = ax.imshow(data, cmap="YlGn")
     # ax.matshow(data, cmap="YlGn")
@@ -178,3 +179,14 @@ def matshow(data: np.ndarray, xlabel: str, ylabel: str, title: str, png_name: st
                 ax.text(j, i, round(data[i, j], 4) if not abs(data[i, j]) < 1e-8 else '', ha="center", va="center", color="k")
     fig.tight_layout()
     plt.savefig(png_name)
+
+
+def download_file(url: str):
+    """download file from url.
+    
+    Args:
+        url (str): url.
+    """
+
+    import wget
+    wget.download(url)

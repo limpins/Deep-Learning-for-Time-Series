@@ -3,23 +3,19 @@ Email: autuanliu@163.com
 Date: 2018/9/28
 """
 
-import json
-from inspect import isfunction
-
 import numpy as np
 import pandas as pd
-import scipy.io as sio
 import torch
-import yaml
-from sklearn import preprocessing as skp
 from torch.utils.data import DataLoader, Dataset
 
 
 def get_json_data(file_name):
+    import json
     return json.load(open(file_name, 'r'))
 
 
 def get_yaml_data(file_name):
+    import yaml
     return yaml.load(open(file_name, 'r'))
 
 
@@ -34,6 +30,7 @@ def get_mat_data(file_name, var_name):
         np.array: 将读取到的原始数据转换为 np.ndarray 类型
     """
 
+    import scipy.io as sio
     data_dict = sio.loadmat(file_name)
     return data_dict[var_name]
 
@@ -92,6 +89,9 @@ def normalize(train_data, test_data, scaler_type: str = 'MinMaxScaler'):
         test_data (np.ndarray): 未经过归一化的测试集原始数据
         scaler_type (str, optional): Defaults to 'MinMaxScaler'. 归一化方式
     """
+
+    from inspect import isfunction
+    from sklearn import preprocessing as skp
 
     if scaler_type in ['MinMaxScaler', 'StandardScaler']:
         scaler = getattr(skp, scaler_type)().fit(train_data)

@@ -14,7 +14,7 @@ def grid_search1(signals, lag_range, uc_range):
     """对超参数进行网格搜索策略(policy 1)，lag 和 uc 均不固定
 
     Args:
-        signals (np.array): [description]
+        signals (np.array): the data need to process.
         lag_range (list or tuple or np.array, iterable): the range of max_lag.
         uc_range (list or tuple or np.array, iterable): the range of update coefficient.
 
@@ -39,7 +39,7 @@ def grid_search2(signals, lag_range, uc, criterion='BIC', plot=False):
     """对超参数进行网格搜索策略(policy 2)，uc 固定
 
     Args:
-        signals (np.array): [description]
+        signals (np.array): the data need to process.
         lag_range (list or tuple or np.array, iterable): the range of max_lag.
         uc (float): update coefficient.
         criterion (str): the criterion for searching max_lag.
@@ -71,7 +71,7 @@ def grid_search3(signals, max_lag, uc_range, criterion='BIC', plot=False):
     """对超参数进行网格搜索策略(policy 3)，max_lag 固定
 
     Args:
-        signals (np.array): [description]
+        signals (np.array): the data need to process.
         max_lag (int): max_lag.
         uc_range (list or tuple or np.array, iterable): the range of update coefficient.
         criterion (str): the criterion for searching max_lag.
