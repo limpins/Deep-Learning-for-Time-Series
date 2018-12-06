@@ -3,16 +3,17 @@
 1. https://filterpy.readthedocs.io/en/latest/kalman/KalmanFilter.html
 
 文献：
-1.	Accurate epileptogenic focus localization through time-variant functional connectivity analysis of intracranial electroencephalographic signals
-2.	A new Kalman filter approach for the estimation of high-dimensional time-variant multivariate AR models and its application in analysis of laser-evoked brain potentials
-3.	Dynamic Granger causality based on Kalman filter for evaluation of functional network connectivity in fMRI data
-4.	Seizure-Onset Mapping Based on Time-Variant Multivariate Functional Connectivity Analysis of High-Dimensional Intracranial EEG: A Kalman Filter Approach
-5. Stephen A Billings, 2013, Nonlinear system identification, NARMAX methods in the time, frequency, and spation-temporal domains
+1. Accurate epileptogenic focus localization through time-variant functional connectivity analysis of intracranial electroencephalographic signals
+2. A new Kalman filter approach for the estimation of high-dimensional time-variant multivariate AR models and its application in analysis of laser-evoked brain potentials
+3. Dynamic Granger causality based on Kalman filter for evaluation of functional network connectivity in fMRI data
+4. Seizure-Onset Mapping Based on Time-Variant Multivariate Functional Connectivity Analysis of High-Dimensional Intracranial EEG: A Kalman Filter Approach
+5. Nonlinear system identification, NARMAX methods in the time, frequency, and spation-temporal domains, Stephen A Billings, 2013,
+6. Identification of MIMO non-linear systems using a forward -regression orthogonal estimator, International Journal of Control, Billings, S A, Chen, S, Korenberg, M J, 1989
 
 Copyright:
 ----------
     Author: AutuanLiu
-    Date: 2018/11/21
+    Date: 2018/11/21(linear), 2018/12/6(nonlinear)
 """
 
 from copy import deepcopy

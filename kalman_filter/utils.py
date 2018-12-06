@@ -8,11 +8,8 @@ Ref:
 """
 
 import datetime as dt
-from inspect import isfunction
 
 import numpy as np
-import scipy.io as sio
-from sklearn import preprocessing as skp
 
 __all__ = ['get_mat_data', 'normalize', 'save_2Darray', 'save_3Darray', 'Timer']
 
@@ -28,6 +25,7 @@ def get_mat_data(file_name, var_name):
         np.array: 将读取到的原始数据转换为 np.ndarray 类型
     """
 
+    import scipy.io as sio
     data_dict = sio.loadmat(file_name)
     return data_dict[var_name]
 
@@ -40,6 +38,8 @@ def normalize(data, scaler_type: str = 'MinMaxScaler'):
         scaler_type (str, optional): Defaults to 'MinMaxScaler'. 归一化方式
     """
 
+    from inspect import isfunction
+    from sklearn import preprocessing as skp
     if scaler_type in ['MinMaxScaler', 'StandardScaler']:
         data = getattr(skp, scaler_type)().fit_transform(data)
     elif isfunction(scaler_type):
