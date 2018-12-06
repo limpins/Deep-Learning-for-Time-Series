@@ -14,8 +14,7 @@ import numpy as np
 import scipy.io as sio
 from sklearn import preprocessing as skp
 
-__all__ = ['get_mat_data', 'normalize',
-           'save_2Darray', 'save_3Darray', 'Timer']
+__all__ = ['get_mat_data', 'normalize', 'save_2Darray', 'save_3Darray', 'Timer']
 
 
 def get_mat_data(file_name, var_name):
@@ -46,8 +45,7 @@ def normalize(data, scaler_type: str = 'MinMaxScaler'):
     elif isfunction(scaler_type):
         data = scaler_type(data)
     else:
-        raise ValueError(
-            """An invalid option was supplied, options are ['MinMaxScaler', 'StandardScaler', None] or lambda function.""")
+        raise ValueError("""An invalid option was supplied, options are ['MinMaxScaler', 'StandardScaler', None] or lambda function.""")
     return data
 
 

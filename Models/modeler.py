@@ -30,7 +30,7 @@ class Modeler:
         self.visualization = visualization
         if self.visualization:
             self.write = SummaryWriter('log/')
-    
+
     def __del__(self):
         """close the tensorboard write."""
         if self.visualization:
@@ -52,7 +52,7 @@ class Modeler:
         # train over minibatch
         for data, target in loaders:
             data, target = self.tsfm(data), self.tsfm(target)
-            
+
             # forward
             out = self.model(data)
             loss = self.criterion(out, target)
@@ -101,7 +101,7 @@ class Modeler:
             out (torch.tensor): output, prediction, num_point*out_dim.
             err (float): prediction error. (pred - target), num_point*out_dim.
         """
-        
+
         x, y = self.tsfm(x), self.tsfm(y)
         out = self.model(x).detach()
         return out, out - y

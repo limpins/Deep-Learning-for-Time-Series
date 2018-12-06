@@ -6,6 +6,7 @@ Date: 2018/9/28
 import math
 from torch.optim import lr_scheduler
 
+
 class WarmRestart(lr_scheduler.CosineAnnealingLR):
     """This class implements Stochastic Gradient Descent with Warm Restarts(SGDR): https://arxiv.org/abs/1608.03983.
 

@@ -9,9 +9,8 @@ import torch
 from torch import nn, optim
 from torch.utils.data import DataLoader
 
-from core import (MakeSeqData, Timer, get_json_data, get_mat_data,
-                  get_yaml_data, make_loader, series2xy, set_device,
-                  train_test_split1, train_test_split2, normalize)
+from core import (MakeSeqData, Timer, get_json_data, get_mat_data, get_yaml_data, make_loader, series2xy, set_device, train_test_split1, train_test_split2,
+                  normalize)
 from models import Modeler, RNN_Net
 
 # test Timer

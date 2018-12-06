@@ -59,8 +59,8 @@ def one_hot_encoding(labels, num_classes):
     Returns:
       (tensor) encoded labels, sized [N,#classes].
     """
-    y = torch.eye(num_classes)  # [D,D]
-    return y[labels]            # [N,D]
+    y = torch.eye(num_classes)    # [D,D]
+    return y[labels]    # [N,D]
 
 
 def repackage_hidden(h):
@@ -90,8 +90,8 @@ def get_Granger_Causality(err_cond, err_all):
         gc_matrix = gc_matrix.clamp(min=1.).log().cpu().numpy()
     else:
         raise ValueError('input variables should have the same type(numpy.ndarray or torch.tensor).')
-    
-    np.fill_diagonal(gc_matrix, 0.)   # 不考虑自身影响, 对角线为 0.
+
+    np.fill_diagonal(gc_matrix, 0.)    # 不考虑自身影响, 对角线为 0.
     return gc_matrix
 
 
@@ -121,7 +121,7 @@ def early_stopping(val_loss, patience: int = 5, min_val_loss: float = 0.5):
         bool: 是否要停止训练
     """
 
-    val_loss = np.array(val_loss).reshape(-1,)
+    val_loss = np.array(val_loss).reshape(-1, )
     if val_loss.shape[0] == patience:
         return not np.any(val_loss - min_val_loss <= 0.)
     else:
@@ -156,7 +156,7 @@ def matshow(data: np.ndarray, xlabel: str, ylabel: str, title: str, png_name: st
         title (str): 图像的名字
         png_name (str): 要保存的图像名字
     """
-    
+
     fig, ax = plt.subplots()
     img = ax.imshow(data, cmap="YlGn")
     # ax.matshow(data, cmap="YlGn")

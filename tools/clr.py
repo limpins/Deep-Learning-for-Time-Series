@@ -73,13 +73,22 @@ def cyclical_lr(step_sz, min_lr=0.001, max_lr=1, mode='triangular', scale_func=N
     """
     if scale_func == None:
         if mode == 'triangular':
-            def scale_fn(x): return 1.
+
+            def scale_fn(x):
+                return 1.
+
             scale_mode = 'cycles'
         elif mode == 'triangular2':
-            def scale_fn(x): return 1 / (2.**(x - 1))
+
+            def scale_fn(x):
+                return 1 / (2.**(x - 1))
+
             scale_mode = 'cycles'
         elif mode == 'exp_range':
-            def scale_fn(x): return gamma**(x)
+
+            def scale_fn(x):
+                return gamma**(x)
+
             scale_mode = 'iterations'
         else:
             raise ValueError(f'The {mode} is not valid value!')
@@ -87,8 +96,8 @@ def cyclical_lr(step_sz, min_lr=0.001, max_lr=1, mode='triangular', scale_func=N
         scale_fn = scale_func
         scale_mode = scale_md
 
-    def lr_lambda(iters): return min_lr + (max_lr - min_lr) * \
-        rel_val(iters, step_sz, scale_mode)
+    def lr_lambda(iters):        return min_lr + (max_lr - min_lr) * \
+rel_val(iters, step_sz, scale_mode)
 
     def rel_val(iteration, stepsize, mode):
         cycle = math.floor(1 + iteration / (2 * stepsize))

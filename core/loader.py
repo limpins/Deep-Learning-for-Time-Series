@@ -105,7 +105,7 @@ def normalize(train_data, test_data, scaler_type: str = 'MinMaxScaler'):
     return train_data, test_data
 
 
-def series2xy(series_data: np.ndarray, idx_x = None, idx_y = None, seq_length: int = 20, num_shift: int = 1):
+def series2xy(series_data: np.ndarray, idx_x=None, idx_y=None, seq_length: int = 20, num_shift: int = 1):
     """将序列数据转换为监督学习数据
     
     Args:
@@ -169,7 +169,7 @@ class MakeSeqData(Dataset):
         return self.data.shape[0]
 
 
-def make_loader(seq_data: np.ndarray, idx_x = None, idx_y = None, tt_split = 0.7, tv_split = 0.7, seq_len = 20, num_shift = 1, bt_sz = 32, s_type = 'MinMaxScaler'):
+def make_loader(seq_data: np.ndarray, idx_x=None, idx_y=None, tt_split=0.7, tv_split=0.7, seq_len=20, num_shift=1, bt_sz=32, s_type='MinMaxScaler'):
     """获取可以迭代的分割后的数据
 
     Args:

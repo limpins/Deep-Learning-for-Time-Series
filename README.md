@@ -116,6 +116,7 @@ $$
 
 * Notes
 > The code is for research use only.
+> [style based](https://github.com/fastai/fastai_old/blob/master/docs/style.md)
 
 ## Useful website
 1. [explainshell.com - match command-line arguments to their help text](https://explainshell.com/)

@@ -36,21 +36,21 @@ class Linear_Kalman_Estimation(KalmanFilter):
         """
 
         n_row, n_col = signals.shape
-        dim_x = max_lag * (n_col ** 2)
+        dim_x = max_lag * (n_col**2)
         super().__init__(dim_x, n_col, dim_u=0)
         self.max_lag = max_lag
         self.signals = signals
-        self.N = n_row     # 信号的长度
-        self.ndim = n_col  # 信号的维数
-        self.uc = uc       # update coefficient
-        self.z_s = 0       # 滤波器最后得到的观测值估计序列
+        self.N = n_row    # 信号的长度
+        self.ndim = n_col    # 信号的维数
+        self.uc = uc    # update coefficient
+        self.z_s = 0    # 滤波器最后得到的观测值估计序列
         self.init()
 
     def init(self):
-        self.x = np.random.randn(self.dim_x, 1)         # 初始状态初始化为 (0, 1) 正态分布
-        self.Q = self.uc * eye(self.dim_x)              # 文献1的初始化方式，若使用文献3的初始化方式，注释掉该行
-        self.H = self.measurement_matrix(self.max_lag)  # 初始时的测量矩阵
-        self.z = self.signals[self.max_lag].T           # 初始时的测量值
+        self.x = np.random.randn(self.dim_x, 1)    # 初始状态初始化为 (0, 1) 正态分布
+        self.Q = self.uc * eye(self.dim_x)    # 文献1的初始化方式，若使用文献3的初始化方式，注释掉该行
+        self.H = self.measurement_matrix(self.max_lag)    # 初始时的测量矩阵
+        self.z = self.signals[self.max_lag].T    # 初始时的测量值
 
     def update(self, z, R=None, H=None):
         """与原update函数的唯一不同在于P更新的方式可以调节，为了保证其它功能正常，仍然保留原始的内容"""
@@ -61,7 +61,7 @@ class Linear_Kalman_Estimation(KalmanFilter):
         self._mahalanobis = None
 
         if z is None:
-            self.z = np.array([[None]*self.dim_z]).T
+            self.z = np.array([[None] * self.dim_z]).T
             self.x_post = self.x.copy()
             self.P_post = self.P.copy()
             self.y = np.zeros((self.dim_z, 1))
@@ -155,7 +155,7 @@ class Linear_Kalman_Estimation(KalmanFilter):
         """
 
         z_s = []
-        for time, z in enumerate(self.signals[:(self.max_lag-1):-1]):
+        for time, z in enumerate(self.signals[:(self.max_lag - 1):-1]):
             z_s.append(self.filter(self.N - 1 - time, z.T))
         self.z_s = np.array(z_s).squeeze()
         return self.x, self.P, self.z_s[::-1]
@@ -181,9 +181,9 @@ class Linear_Kalman_Estimation(KalmanFilter):
             measurement_matrix: np.array, 与当前时刻对应的转移矩阵
         """
 
-        Yt = lambda t: self.signals[(t-1)::-1, :] if t == self.max_lag else self.signals[(t-1):(t-1-self.max_lag):-1, :]
+        Yt = lambda t: self.signals[(t - 1)::-1, :] if t == self.max_lag else self.signals[(t - 1):(t - 1 - self.max_lag):-1, :]
         Y = Yt(time).reshape(1, -1)
-        Cn = np.kron(eye(self.ndim), Y.T)  # 这里其实计算的是 n-1 时刻的 C
+        Cn = np.kron(eye(self.ndim), Y.T)    # 这里其实计算的是 n-1 时刻的 C
         return Cn.T
 
     def update_R(self, z):
@@ -215,13 +215,13 @@ class Linear_Kalman_Estimation(KalmanFilter):
 
         A_coef = []
         x_s = self.smoother()
-        x_s[np.abs(x_s) < threshold] = 0.  # 阈值处理
+        x_s[np.abs(x_s) < threshold] = 0.    # 阈值处理
 
-        y_coef = x_s.T.reshape(self.ndim, -1)  # 重新排列系数为 ndim x (ndim * p)
-        
+        y_coef = x_s.T.reshape(self.ndim, -1)    # 重新排列系数为 ndim x (ndim * p)
+
         # A_coef 为 p x (ndim x ndim) 形式矩阵
         for m in range(0, y_coef.shape[1], self.ndim):
-            A_coef += [y_coef[:, m:(m+self.ndim)]]
+            A_coef += [y_coef[:, m:(m + self.ndim)]]
         return y_coef, np.array(A_coef)
 
     def AIC(self, p):
@@ -236,8 +236,8 @@ class Linear_Kalman_Estimation(KalmanFilter):
         Returns:
             the AIC value of self.max_lag
         """
-     
-        aic = np.log(np.linalg.det(self.R)) + 2*p*(self.ndim**2)/self.N
+
+        aic = np.log(np.linalg.det(self.R)) + 2 * p * (self.ndim**2) / self.N
         return aic
 
     def BIC(self, p):
@@ -252,8 +252,8 @@ class Linear_Kalman_Estimation(KalmanFilter):
         Returns:
             the BIC value of self.max_lag
         """
-        
-        bic = np.log(np.linalg.det(self.R)) + np.log(self.N)*p*(self.ndim**2)/self.N
+
+        bic = np.log(np.linalg.det(self.R)) + np.log(self.N) * p * (self.ndim**2) / self.N
         return bic
 
     @property
@@ -263,7 +263,7 @@ class Linear_Kalman_Estimation(KalmanFilter):
     @property
     def bic(self):
         return self.BIC(self.max_lag)
-    
+
     @property
     def mse_loss(self):
-        return np.sum((self.z_s - self.signals[self.max_lag:]) ** 2) / (self.N - self.max_lag)
+        return np.sum((self.z_s - self.signals[self.max_lag:])**2) / (self.N - self.max_lag)

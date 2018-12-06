@@ -57,8 +57,7 @@ def grid_search2(signals, lag_range, uc, criterion='BIC', plot=False):
     for m in lag_range:
         kf = Linear_Kalman_Estimation(signals, m, uc)
         _ = kf.smoother()
-        min_criterion = getattr(kf, criterion.lower()) if getattr(
-            kf, criterion.lower()) <= min_criterion else min_criterion
+        min_criterion = getattr(kf, criterion.lower()) if getattr(kf, criterion.lower()) <= min_criterion else min_criterion
         print(f'max_lag={m}, {criterion}={getattr(kf, criterion.lower())}')
         best_lag = m
         x.append(m)
