@@ -38,7 +38,7 @@ uc_range = np.arange(0.001, 0.01, 0.001)
 
 # 构造 Kalman Filter
 # 初始化
-max_lag = 5
+max_lag = 4
 n_trial = 10
 y_coef, A_coef = 0, 0
 for t in range(n_trial):
@@ -64,8 +64,12 @@ file_path1 = Path('./kalman_filter/data/A_coef.txt')
 save_3Darray(file_path1, A_coef)
 
 # load data(real coef)
-file_path2 = Path('./kalman_filter/data/linear_real_coef.txt')
-real_coef = np.loadtxt(file_path2).reshape(A_coef.shape)
-print(real_coef - A_coef)
+# file_path2 = Path('./kalman_filter/data/linear_real_coef.txt')
+# real_coef = np.loadtxt(file_path2).reshape(A_coef.shape)
+# print(real_coef - A_coef)
+
+# make func
+est_model = make_linear_func(A_coef, var_name='x', fname='./kalman_filter/data/linear_est_model.txt')
+print(est_model)
 
 timer.stop()

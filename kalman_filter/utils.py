@@ -11,7 +11,7 @@ import datetime as dt
 
 import numpy as np
 
-__all__ = ['get_mat_data', 'normalize', 'save_2Darray', 'save_3Darray', 'Timer']
+__all__ = ['get_mat_data', 'normalize', 'save_2Darray', 'save_3Darray', 'Timer', 'make_linear_func']
 
 
 def get_mat_data(file_name, var_name):
@@ -92,3 +92,32 @@ class Timer():
     def stop(self):
         end_dt = dt.datetime.now()
         print(f'Time taken: {(end_dt - self.start_dt).total_seconds():.2f}s')
+
+
+def make_linear_func(A_coef, var_name: str = 'y', step_name: str = 't', save=True, fname='est_model.txt', **kwargs):
+    """根据系数生成模型表达式
+    
+    Args:
+        A_coef (np.array): y = Ax + e 形式的模型系数矩阵 A
+        var_name (str, optional): Defaults to 'y'. 使用的变量名
+        step_name (str, optional): Defaults to 't'. 时间点变量名
+        save (bool, optional): Defaults to True. 是否保存结果
+        kwargs: np.savetxt args
+    
+    Returns:
+        func_repr (np.array) 模型表达式
+    """
+
+    max_lag, n_dim, _ = A_coef.shape
+    func_repr = []
+    for var in range(n_dim):
+        y = f'{var_name}{var+1} = '
+        for dim in range(n_dim):
+            for lag in range(max_lag):
+                if abs(A_coef[lag, var, dim]) > 0.:
+                    y += f'{A_coef[lag, var, dim]:.4f} * {var_name}{dim+1}({step_name}-{lag+1}) + '
+        func_repr.append(y + f'e{var+1}({step_name})')
+    func_repr = np.array(func_repr).reshape(-1, 1)
+    if save:
+        np.savetxt(fname, func_repr, fmt='%s', **kwargs)
+    return func_repr

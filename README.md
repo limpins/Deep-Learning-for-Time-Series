@@ -120,3 +120,5 @@ $$
 
 ## Useful website
 1. [explainshell.com - match command-line arguments to their help text](https://explainshell.com/)
+2. [Documentation - Overleaf, Online LaTeX Editor](https://www.overleaf.com/learn/latex/Main_Page)
+3. [Supported Functions · KaTeX](https://katex.org/docs/supported.html)
