@@ -111,7 +111,7 @@ def make_linear_func(A_coef, var_name: str = 'y', step_name: str = 't', save=Tru
     max_lag, n_dim, _ = A_coef.shape
     func_repr = []
     for var in range(n_dim):
-        y = f'{var_name}{var+1} = '
+        y = f'{var_name}{var+1}({step_name}) = '
         for dim in range(n_dim):
             for lag in range(max_lag):
                 if abs(A_coef[lag, var, dim]) > 0.:
