@@ -25,7 +25,18 @@ from numpy import dot, eye, zeros
 
 
 class Linear_Kalman_Estimation(KalmanFilter):
-    """定义适用于估计时间序列模型系数的 kalman filter。"""
+    """定义适用于估计时间序列模型系数的 kalman filter。
+    
+    Attributes:
+        max_lag (int): max lag of model.
+        signals (np.array): N * ndim.
+        N (int): 信号的长度
+        ndim (int): 信号的维数
+        uc (float): update coefficient.
+        aic (float): Akaike information criterion.
+        bic (float): Bayesian information criterion.
+        mse_loss (float): mean square error loss.
+    """
 
     def __init__(self, signals, max_lag=3, uc=0.0001):
         """构造函数。
