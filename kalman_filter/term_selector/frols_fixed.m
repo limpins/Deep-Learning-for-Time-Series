@@ -4,12 +4,14 @@
 
 function [L] = frols_fixed(y, P, threshold)
     % P: 维度大小为 N*M 的候选向量矩阵
-    % L: 被选择的候选项下标
     % threshold: 递归停止条件 
     % 所预测的序列 y, 即当前子系统 N * 1
     % 
-
-    %% 初始化部分
+    % Returns:
+    % L: 被选择的候选项下标
+    % 
+    
+    %%! 初始化部分
     [N, M] = size(P);
     W = zeros(N, M);         % 辅助候选向量矩阵满足 W=P*A^{-1}
     Q = zeros(N, M);         % 从候选向量矩阵中经过筛选后的正交矩阵
@@ -23,7 +25,7 @@ function [L] = frols_fixed(y, P, threshold)
     %%
 
     % 参看 Billings 2013 年专著
-    %% step 1.
+    %%! step 1.
     W = P;
     A(1, 1) = 1;
     ERR = (y.' * W).^2 ./ (sigma * dot(W, W));
@@ -36,8 +38,9 @@ function [L] = frols_fixed(y, P, threshold)
 
     Q(:, 1) = W(:, I);
     g(1) = dot(y, Q(:, 1)) / dot(Q(:,1), Q(:, 1));
-    
-    %% step j.
+    %%
+
+    %%! step j.
     % 这里最大的迭代步骤不可能大于所有候选项的个数，所以这里默认设置最大的迭代步骤是M
     for j=2:M
         for i=1:M % 对于所有候选项
@@ -65,14 +68,14 @@ function [L] = frols_fixed(y, P, threshold)
         end
         
         % 使用 ERR 和作为迭代终止条件
-        if sum(chosenERR(1, :)) > threshold
-            break;
-        end
-
-        % 使用 已经选取的候选项个数作为迭代终止条件
-        % if j==threshold
+        % if sum(chosenERR(1, :)) > threshold
         %     break;
         % end
+
+        % 使用 已经选取的候选项个数作为迭代终止条件
+        if j==threshold
+            break;
+        end
 
         % 使用 ESR 作为迭代终止条件
         % ESR = 1 - sum(chosenERR);
@@ -80,7 +83,9 @@ function [L] = frols_fixed(y, P, threshold)
         %     break;
         % end
     end
-    % 考虑提前终止迭代的情况
+    %%
+    
+    %! 考虑提前终止迭代的情况
     A = A(1:j, 1:j);
     return;
 end

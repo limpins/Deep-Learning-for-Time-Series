@@ -1,7 +1,6 @@
 """继承 filterpy.kalman 模块中的 KalmanFilter，并覆盖 update 方法，以满足估计系数的需要，因为在估计系数时需要同时更新 Q 与 R。
 
 1. https://filterpy.readthedocs.io/en/latest/kalman/KalmanFilter.html
-
 文献：
 1. Accurate epileptogenic focus localization through time-variant functional connectivity analysis of intracranial electroencephalographic signals
 2. A new Kalman filter approach for the estimation of high-dimensional time-variant multivariate AR models and its application in analysis of laser-evoked brain potentials
@@ -23,9 +22,11 @@ from filterpy.common import reshape_z
 from filterpy.kalman import KalmanFilter
 from numpy import dot, eye, zeros
 
+__all__ = ['Kalman4ARX', 'Kalman4FROLS']
 
-class Linear_Kalman_Estimation(KalmanFilter):
-    """定义适用于估计时间序列模型系数的 kalman filter。
+
+class Kalman4ARX(KalmanFilter):
+    """定义适用于估计ARX时间序列模型系数的 kalman filter。
     
     Attributes:
         max_lag (int): max lag of model.
@@ -219,7 +220,7 @@ class Linear_Kalman_Estimation(KalmanFilter):
 
         Args:
             threshold: 将系数置 0 的阈值, 默认为 1e-5
-
+        
         Returns:
             y_coef: 以信号形式排列的系数
             A_coef: 以系数矩阵形式排列的系数
@@ -228,7 +229,6 @@ class Linear_Kalman_Estimation(KalmanFilter):
         A_coef = []
         x_s = self.smoother()
         x_s[np.abs(x_s) < threshold] = 0.    # 阈值处理
-
         y_coef = x_s.T.reshape(self.ndim, -1)    # 重新排列系数为 ndim x (ndim * p)
 
         # A_coef 为 p x (ndim x ndim) 形式矩阵
@@ -279,3 +279,200 @@ class Linear_Kalman_Estimation(KalmanFilter):
     @property
     def mse_loss(self):
         return np.sum((self.z_s - self.signals[self.max_lag:])**2) / (self.N - self.max_lag)
+
+
+class Kalman4FROLS(KalmanFilter):
+    """定义适用于估计NARX时间序列模型系数的 kalman filter。
+    
+    Attributes:
+        max_lag (int): max lag of model.
+        signals (np.array): N * ndim. (N 的大小和 Kalman_H 的行数相同)
+        Kalman_H (np.array): 测量矩阵 measurement matrix
+        N (int): 信号的有效长度
+        ndim (int): 信号的维数
+        uc (float): update coefficient.
+    """
+
+    def __init__(self, signals, Kalman_H, max_lag=3, uc=0.0001):
+        """构造函数。
+
+        Args:
+            signals (np.array): 可观测信号(n_point*n_dim) (N 的大小和 Kalman_H 的行数相同)
+            Kalman_H (np.array): 测量矩阵 measurement matrix
+            max_lag (int, optional): Defaults to 3. 自回归模型的阶数，即最大延迟
+            uc (float, optional): Defaults to 0.0001. update coefficient, forgetting factor.
+        """
+
+        n_row, n_col = signals.shape
+        dim_x = Kalman_H.shape[1]
+        super().__init__(dim_x, n_col, dim_u=0)
+        self.Kalman_H = Kalman_H
+        self.max_lag = max_lag
+        self.signals = signals
+        self.N = n_row    # 信号的有效长度
+        self.ndim = n_col    # 信号的维数
+        self.uc = uc    # update coefficient
+        self.z_s = 0    # 滤波器最后得到的观测值估计序列
+        self.init()
+
+    def init(self):
+        self.x = np.random.randn(self.dim_x, 1)    # 初始状态初始化为 (0, 1) 正态分布
+        self.Q = self.uc * eye(self.dim_x)    # 文献1的初始化方式，若使用文献3的初始化方式，注释掉该行
+        self.H = self.Kalman_H[0]    # 初始时的测量矩阵
+        self.z = self.signals[self.max_lag].T    # 初始时的测量值
+
+    def update(self, z, R=None, H=None):
+        """与原update函数的唯一不同在于P更新的方式可以调节，为了保证其它功能正常，仍然保留原始的内容"""
+
+        # set to None to force recompute
+        self._log_likelihood = None
+        self._likelihood = None
+        self._mahalanobis = None
+
+        if z is None:
+            self.z = np.array([[None] * self.dim_z]).T
+            self.x_post = self.x.copy()
+            self.P_post = self.P.copy()
+            self.y = np.zeros((self.dim_z, 1))
+            return
+
+        z = reshape_z(z, self.dim_z, self.x.ndim)
+
+        if R is None:
+            R = self.R
+        elif np.isscalar(R):
+            R = eye(self.dim_z) * R
+
+        if H is None:
+            H = self.H
+
+        # y = z - Hx
+        # error (residual) between measurement and prediction
+        self.y = z - dot(H, self.x)
+
+        # common subexpression for speed
+        PHT = dot(self.P, H.T)
+
+        # S = HPH' + R
+        # project system uncertainty into measurement space
+        self.S = dot(H, PHT) + R
+        self.SI = self.inv(self.S)
+        # K = PH'inv(S)
+        # map system uncertainty into kalman gain
+        self.K = dot(PHT, self.SI)
+
+        # x = x + Ky
+        # predict new x with residual scaled by the kalman gain
+        self.x = self.x + dot(self.K, self.y)
+
+        # P = (I-KH)P(I-KH)' + KRK'
+        # This is more numerically stable
+        # and works for non-optimal K vs the equation
+        # P = (I-KH)P usually seen in the literature.
+
+        I_KH = self._I - dot(self.K, H)
+        # self.P = dot(I_KH, self.P)   # 通常情况下的处理
+        self.P = dot(dot(I_KH, self.P), I_KH.T) + dot(dot(self.K, R), self.K.T)
+
+        # save measurement and posterior state
+        self.z = deepcopy(z)
+        self.x_post = self.x.copy()
+        self.P_post = self.P.copy()
+
+    def filter(self, t, z):
+        """实现一次滤波
+        使用 self.x 获取当前的预测值
+        
+        Args:
+            t (int): 当前时间点
+            z (np.array): column vector, 当前观测值
+        
+        Returns:
+            z_s (np.array): column vector, 当前的预测值
+        """
+
+        self.predict()
+        self.update_Q()
+        self.update_R(z)
+        self.update_H(t)
+        self.update(z.T)
+        return self.z
+
+    def forward(self):
+        """滤波器的前向操作。
+
+        Returns:
+            x: (np.array) 经过滤波器后状态的最终估计值
+            P: (np.array) 经过滤波器后最终的预测误差
+            z_s: (np.array) 经过滤波器后观测值的估计值
+        """
+
+        z_s = []
+        for time, z in enumerate(self.signals[self.max_lag:]):
+            z_s.append(self.filter(time + self.max_lag, z.T))
+        self.z_s = np.array(z_s).squeeze()
+        return self.x, self.P, self.z_s
+
+    def backward(self):
+        """滤波器的后向操作。这里使用同一个滤波器先进行前行操作，之后进行后向操作的连续过程，参看
+        smoother 方法，避免使用两个滤波器，在进行后向操作还要使用前向操作的最终状态进行初始化的问题。
+
+        Returns:
+            x: (np.array) 经过滤波器后状态的最终估计值
+            P: (np.array) 经过滤波器后最终的预测误差
+            z_s: (np.array) 经过滤波器后观测值的估计值
+        """
+
+        z_s = []
+        for time, z in enumerate(self.signals[:(self.max_lag - 1):-1]):
+            z_s.append(self.filter(self.N - 1 - time, z.T))
+        self.z_s = np.array(z_s).squeeze()
+        return self.x, self.P, self.z_s[::-1]
+
+    def smoother(self):
+        """根据 forward 和 backward 得到的数值进行光滑处理，参考文献 3
+        """
+
+        x_f, P_f, _ = self.forward()
+        x_b, P_b, _ = self.backward()
+        factor1 = self.inv(self.inv(P_f) + self.inv(P_b))
+        factor2 = dot(self.inv(P_f), x_f) + dot(self.inv(P_b), x_b)
+        x_s = dot(factor1, factor2)
+        return x_s
+
+    def update_R(self, z):
+        # update R, 文献 3
+        residual = self.residual_of(z)
+        self.R = (1 - self.uc) * self.R + self.uc * dot(residual, residual.T)
+
+    def update_Q(self):
+        # update Q, 文献 3
+        self.Q = self.uc * self._I * np.trace(self.P_prior) / (self.max_lag * self.N)
+
+        # update Q, 文献 1
+        # self.Q = self.uc * self._I
+
+    def update_H(self, time):
+        # update H, 文献1, 3, 测量矩阵会随时间变化
+        self.H = self.Kalman_H(time).reshape(1, -1)
+
+    def estimate_coef(self, threshold=1e-5):
+        """重新排列计算出来的系数(pK^2 x 1)
+
+        Args:
+            threshold: 将系数置 0 的阈值, 默认为 1e-5
+        
+        Returns:
+            y_coef: 以信号形式排列的系数
+            A_coef: 以系数矩阵形式排列的系数
+        """
+
+        A_coef = []
+        x_s = self.smoother()
+        x_s[np.abs(x_s) < threshold] = 0.    # 阈值处理
+        y_coef = x_s.T.reshape(self.ndim, -1)    # 重新排列系数为 ndim x (ndim * p)
+
+        # A_coef 为 p x (ndim x ndim) 形式矩阵
+        for m in range(0, y_coef.shape[1], self.ndim):
+            A_coef += [y_coef[:, m:(m + self.ndim)]]
+        return y_coef, np.array(A_coef)

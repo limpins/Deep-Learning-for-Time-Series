@@ -102,6 +102,7 @@ def make_linear_func(A_coef, var_name: str = 'y', step_name: str = 't', save=Tru
         var_name (str, optional): Defaults to 'y'. 使用的变量名
         step_name (str, optional): Defaults to 't'. 时间点变量名
         save (bool, optional): Defaults to True. 是否保存结果
+        fname (str, optional): Defaults to 'est_model.txt'. 保存的文件名
         kwargs: np.savetxt args
     
     Returns:

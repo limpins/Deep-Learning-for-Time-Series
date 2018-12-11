@@ -1,27 +1,10 @@
 """基于 FROLS 算法的候选项选择器算法(通用算法，无关线性或者非线性)
 
-**候选项的排列顺序所遵从的主要原则：
-1. 线性项在前，非线性项在后
-2. 先考虑简单形式再考虑复杂形势
-3. 统一取最大延迟
-4. 具体实现思路参看 [<<P 矩阵的生成算法.md>>](https://gitlab.com/AutuanLiu/Epilepsy-disease-research/blob/master/theory/P矩阵生成算法.md)
-
-3 个信号或通道，非线性次数为 2，则具体的排列顺序为                 {共27项}
-**线性项:   
-y1(t-1), y1(t-2), y2(t-1), y2(t-2), y3(t-1), y3(t-2)             {6}
-
-**非线性项: 
-y1^2(t-1), y1(t-1)y1(t-2), y1^2(t-2);                            {3}
-y1(t-1)y2(t-1), y1(t-1)y2(t-2), y1(t-2)y2(t-1), y1(t-2)y2(t-2);  {4}
-y1(t-1)y3(t-1), y1(t-1)y3(t-2), y1(t-2)y3(t-1), y1(t-2)y3(t-2);  {4}
-y2^2(t-1), y2(t-1)y2(t-2), y2^2(t-2);                            {3}
-y2(t-1)y3(t-1), y2(t-1)y3(t-2), y2(t-2)y3(t-1), y2(t-2)y3(t-2);  {4}
-y3^2(t-1), y3(t-1)y3(t-2), y3^2(t-2);                            {3}
-
-
 **参考文献：
 1. Billings S A, Chen S, Korenberg M J. Identification of MIMO non-linear systems using a forward-regression orthogonal estimator[J]. International Journal of Control, 1989, 49(6):2157-2189.
 2. Billings S A. Nonlinear system identification : NARMAX methods in the time, frequency, and spatio-temporal domains[M]. Wiley, 2013.
+
+**Notes: 参看 matlab 相关实现以及其保存数据
 
 Copyright:
 ----------
@@ -29,64 +12,74 @@ Copyright:
     Date: 2018/12/10
 """
 
-import torch
+import numpy as np
 
-device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')    # define device
+from utils import get_mat_data
 
 
 class Selector:
     """基于 FROLS 算法的候选项选择器算法(通用算法，无关线性或者非线性)
 
     Attributes:
-        signals (np.array or torch.Tensor): N*Ndim 模型信号
         norder (int): 非线性次数
         max_lag (int): max lag.
-        threshold (float): 停止迭代的阈值
-        N (int): the length of signals.
         ndim (int): the channel or dim of signals.
+        Kalman_H (np.array): 供 kalman 滤波器使用的候选项矩阵.
+        Hv (np.array): 基于 base(linear terms) 的候选项组合，参看 matlab 代码实现
+        S_No (np.array): sparse matrix, 表示选择候选项的下标或索引
+        candidate_terms (np.array): 候选项集合
     """
 
-    def __init__(self, signals, norder, max_lag, threshold=0.99999):
+    def __init__(self, terms_path):
         """基于 FROLS 算法的候选项选择器算法
         
         Args:
-            signals (np.array or torch.Tensor): N*Ndim 模型信号
-            norder (int): 非线性次数
             max_lag (int): max lag.
-            threshold (float, optional): Defaults to 0.99999. 停止迭代的阈值
+            terms_path (str): term selector(matlab) 程序的结果路径
         """
 
-        self.signals = torch.as_tensor(signals, dtype=torch.float, device=device)
-        self.N, self.ndim = self.signals.shape
-        self.norder = norder
-        self.max_lag = max_lag
-        self.threshold = threshold
-        self.lags_sum = self.ndim * max_lag
+        for key in ['Hv', 'Kalman_H', 'S_No']:
+            setattr(self, key, get_mat_data(terms_path, key))
+        self.ndim, _, self.n_term = self.Kalman_H.shape
+        self.norder = self.Hv.shape[0]
+        self.max_lag = int(self.Hv[0, 0].shape[0] / self.ndim)
+        self.candidate_terms = None
 
-    def buildV(self, n_cnt):
-        """生成 V 矩阵
-        
+    def make_terms(self, var_name: str = 'x', step_name: str = 't'):
+        """生成模型候选项表达式
+    
         Args:
-            n_cnt (int): 当前的非线性次数(包括1)且 n_cnt >= 1
+            var_name (str, optional): Defaults to 'x'. 使用的变量名
+            step_name (str, optional): Defaults to 't'. 时间点变量名
         
         Returns:
-            V (torch.Tensor): float type, V.int()
+            terms_repr (np.array) 模型表达式
         """
 
-        V = []
-        if n_cnt < 1:
-            raise ValueError(f'n_cnt >= 1 while n_cnt = {n_cnt}')
-        elif n_cnt == 1:
-            V = 1. + torch.arange(self.ndim * self.max_lag).view(-1, 1).float()
+        terms_repr = []
+        base = []
+        nonlinear = []
+        for var in range(self.ndim):
+            for lag in range(self.max_lag):
+                base.append(f'{var_name}{var+1}({step_name}-{lag+1})')
+        base = np.asarray(base)
+        if self.norder == 1:
+            terms_repr = base
         else:
-            V1 = self.buildV(n_cnt - 1)
-            print(V1)
-            nrow = V1.size(0)
-            for t in range(1, self.lags_sum + 1):
-                idx = torch.where(V1[:, 0].int() == t, torch.arange(nrow), torch.tensor(nrow + 1)).min().item()
-                print(idx)
-                print(nrow - idx + 1)
-                V2 = torch.stack([torch.ones(nrow - idx, 1) * t, V1[idx:(nrow+1), :]], dim=1).squeeze()
-                V.append(V2)
-            print(V)
-        return torch.tensor(V)
+            for ord in range(2, self.norder + 1):
+                Hv_tmp = self.Hv[ord - 1, 0]
+                n_row, n_var = Hv_tmp.shape
+                for m in range(n_row):
+                    term = ''
+                    for n in range(n_var):
+                        term += f'{base[Hv_tmp[m, n]-1]}*'    #* matlab 索引从1开始
+                    nonlinear.append(term[:-1])
+            nonlinear = np.asarray(nonlinear)
+            tmp = list(base)
+            tmp.extend(list(nonlinear))
+            terms_repr = np.asarray(tmp)
+        self.candidate_terms = terms_repr
+        return terms_repr
+
+    def make_selection(self):
+        return self.Kalman_H, self.candidate_terms, self.S_No[:, :self.n_term], self.max_lag

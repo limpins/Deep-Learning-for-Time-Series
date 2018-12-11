@@ -1,11 +1,12 @@
 """
 Email: autuanliu@163.com
 Date: 2018/11/212
+# !!用于网格搜索
 """
 
 import numpy as np
 
-from filter import Linear_Kalman_Estimation
+from filter import Kalman4ARX
 
 __all__ = ['grid_search1', 'grid_search2', 'grid_search3', 'plot_grid_search']
 
@@ -27,7 +28,7 @@ def grid_search1(signals, lag_range, uc_range):
     best_lag_uc = (5, 0.001)
     for m in lag_range:
         for n in uc_range:
-            kf = Linear_Kalman_Estimation(signals, m, n)
+            kf = Kalman4ARX(signals, m, n)
             _ = kf.smoother()
             min_mse = kf.mse_loss if kf.mse_loss <= min_mse else min_mse
             print(f'max_lag={m}, uc={n}, mse_loss={kf.mse_loss}')
@@ -55,7 +56,7 @@ def grid_search2(signals, lag_range, uc, criterion='BIC', plot=False):
     # 绘图时保存
     x, y = [], []
     for m in lag_range:
-        kf = Linear_Kalman_Estimation(signals, m, uc)
+        kf = Kalman4ARX(signals, m, uc)
         _ = kf.smoother()
         min_criterion = getattr(kf, criterion.lower()) if getattr(kf, criterion.lower()) <= min_criterion else min_criterion
         print(f'max_lag={m}, {criterion}={getattr(kf, criterion.lower())}')
@@ -87,7 +88,7 @@ def grid_search3(signals, max_lag, uc_range, criterion='BIC', plot=False):
     # 绘图时保存
     x, y = [], []
     for m in uc_range:
-        kf = Linear_Kalman_Estimation(signals, max_lag, m)
+        kf = Kalman4ARX(signals, max_lag, m)
         _ = kf.smoother()
         min_mse = kf.mse_loss if kf.mse_loss <= min_mse else min_mse
         print(f'uc={m}, mse_loss={kf.mse_loss}')
