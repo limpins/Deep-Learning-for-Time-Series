@@ -6,7 +6,7 @@ Date: 2018/11/212
 
 import numpy as np
 
-from filter import Kalman4ARX
+from .estimator import Kalman4ARX
 
 __all__ = ['grid_search1', 'grid_search2', 'grid_search3', 'plot_grid_search']
 

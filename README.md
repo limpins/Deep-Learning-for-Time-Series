@@ -4,17 +4,18 @@
 Email: autuanliu@163.com
 ```
 - [Deep Learning for Time Series](#deep-learning-for-time-series)
-    - [1 RNN Granger Causality](#1-rnn-granger-causality)
-        - [1.1 Granger Causality Definition$^1$](#11-granger-causality-definition1)
-        - [1.2 Simulation Model](#12-simulation-model)
-        - [1.3 EEG Signals](#13-eeg-signals)
-        - [1.4 EEG64s Signals](#14-eeg64s-signals)
-        - [1.5 EEG72s Signals](#15-eeg72s-signals)
-        - [1.6 Network](#16-network)
-    - [Theory](#theory)
-    - [Docs](#docs)
-    - [Reference](#reference)
-    - [Useful website](#useful-website)
+  - [1 RNN Granger Causality](#1-rnn-granger-causality)
+    - [1.1 Granger Causality Definition$^1$](#11-granger-causality-definition1)
+    - [1.2 Simulation Model](#12-simulation-model)
+    - [1.3 EEG Signals](#13-eeg-signals)
+    - [1.4 EEG64s Signals](#14-eeg64s-signals)
+    - [1.5 EEG72s Signals](#15-eeg72s-signals)
+    - [1.6 Network](#16-network)
+  - [Theory](#theory)
+  - [Docs](#docs)
+  - [Reference](#reference)
+  - [Useful website](#useful-website)
+  - [Info](#info)
   
 ## 1 RNN Granger Causality
 ### 1.1 Granger Causality Definition$^1$
@@ -122,3 +123,25 @@ $$
 1. [explainshell.com - match command-line arguments to their help text](https://explainshell.com/)
 2. [Documentation - Overleaf, Online LaTeX Editor](https://www.overleaf.com/learn/latex/Main_Page)
 3. [Supported Functions · KaTeX](https://katex.org/docs/supported.html)
+
+## Info
+```bash
+$ cloc .
+      71 text files.
+      71 unique files.
+      70 files ignored.
+
+github.com/AlDanial/cloc v 1.80  T=0.50 s (90.0 files/s, 9402.0 lines/s)
+-------------------------------------------------------------------------------
+Language                     files          blank        comment           code
+-------------------------------------------------------------------------------
+Python                          23            669           1201           1084
+IPython Notebook                 2              0              0            603
+MATLAB                           8             52            158            339
+Markdown                         7             86              0            221
+JSON                             4              0              0            175
+YAML                             1              5              0            108
+-------------------------------------------------------------------------------
+SUM:                            45            812           1359           2530
+-------------------------------------------------------------------------------
+```

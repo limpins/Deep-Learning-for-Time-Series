@@ -7,7 +7,7 @@ import numpy as np
 import torch
 from torch import nn, optim
 
-from core import (Timer, get_Granger_Causality, get_mat_data, get_yaml_data, make_loader, matshow, set_device)
+from core import (Timer, get_Granger_Causality, get_json_data, get_mat_data, make_loader, matshow, set_device)
 from models import Modeler, RNN_Net
 from tools import cyclical_lr
 
@@ -87,7 +87,7 @@ if __name__ == '__main__':
     # 基本设置
     timer = Timer()
     timer.start()
-    config = get_yaml_data('configs/cfg.yaml')
+    config = get_json_data('configs/cfg.json')
     device = set_device()
     all_signal_type = ['linear_signals', 'nonlinear_signals', 'longlag_nonlinear_signals', 'iEEG_o', 'EEG64s', 'EEG72s']
 

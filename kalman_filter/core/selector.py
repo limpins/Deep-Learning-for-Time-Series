@@ -14,7 +14,9 @@ Copyright:
 
 import numpy as np
 
-from utils import get_mat_data
+from .utils import get_mat_data
+
+__all__ = ['Selector']
 
 
 class Selector:

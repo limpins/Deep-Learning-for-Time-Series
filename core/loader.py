@@ -10,8 +10,8 @@ from torch.utils.data import DataLoader, Dataset
 
 
 def get_json_data(file_name):
-    import json
-    return json.load(open(file_name, 'r'))
+    import ujson
+    return ujson.load(open(file_name, 'r'))
 
 
 def get_yaml_data(file_name):

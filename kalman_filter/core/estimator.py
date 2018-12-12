@@ -22,7 +22,9 @@ from filterpy.common import reshape_z
 from filterpy.kalman import KalmanFilter
 from numpy import dot, eye, zeros
 
-__all__ = ['Kalman4ARX', 'Kalman4FROLS']
+from .regression import (TermsData, make_dataset4SK, regression4sklearn, regression4torch)
+
+__all__ = ['Kalman4ARX', 'Kalman4FROLS', 'torch4FROLS']
 
 
 class Kalman4ARX(KalmanFilter):
@@ -293,16 +295,16 @@ class Kalman4FROLS(KalmanFilter):
         uc (float): update coefficient.
     """
 
-    def __init__(self, signals, Kalman_H, max_lag=3, uc=0.0001):
+    def __init__(self, signals, Kalman_H, uc=0.0001):
         """构造函数。
 
         Args:
             signals (np.array): 可观测信号(n_point*n_dim) (N 的大小和 Kalman_H 的行数相同)
             Kalman_H (np.array): 测量矩阵 measurement matrix
-            max_lag (int, optional): Defaults to 3. 自回归模型的阶数，即最大延迟
             uc (float, optional): Defaults to 0.0001. update coefficient, forgetting factor.
         """
 
+        max_lag = signals.shape[0] - Kalman_H.shape[1]
         n_point, n_dim = Kalman_H.shape[1], Kalman_H.shape[0]
         dim_x = n_dim * Kalman_H.shape[2]
         super().__init__(dim_x, n_dim, dim_u=0)
@@ -332,7 +334,7 @@ class Kalman4FROLS(KalmanFilter):
         """
 
         Cn = np.kron(eye(self.ndim), self.Kalman_H[:, time, :])    #! 这里其实计算的是 n 时刻的 C
-        idx = np.diagonal(np.arange(Cn.shape[0]).reshape(self.ndim, -1))
+        idx = slice(0, Cn.shape[0], self.ndim + 1)
         return Cn[idx]
 
     def update(self, z, R=None, H=None):
@@ -485,3 +487,78 @@ class Kalman4FROLS(KalmanFilter):
         x_s[np.abs(x_s) < threshold] = 0.    # 阈值处理
         y_coef = x_s.T.reshape(self.ndim, -1)    # 重新排列系数为 ndim x (ndim * p)
         return y_coef
+
+
+class torch4FROLS:
+    def __init__(self, signals, Kalman_H, n_epoch=10, batchsize=32, learning_rate=0.001):
+        """构造函数
+        
+        Args:
+            signals (np.array): 原始信号数据
+            Kalman_H (np.array): Kalman 候选项矩阵
+            n_epoch(int, optional): Defaults to 32. 训练 epoch 数
+            batchsize(int, optional): Defaults to 32.
+            learning_rate(int, optional): Defaults to 0.001.
+        """
+
+        import torch
+        from .regression import regression4torch, TermsData
+        from torch.utils.data import DataLoader
+        self.device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+        self.n_dim = Kalman_H.shape[0]
+        data = TermsData(signals, Kalman_H)
+        in_dim = Kalman_H.shape[0] * Kalman_H.shape[2]
+        out_dim = Kalman_H.shape[0]
+        self.n_epoch = n_epoch
+        self.loader = DataLoader(dataset=data, batch_size=batchsize, shuffle=True)
+        self.model = regression4torch(in_dim, out_dim).to(self.device)
+        self.criterion = torch.nn.MSELoss()
+        self.optimizer = torch.optim.Adam(self.model.parameters(), lr=learning_rate)
+
+    def estimate_coef(self):
+        """估计模型系数
+        """
+
+        self.model.train()
+
+        def _train():
+            for batch_idx, (data, target) in enumerate(self.loader):
+                data, target = data.to(self.device), target.to(self.device)
+                self.optimizer.zero_grad()
+                output = self.model(data)
+                loss = self.criterion(output, target)
+                loss.backward()
+                self.optimizer.step()
+            print(f'loss: {loss}')
+
+        for _ in range(self.n_epoch):
+            _train()
+        return self.model.weight.detach().cpu().numpy().reshape(self.n_dim, -1)
+
+
+# !原生代码和此处的问题有区别，暂时不可直接使用
+# class sklearn4FROLS:
+#     """基于 scikit-learn 的模型系数估计(原生代码和此处的问题有区别，暂时不可直接使用)
+#     """
+
+#     def __init__(self, signals, Kalman_H):
+#         """构造函数
+
+#         Args:
+#             signals (np.array): 原始信号数据
+#             Kalman_H (np.array): Kalman 候选项矩阵
+#         """
+
+#         from .regression import regression4sklearn, make_dataset4SK
+#         max_lag = signals.shape[0] - Kalman_H.shape[1]
+#         self.data, self.target = make_dataset4SK(signals, Kalman_H)
+#         self.model = regression4sklearn()
+
+#     def estimate_coef(self):
+#         """估计模型系数
+#         """
+
+#         # 训练模型
+#         self.model.fit(self.data, self.target)
+#         # 获取模型参数
+#         return self.model.coef_.reshape(self.target.shape[1], -1)
