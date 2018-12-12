@@ -83,7 +83,8 @@ class Kalman4ARX(KalmanFilter):
         return Cn.T
 
     def update(self, z, R=None, H=None):
-        """与原update函数的唯一不同在于P更新的方式可以调节，为了保证其它功能正常，仍然保留原始的内容"""
+        """与原update函数的唯一不同在于P更新的方式可以调节，为了保证其它功能正常，仍然保留原始的内容
+        """
 
         # set to None to force recompute
         self._log_likelihood = None

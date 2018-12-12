@@ -127,21 +127,21 @@ $$
 ## Info
 ```bash
 $ cloc .
-      71 text files.
-      71 unique files.
-      70 files ignored.
+      72 text files.
+      72 unique files.
+      69 files ignored.
 
-github.com/AlDanial/cloc v 1.80  T=0.50 s (90.0 files/s, 9402.0 lines/s)
+github.com/AlDanial/cloc v 1.80  T=1.00 s (46.0 files/s, 4959.0 lines/s)
 -------------------------------------------------------------------------------
 Language                     files          blank        comment           code
 -------------------------------------------------------------------------------
-Python                          23            669           1201           1084
+Python                          24            725           1290           1174
 IPython Notebook                 2              0              0            603
 MATLAB                           8             52            158            339
-Markdown                         7             86              0            221
+Markdown                         7             88              0            242
 JSON                             4              0              0            175
 YAML                             1              5              0            108
 -------------------------------------------------------------------------------
-SUM:                            45            812           1359           2530
+SUM:                            46            870           1448           2641
 -------------------------------------------------------------------------------
 ```

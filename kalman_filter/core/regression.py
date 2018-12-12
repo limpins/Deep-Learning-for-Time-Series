@@ -72,7 +72,8 @@ def regression4torch(in_dim, out_dim):
 
 
 def regression4sklearn():
-    """基于 scikit-learn 的线性回归模型"""
+    """基于 scikit-learn 的线性回归模型
+    """
 
     from sklearn.linear_model import LinearRegression
     return LinearRegression(fit_intercept=False)

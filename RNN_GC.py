@@ -13,7 +13,8 @@ from tools import cyclical_lr
 
 
 def train_valid(in_dim, hidden_dim, out_dim, ckpt, test_data, loaders):
-    """训练与验证模型，每个epoch都进行训练与验证"""
+    """训练与验证模型，每个epoch都进行训练与验证
+    """
 
     net = RNN_Net(in_dim, hidden_dim, out_dim, rnn_type=cfg['rnn_type'], num_layers=cfg['num_layers'], dropout=cfg['dropout'])    # 创建模型实例
     opt = optim.RMSprop(net.parameters(), lr=cfg['lr_rate'], momentum=cfg['momentum'], weight_decay=cfg['weight_decay'])    # 优化器定义
@@ -47,9 +48,13 @@ def train_valid(in_dim, hidden_dim, out_dim, ckpt, test_data, loaders):
 
 
 def main():
-    """RNN_GC with NUE(non-uniform embedding) 算法的实现，对应论文中的算法2(返回格兰杰矩阵)"""
+    """RNN_GC with NUE(non-uniform embedding) 算法的实现，对应论文中的算法2(返回格兰杰矩阵)
+    """
 
-    seqdata_all = get_mat_data(f'Data/{signal_type}_noise1.mat', f'{signal_type}')    # 读取数据
+    if signal_type in all_signal_type[:3]:
+        seqdata_all = get_mat_data(f'Data/{signal_type}_noise1.mat', f'{signal_type}')    # 读取数据
+    else:
+        seqdata_all = get_mat_data(f'Data/{signal_type}.mat', f'{signal_type}')    # 读取数据
 
     # 在完整数据集上训练模型
     model_id = 1
@@ -104,7 +109,7 @@ if __name__ == '__main__':
 
     avg_gc_matrix = 0
     # for signal_type in all_signal_type:
-    signal_type = all_signal_type[2]
+    signal_type = all_signal_type[5]
     print(f'signal type: {signal_type}')
     cfg = config[signal_type]
     for _ in range(cfg['num_trial']):
