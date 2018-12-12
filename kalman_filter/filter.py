@@ -63,7 +63,22 @@ class Kalman4ARX(KalmanFilter):
         self.x = np.random.randn(self.dim_x, 1)    # 初始状态初始化为 (0, 1) 正态分布
         self.Q = self.uc * eye(self.dim_x)    # 文献1的初始化方式，若使用文献3的初始化方式，注释掉该行
         self.H = self.measurement_matrix(self.max_lag)    # 初始时的测量矩阵
-        self.z = self.signals[self.max_lag].T    # 初始时的测量值
+        self.z = self.signals[self.max_lag].reshape(-1, 1)    # 初始时的测量值
+
+    def measurement_matrix(self, time):
+        """计算 C_n, 参考文献3
+
+        Args:
+            time: int, 当前的时间点, 从 0 开始
+
+        Returns:
+            measurement_matrix: np.array, 与当前时刻对应的转移矩阵
+        """
+
+        Yt = lambda t: self.signals[(t - 1)::-1, :] if t == self.max_lag else self.signals[(t - 1):(t - 1 - self.max_lag):-1, :]
+        Y = Yt(time).reshape(1, -1)
+        Cn = np.kron(eye(self.ndim), Y.T)    # 这里其实计算的是 n-1 时刻的 C
+        return Cn.T
 
     def update(self, z, R=None, H=None):
         """与原update函数的唯一不同在于P更新的方式可以调节，为了保证其它功能正常，仍然保留原始的内容"""
@@ -123,12 +138,12 @@ class Kalman4ARX(KalmanFilter):
         self.x_post = self.x.copy()
         self.P_post = self.P.copy()
 
-    def filter(self, t, z):
+    def filter(self, time, z):
         """实现一次滤波
         使用 self.x 获取当前的预测值
         
         Args:
-            t (int): 当前时间点
+            time (int): 当前时间点
             z (np.array): column vector, 当前观测值
         
         Returns:
@@ -138,7 +153,7 @@ class Kalman4ARX(KalmanFilter):
         self.predict()
         self.update_Q()
         self.update_R(z)
-        self.update_H(t)
+        self.update_H(time)
         self.update(z.T)
         return self.z
 
@@ -153,7 +168,7 @@ class Kalman4ARX(KalmanFilter):
 
         z_s = []
         for time, z in enumerate(self.signals[self.max_lag:]):
-            z_s.append(self.filter(time + self.max_lag, z.T))
+            z_s.append(self.filter(time + self.max_lag, z.reshape(-1, 1)))
         self.z_s = np.array(z_s).squeeze()
         return self.x, self.P, self.z_s
 
@@ -169,7 +184,7 @@ class Kalman4ARX(KalmanFilter):
 
         z_s = []
         for time, z in enumerate(self.signals[:(self.max_lag - 1):-1]):
-            z_s.append(self.filter(self.N - 1 - time, z.T))
+            z_s.append(self.filter(self.N - 1 - time, z.reshape(-1, 1)))
         self.z_s = np.array(z_s).squeeze()
         return self.x, self.P, self.z_s[::-1]
 
@@ -183,21 +198,6 @@ class Kalman4ARX(KalmanFilter):
         factor2 = dot(self.inv(P_f), x_f) + dot(self.inv(P_b), x_b)
         x_s = dot(factor1, factor2)
         return x_s
-
-    def measurement_matrix(self, time):
-        """计算 C_n, 参考文献3
-
-        Args:
-            time: int, 当前的时间点, 从 0 开始
-
-        Returns:
-            measurement_matrix: np.array, 与当前时刻对应的转移矩阵
-        """
-
-        Yt = lambda t: self.signals[(t - 1)::-1, :] if t == self.max_lag else self.signals[(t - 1):(t - 1 - self.max_lag):-1, :]
-        Y = Yt(time).reshape(1, -1)
-        Cn = np.kron(eye(self.ndim), Y.T)    # 这里其实计算的是 n-1 时刻的 C
-        return Cn.T
 
     def update_R(self, z):
         # update R, 文献 3
@@ -286,7 +286,7 @@ class Kalman4FROLS(KalmanFilter):
     
     Attributes:
         max_lag (int): max lag of model.
-        signals (np.array): N * ndim. (N 的大小和 Kalman_H 的行数相同)
+        signals (np.array): 输入的信号数据
         Kalman_H (np.array): 测量矩阵 measurement matrix
         N (int): 信号的有效长度
         ndim (int): 信号的维数
@@ -303,23 +303,37 @@ class Kalman4FROLS(KalmanFilter):
             uc (float, optional): Defaults to 0.0001. update coefficient, forgetting factor.
         """
 
-        n_row, n_col = signals.shape
-        dim_x = Kalman_H.shape[1]
-        super().__init__(dim_x, n_col, dim_u=0)
+        n_point, n_dim = Kalman_H.shape[1], Kalman_H.shape[0]
+        dim_x = n_dim * Kalman_H.shape[2]
+        super().__init__(dim_x, n_dim, dim_u=0)
         self.Kalman_H = Kalman_H
         self.max_lag = max_lag
         self.signals = signals
-        self.N = n_row    # 信号的有效长度
-        self.ndim = n_col    # 信号的维数
+        self.N = n_point    # 信号的有效长度
+        self.ndim = n_dim    # 信号的维数
         self.uc = uc    # update coefficient
-        self.z_s = 0    # 滤波器最后得到的观测值估计序列
+        self.z_s = None    # 滤波器最后得到的观测值估计序列
         self.init()
 
     def init(self):
         self.x = np.random.randn(self.dim_x, 1)    # 初始状态初始化为 (0, 1) 正态分布
         self.Q = self.uc * eye(self.dim_x)    # 文献1的初始化方式，若使用文献3的初始化方式，注释掉该行
-        self.H = self.Kalman_H[0]    # 初始时的测量矩阵
-        self.z = self.signals[self.max_lag].T    # 初始时的测量值
+        self.H = self.measurement_matrix(0)    # 初始时的测量矩阵
+        self.z = self.signals[self.max_lag].reshape(-1, 1)    # 初始时的测量值
+
+    def measurement_matrix(self, time):
+        """计算 C_n, 参考文献3
+
+        Args:
+            time: int, 当前的时间点, 从 0 开始
+
+        Returns:
+            measurement_matrix: np.array, 与当前时刻对应的转移矩阵
+        """
+
+        Cn = np.kron(eye(self.ndim), self.Kalman_H[:, time, :])    #! 这里其实计算的是 n 时刻的 C
+        idx = np.diagonal(np.arange(Cn.shape[0]).reshape(self.ndim, -1))
+        return Cn[idx]
 
     def update(self, z, R=None, H=None):
         """与原update函数的唯一不同在于P更新的方式可以调节，为了保证其它功能正常，仍然保留原始的内容"""
@@ -379,12 +393,12 @@ class Kalman4FROLS(KalmanFilter):
         self.x_post = self.x.copy()
         self.P_post = self.P.copy()
 
-    def filter(self, t, z):
+    def filter(self, time, z):
         """实现一次滤波
         使用 self.x 获取当前的预测值
         
         Args:
-            t (int): 当前时间点
+            time (int): 当前时间点
             z (np.array): column vector, 当前观测值
         
         Returns:
@@ -394,7 +408,7 @@ class Kalman4FROLS(KalmanFilter):
         self.predict()
         self.update_Q()
         self.update_R(z)
-        self.update_H(t)
+        self.update_H(time)
         self.update(z.T)
         return self.z
 
@@ -409,7 +423,7 @@ class Kalman4FROLS(KalmanFilter):
 
         z_s = []
         for time, z in enumerate(self.signals[self.max_lag:]):
-            z_s.append(self.filter(time + self.max_lag, z.T))
+            z_s.append(self.filter(time, z.reshape(-1, 1)))
         self.z_s = np.array(z_s).squeeze()
         return self.x, self.P, self.z_s
 
@@ -425,7 +439,7 @@ class Kalman4FROLS(KalmanFilter):
 
         z_s = []
         for time, z in enumerate(self.signals[:(self.max_lag - 1):-1]):
-            z_s.append(self.filter(self.N - 1 - time, z.T))
+            z_s.append(self.filter(self.N - 1 - time, z.reshape(-1, 1)))
         self.z_s = np.array(z_s).squeeze()
         return self.x, self.P, self.z_s[::-1]
 
@@ -454,7 +468,7 @@ class Kalman4FROLS(KalmanFilter):
 
     def update_H(self, time):
         # update H, 文献1, 3, 测量矩阵会随时间变化
-        self.H = self.Kalman_H(time).reshape(1, -1)
+        self.H = self.measurement_matrix(time)
 
     def estimate_coef(self, threshold=1e-5):
         """重新排列计算出来的系数(pK^2 x 1)
@@ -467,12 +481,7 @@ class Kalman4FROLS(KalmanFilter):
             A_coef: 以系数矩阵形式排列的系数
         """
 
-        A_coef = []
         x_s = self.smoother()
         x_s[np.abs(x_s) < threshold] = 0.    # 阈值处理
         y_coef = x_s.T.reshape(self.ndim, -1)    # 重新排列系数为 ndim x (ndim * p)
-
-        # A_coef 为 p x (ndim x ndim) 形式矩阵
-        for m in range(0, y_coef.shape[1], self.ndim):
-            A_coef += [y_coef[:, m:(m + self.ndim)]]
-        return y_coef, np.array(A_coef)
+        return y_coef

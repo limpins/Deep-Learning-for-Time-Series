@@ -11,7 +11,7 @@ import datetime as dt
 
 import numpy as np
 
-__all__ = ['get_mat_data', 'normalize', 'save_2Darray', 'save_3Darray', 'Timer', 'make_linear_func']
+__all__ = ['get_mat_data', 'normalize', 'save_2Darray', 'save_3Darray', 'Timer', 'make_linear_func', 'make_func4K4FROLS']
 
 
 def get_mat_data(file_name, var_name):
@@ -117,6 +117,36 @@ def make_linear_func(A_coef, var_name: str = 'y', step_name: str = 't', save=Tru
             for lag in range(max_lag):
                 if abs(A_coef[lag, var, dim]) > 0.:
                     y += f'{A_coef[lag, var, dim]:.4f} * {var_name}{dim+1}({step_name}-{lag+1}) + '
+        func_repr.append(y + f'e{var+1}({step_name})')
+    func_repr = np.array(func_repr).reshape(-1, 1)
+    if save:
+        np.savetxt(fname, func_repr, fmt='%s', **kwargs)
+    return func_repr
+
+
+def make_func4K4FROLS(y_coef, terms_set, terms_No, var_name: str = 'x', step_name: str = 't', save=True, fname='est_model.txt', **kwargs):
+    """生成使用 Kalman4FROLS 算法估计系数的模型表达式
+    
+    Args:
+        y_coef (np.array): 估计的系数
+        terms_set (np.array): 候选项集合
+        terms_No (np.array): 候选项选择下标
+        var_name (str, optional): Defaults to 'x'. 变量名
+        step_name (str, optional): Defaults to 't'. 时间点变量名
+        save (bool, optional): Defaults to True. 是否保存结果
+        fname (str, optional): Defaults to 'est_model.txt'. 保存的文件名
+    
+    Returns:
+        func_repr (np.array) 模型表达式
+    """
+
+    n_dim, n_term = y_coef.shape
+    terms_No = np.sort(terms_No)
+    func_repr = []
+    for var in range(n_dim):
+        y = f'{var_name}{var+1}({step_name}) = '
+        for term in range(n_term):
+            y += f'{y_coef[var, term]:.4f} * {terms_set[terms_No[var, term]]} + '
         func_repr.append(y + f'e{var+1}({step_name})')
     func_repr = np.array(func_repr).reshape(-1, 1)
     if save:

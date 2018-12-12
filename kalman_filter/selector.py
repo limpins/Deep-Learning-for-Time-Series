@@ -72,7 +72,8 @@ class Selector:
                 for m in range(n_row):
                     term = ''
                     for n in range(n_var):
-                        term += f'{base[Hv_tmp[m, n]-1]}*'    #* matlab 索引从1开始
+                        # !这里注意消除 matlab 和 python 之间的索引差异
+                        term += f'{base[Hv_tmp[m, n]-1]}*'    # *matlab 索引从1开始
                     nonlinear.append(term[:-1])
             nonlinear = np.asarray(nonlinear)
             tmp = list(base)
@@ -82,4 +83,5 @@ class Selector:
         return terms_repr
 
     def make_selection(self):
-        return self.Kalman_H, self.candidate_terms, self.S_No[:, :self.n_term], self.max_lag
+        # !这里注意消除 matlab 和 python 之间的索引差异
+        return self.Kalman_H, self.candidate_terms, self.S_No[:, :self.n_term] - 1, self.max_lag
