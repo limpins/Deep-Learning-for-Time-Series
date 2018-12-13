@@ -97,7 +97,7 @@ class Timer():
 
 def make_linear_func(A_coef, var_name: str = 'y', step_name: str = 't', save=True, fname='est_model.txt', **kwargs):
     """根据系数生成模型表达式
-    
+
     Args:
         A_coef (np.array): y = Ax + e 形式的模型系数矩阵 A
         var_name (str, optional): Defaults to 'y'. 使用的变量名
@@ -105,7 +105,7 @@ def make_linear_func(A_coef, var_name: str = 'y', step_name: str = 't', save=Tru
         save (bool, optional): Defaults to True. 是否保存结果
         fname (str, optional): Defaults to 'est_model.txt'. 保存的文件名
         kwargs: np.savetxt args
-    
+
     Returns:
         func_repr (np.array) 模型表达式
     """
@@ -125,29 +125,29 @@ def make_linear_func(A_coef, var_name: str = 'y', step_name: str = 't', save=Tru
     return func_repr
 
 
-def make_func4K4FROLS(y_coef, terms_set, terms_No, var_name: str = 'x', step_name: str = 't', save=True, fname='est_model.txt', **kwargs):
+def make_func4K4FROLS(y_coef, terms_set, Kalman_S_No, var_name: str = 'x', step_name: str = 't', save=True, fname='est_model.txt', **kwargs):
     """生成使用 Kalman4FROLS 算法估计系数的模型表达式
-    
+
     Args:
         y_coef (np.array): 估计的系数
         terms_set (np.array): 候选项集合
-        terms_No (np.array): 候选项选择下标
+        Kalman_S_No (np.array): 候选项选择下标
         var_name (str, optional): Defaults to 'x'. 变量名
         step_name (str, optional): Defaults to 't'. 时间点变量名
         save (bool, optional): Defaults to True. 是否保存结果
         fname (str, optional): Defaults to 'est_model.txt'. 保存的文件名
-    
+
     Returns:
         func_repr (np.array) 模型表达式
     """
 
     n_dim, n_term = y_coef.shape
-    terms_No = np.sort(terms_No)
+    Kalman_S_No = np.sort(Kalman_S_No)
     func_repr = []
     for var in range(n_dim):
         y = f'{var_name}{var+1}({step_name}) = '
         for term in range(n_term):
-            y += f'{y_coef[var, term]:.4f} * {terms_set[terms_No[var, term]]} + '
+            y += f'{y_coef[var, term]:.4f} * {terms_set[Kalman_S_No[var, term]]} + '
         func_repr.append(y + f'e{var+1}({step_name})')
     func_repr = np.array(func_repr).reshape(-1, 1)
     if save:

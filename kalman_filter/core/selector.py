@@ -25,35 +25,39 @@ class Selector:
     Attributes:
         norder (int): 非线性次数
         max_lag (int): max lag.
-        ndim (int): the channel or dim of signals.
-        Kalman_H (np.array): 供 kalman 滤波器使用的候选项矩阵.
-        Hv (np.array): 基于 base(linear terms) 的候选项组合，参看 matlab 代码实现
-        S_No (np.array): sparse matrix, 表示选择候选项的下标或索引
+        n_dim (int): the channel or dim of signals.
+        Kalman_H (np.array): 供 kalman 滤波器使用的候选项矩阵, 参看 matlab 代码实现
+        normalized_signals (np.array): 标准化之后的信号数据, 参看 matlab 代码实现
+        Hv (np.array): 基于 base(linear terms) 的候选项组合, 参看 matlab 代码实现
+        S_No (np.array): sparse matrix, 表示选择候选项的下标或索引, 参看 matlab 代码实现
         candidate_terms (np.array): 候选项集合
+        Kalman_S_No (np.array): 和 Kalman_H 相匹配的候选项选择下标
+        n_term (int): FROLS 的阈值或者需要选择的候选项个数
     """
 
     def __init__(self, terms_path):
         """基于 FROLS 算法的候选项选择器算法
-        
+
         Args:
-            max_lag (int): max lag.
             terms_path (str): term selector(matlab) 程序的结果路径
         """
 
-        for key in ['Hv', 'Kalman_H', 'S_No']:
+        for key in ['normalized_signals', 'Hv', 'Kalman_H', 'S_No']:
             setattr(self, key, get_mat_data(terms_path, key))
-        self.ndim, _, self.n_term = self.Kalman_H.shape
+        self.n_dim, n_point, self.n_term = self.Kalman_H.shape
         self.norder = self.Hv.shape[0]
-        self.max_lag = int(self.Hv[0, 0].shape[0] / self.ndim)
+        self.max_lag = self.normalized_signals.shape[0] - n_point
         self.candidate_terms = None
+        # !这里注意消除 matlab 和 python 之间的索引差异
+        self.Kalman_S_No = self.S_No[:, :self.n_term] - 1
 
     def make_terms(self, var_name: str = 'x', step_name: str = 't'):
         """生成模型候选项表达式
-    
+
         Args:
             var_name (str, optional): Defaults to 'x'. 使用的变量名
             step_name (str, optional): Defaults to 't'. 时间点变量名
-        
+
         Returns:
             terms_repr (np.array) 模型表达式
         """
@@ -61,7 +65,7 @@ class Selector:
         terms_repr = []
         base = []
         nonlinear = []
-        for var in range(self.ndim):
+        for var in range(self.n_dim):
             for lag in range(self.max_lag):
                 base.append(f'{var_name}{var+1}({step_name}-{lag+1})')
         base = np.asarray(base)
@@ -81,9 +85,24 @@ class Selector:
             tmp = list(base)
             tmp.extend(list(nonlinear))
             terms_repr = np.asarray(tmp)
-        self.candidate_terms = terms_repr
+        self.candidate_terms = terms_repr    # 更新 candidate_terms
         return terms_repr
 
     def make_selection(self):
-        # !这里注意消除 matlab 和 python 之间的索引差异
-        return self.Kalman_H, self.candidate_terms, self.S_No[:, :self.n_term] - 1, self.max_lag
+        """生成与模型候选项选择有关的数据执行此方法前，先执行 make_terms 方法
+
+        Args:
+            var_name (str, optional): Defaults to 'x'. 使用的变量名
+            step_name (str, optional): Defaults to 't'. 时间点变量名
+
+        Returns:
+            normalized_signals (np.array): 标准化之后的信号数据
+            Kalman_H (np.array): 供 kalman 滤波器使用的候选项矩阵
+            candidate_terms (np.array): 候选项集合
+            Kalman_S_No (np.array): 和 Kalman_H 相匹配的候选项选择下标
+        """
+
+        return self.normalized_signals, self.Kalman_H, self.candidate_terms, self.Kalman_S_No
+
+    def __repr__(self):
+        return f'Selector(norder={self.norder}, max_lag={self.max_lag}, n_dim={self.n_dim}, n_term={self.n_term})'

@@ -29,10 +29,10 @@ __all__ = ['Kalman4ARX', 'Kalman4FROLS', 'torch4FROLS']
 
 class Kalman4ARX(KalmanFilter):
     """定义适用于估计ARX时间序列模型系数的 kalman filter。
-    
+
     Attributes:
         max_lag (int): max lag of model.
-        signals (np.array): N * ndim.
+        signals (np.array): N * ndim. normalized_signals 经过标准化的数据
         N (int): 信号的长度
         ndim (int): 信号的维数
         uc (float): update coefficient.
@@ -144,11 +144,11 @@ class Kalman4ARX(KalmanFilter):
     def filter(self, time, z):
         """实现一次滤波
         使用 self.x 获取当前的预测值
-        
+
         Args:
             time (int): 当前时间点
             z (np.array): column vector, 当前观测值
-        
+
         Returns:
             z_s (np.array): column vector, 当前的预测值
         """
@@ -223,7 +223,7 @@ class Kalman4ARX(KalmanFilter):
 
         Args:
             threshold: 将系数置 0 的阈值, 默认为 1e-5
-        
+
         Returns:
             y_coef: 以信号形式排列的系数
             A_coef: 以系数矩阵形式排列的系数
@@ -241,9 +241,9 @@ class Kalman4ARX(KalmanFilter):
 
     def AIC(self, p):
         """Akaike information criterion.
-        A major concern with parametric analysis methods is the order selection of the autoregressive (AR) model. 
-        If the order is too small, the frequency content in the data cannot be resolved and the spectral estimates will be biased and smoothed and consequently, 
-        some information will be lost. On the other hand, if the model order is overly large, spurious peaks (instabilities) can occur in the spectral estimates, 
+        A major concern with parametric analysis methods is the order selection of the autoregressive (AR) model.
+        If the order is too small, the frequency content in the data cannot be resolved and the spectral estimates will be biased and smoothed and consequently,
+        some information will be lost. On the other hand, if the model order is overly large, spurious peaks (instabilities) can occur in the spectral estimates,
         which result in a large variance of error and might be misleading thus causing wrong identification. (reference 3)
 
         AIC(p) = ln(det(R)) + 2p*d^2 / T
@@ -257,12 +257,12 @@ class Kalman4ARX(KalmanFilter):
 
     def BIC(self, p):
         """Bayesian information criterion.
-        p is the model order, T is the length of time series, R is the covariance matrix of the measurement noise, 
-        and d is the number of the time series under investigation. Both of these criteria using maximum likelihood principle make a compromise 
-        between model complexity and goodness of fit and track both the decreasing error power and the increasing spectral variance with respect to 
+        p is the model order, T is the length of time series, R is the covariance matrix of the measurement noise,
+        and d is the number of the time series under investigation. Both of these criteria using maximum likelihood principle make a compromise
+        between model complexity and goodness of fit and track both the decreasing error power and the increasing spectral variance with respect to
         an increasing model order. (reference 3)
 
-        BIC(p) = ln(det(R)) + ln(T)*p*d^2 / T 
+        BIC(p) = ln(det(R)) + ln(T)*p*d^2 / T
 
         Returns:
             the BIC value of self.max_lag
@@ -286,10 +286,10 @@ class Kalman4ARX(KalmanFilter):
 
 class Kalman4FROLS(KalmanFilter):
     """定义适用于估计NARX时间序列模型系数的 kalman filter。
-    
+
     Attributes:
         max_lag (int): max lag of model.
-        signals (np.array): 输入的信号数据
+        signals (np.array): 输入的信号数据 normalized_signals 经过标准化的数据
         Kalman_H (np.array): 测量矩阵 measurement matrix
         N (int): 信号的有效长度
         ndim (int): 信号的维数
@@ -399,11 +399,11 @@ class Kalman4FROLS(KalmanFilter):
     def filter(self, time, z):
         """实现一次滤波
         使用 self.x 获取当前的预测值
-        
+
         Args:
             time (int): 当前时间点
             z (np.array): column vector, 当前观测值
-        
+
         Returns:
             z_s (np.array): column vector, 当前的预测值
         """
@@ -478,7 +478,7 @@ class Kalman4FROLS(KalmanFilter):
 
         Args:
             threshold: 将系数置 0 的阈值, 默认为 1e-5
-        
+
         Returns:
             y_coef: 以信号形式排列的系数
             A_coef: 以系数矩阵形式排列的系数
@@ -493,9 +493,9 @@ class Kalman4FROLS(KalmanFilter):
 class torch4FROLS:
     def __init__(self, signals, Kalman_H, n_epoch=10, batchsize=32, learning_rate=0.001):
         """构造函数
-        
+
         Args:
-            signals (np.array): 原始信号数据
+            signals (np.array): normalized_signals 经过标准化的数据
             Kalman_H (np.array): Kalman 候选项矩阵
             n_epoch(int, optional): Defaults to 32. 训练 epoch 数
             batchsize(int, optional): Defaults to 32.
@@ -546,7 +546,7 @@ class torch4FROLS:
 #         """构造函数
 
 #         Args:
-#             signals (np.array): 原始信号数据
+#             signals (np.array): normalized_signals 经过标准化的数据
 #             Kalman_H (np.array): Kalman 候选项矩阵
 #         """
 

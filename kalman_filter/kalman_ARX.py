@@ -12,7 +12,9 @@ from pathlib import Path
 
 import numpy as np
 
-from core import *
+from core import (Kalman4ARX, Kalman4FROLS, Selector, Timer, get_mat_data,
+                  make_func4K4FROLS, make_linear_func, normalize, save_2Darray,
+                  save_3Darray)
 
 timer = Timer()
 timer.start()
@@ -22,12 +24,12 @@ timer.start()
 file_path = './kalman_filter/data/linear_signals5D_noise1.mat'
 data = get_mat_data(file_path, 'linear_signals')
 
-# 数据标准化
+# !数据标准化要对整体数据都做
 data = normalize(data)
 
 # 网格搜索
-lag_range = np.arange(3, 6)
-uc_range = np.arange(0.001, 0.01, 0.001)
+# lag_range = np.arange(3, 6)
+# uc_range = np.arange(0.001, 0.01, 0.001)
 # best_lag_uc = grid_search1(data, lag_range, uc_range)
 # print(f'best_lag_uc: {best_lag_uc}')
 # best_lag, _ = grid_search2(data, lag_range, 0.001, criterion='AIC', plot=True)
@@ -38,7 +40,7 @@ uc_range = np.arange(0.001, 0.01, 0.001)
 # 构造 Kalman Filter
 # 初始化
 max_lag = 4
-n_trial = 10
+n_trial = 1
 y_coef, A_coef = 0, 0
 for t in range(n_trial):
     timer0 = Timer()
@@ -73,8 +75,8 @@ print(est_model)
 
 timer.stop()
 
-# !线性模型 Kalmal4FROLS 算法
-terms_path = './kalman_filter/data/linear_terms.mat'
+# !线性模型 Kalmal4FROLS 算法(matlab 自带标准化)
+terms_path = './kalman_filter/data/nor_linear_terms.mat'
 term = Selector(terms_path)
 terms_repr = term.make_terms()
 
@@ -83,20 +85,14 @@ fname = './kalman_filter/data/linear_candidate_terms.txt'
 np.savetxt(fname, terms_repr, fmt='%s')
 
 # *selection
-Kalman_H, candidate_terms, terms_No, max_lag = term.make_selection()
-
-# *非线性数据
-file_path = './kalman_filter/data/linear_signals5D_noise1.mat'
-data = get_mat_data(file_path, 'linear_signals')
-
-# 数据标准化
-data = normalize(data)
+print(term)
+normalized_signals, Kalman_H, candidate_terms, Kalman_S_No = term.make_selection()
 
 # *构造 Kalman Filter
-kf = Kalman4FROLS(data, Kalman_H=Kalman_H, uc=0.01)
+kf = Kalman4FROLS(normalized_signals, Kalman_H=Kalman_H, uc=0.01)
 y_coef = kf.estimate_coef()
 print(y_coef)
 
 # *估计模型生成
-est_model = make_func4K4FROLS(y_coef, candidate_terms, terms_No, fname='./kalman_filter/data/K4FROLS_est_model.txt')
+est_model = make_func4K4FROLS(y_coef, candidate_terms, Kalman_S_No, fname='./kalman_filter/data/linear_Kalmal4FROLS_est_model.txt')
 print(est_model)
