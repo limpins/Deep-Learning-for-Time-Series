@@ -1,5 +1,6 @@
 # Kalman filter estimation
-```
+
+```bash
 Email: autuanliu@163.com
 ```
 
@@ -18,7 +19,9 @@ Email: autuanliu@163.com
   - [Info](#info)
 
 ## 1 Theory
+
 ### 1.1 线性一维系统
+
 #### 1.1.1 系统表示
 
 $$x_k=ax_{k-1}+bu_k+w_k$$
@@ -30,37 +33,39 @@ $$p(w)\sim\mathcal{N}(0, Q)$$
 $$p(v)\sim\mathcal{N}(0, R)$$
 
 #### 1.1.2 计算过程
-* step 1: Predict
+
+- step 1: Predict
 
 $$\hat{{x}_k}=a\hat{{x}_{k-1}}+bu_k$$
 
 $$p_k=ap_{k-1}a + Q$$
 
-* step 2: Update
+- step 2: Update
 
 $$g_k=p_k c/(cp_k c+r)$$
 
 $$\hat{x}_k\leftarrow \hat{x}_k+g_k(z_k-c\hat{x}_k)$$
 
 $$p_k\leftarrow (1-g_k c)p_k$$
-
-
 **以上的过程(step1 && step2)是在观测序列上递归计算的。以上为离散版本(一维)的kalman滤波。**
 
 ### 1.2 线性多维系统
+
 #### 1.2.1 系统表示
+
 $$x_k=Ax_{k-1}+Bu_k+w_k$$
 
 $$z_k=Cx_k+v_k$$
 
 #### 1.2.2 计算过程
-* step 1: Predict
+
+- step 1: Predict
 
 $$\hat{{x}_k}=A\hat{{x}_{k-1}}+Bu_k$$
 
 $$P_k=AP_{k-1}A^T+Q$$
 
-* step 2: Update
+- step 2: Update
 
 $$G_k=P_k C^T(C{P_k} C^T+R)^{-1}$$
 
@@ -71,19 +76,22 @@ $$P_k\leftarrow (I-G_k C)P_k$$
 这里的 $x$ 可以是向量 $\vec{x}$，用来表示多个信号。
 
 ### 1.3 非线性线性多维系统
+
 #### 1.3.1 系统表示
+
 $$x_k=f(x_{k-1},u_k)+w_k$$
 
 $$z_k=h(x_k)+v_k$$
 
 #### 1.3.2 计算过程
-* step 1: Predict
+
+- step 1: Predict
 
 $$\hat{{x}_k}=f(\hat{{x}_{k-1}},u_k)$$
 
 $$P_k=F_{k-1}P_{k-1}F_{k-1}^T+Q_{k-1}$$
 
-* step 2: Update
+- step 2: Update
 
 $$G_k=P_k H_k^T(H_k{P_k} H_k^T+R)^{-1}$$
 
@@ -93,9 +101,8 @@ $$P_k\leftarrow (I-G_k H_k)P_k$$
 
 这里 $F_{k-1}$, $H_k$ 分别表示非线性函数 $f$, $h$ 的雅克比矩阵。
 
-
-
 ## Reference
+
 1. [An implementation of kalman-filters for multivariate time-series in PyTorch](https://github.com/strongio/torch-kalman)
 2. [Analysis of financial time series using Kalman filter.](https://github.com/noureldien/TimeSeriesAnalysis)
 3. [Self-Driving Car Nanodegree Program Starter Code for the Extended Kalman Filter Project](https://github.com/udacity/CarND-Extended-Kalman-Filter-Project)
@@ -104,7 +111,7 @@ $$P_k\leftarrow (I-G_k H_k)P_k$$
 6. [Kalman Filter book using Jupyter Notebook. Focuses on building intuition and experience, not formal proofs. Includes Kalman filters,extended Kalman filters, unscented Kalman filters, particle filters, and more. All exercises include solutions.](https://github.com/rlabbe/Kalman-and-Bayesian-Filters-in-Python)
 7. [Header-only C++11 Kalman Filtering Library (EKF, UKF) based on Eigen3](https://github.com/mherb/kalman)
 8. [**The Extended Kalman Filter: An Interactive Tutorial**](https://home.wlu.edu/~levys/kalman_tutorial/)
-9.  [Lightweight C/C++ Extended Kalman Filter with Python for prototyping](https://github.com/simondlevy/TinyEKF)
+9. [Lightweight C/C++ Extended Kalman Filter with Python for prototyping](https://github.com/simondlevy/TinyEKF)
 10. [CoursePack.book](http://www.cs.unc.edu/~tracker/media/pdf/SIGGRAPH2001_CoursePack_08.pdf)
 11. [Kalman Filter: An Algorithm for making sense from the insights of various sensors fused together.](https://towardsdatascience.com/kalman-filter-an-algorithm-for-making-sense-from-the-insights-of-various-sensors-fused-together-ddf67597f35e)
 12. [kalman_intro_chinese.pdf](https://www.cs.unc.edu/~welch/kalman/media/pdf/kalman_intro_chinese.pdf)
@@ -113,6 +120,7 @@ $$P_k\leftarrow (I-G_k H_k)P_k$$
 15. [kalman.pdf](https://eml.berkeley.edu/~rothenbe/Fall2007/kalman.pdf)
 
 ## Info
+
 ```bash
 $ cloc .
       26 text files.
