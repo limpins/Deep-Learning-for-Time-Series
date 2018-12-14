@@ -81,4 +81,18 @@ Date: 2018/12/13
 3. step 3
    - 估计器构建与估计系数
 
+## terms_maker
+
+1. step 1
+   - buildH
+    ```matlab
+    [H, Hv] = buildH(normalized_signals, norder, max_lag);
+    ```
+
+2. step 2
+   - term_selector
+    ```matlab
+    [Kalman_H, sparse_H, S, S_No] = term_selector(normalized_signals, norder, max_lag, H, threshold);
+    ```
+
 Notes: 示例代码 [example code](./test.py)
