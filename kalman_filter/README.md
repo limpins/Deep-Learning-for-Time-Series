@@ -123,18 +123,18 @@ $$P_k\leftarrow (I-G_k H_k)P_k$$
 
 ```bash
 $ cloc .
-      33 text files.
-      33 unique files.
-      21 files ignored.
+      35 text files.
+      35 unique files.
+      22 files ignored.
 
-github.com/AlDanial/cloc v 1.80  T=0.50 s (38.0 files/s, 4082.0 lines/s)
+github.com/AlDanial/cloc v 1.80  T=0.50 s (40.0 files/s, 4424.0 lines/s)
 -------------------------------------------------------------------------------
 Language                     files          blank        comment           code
 -------------------------------------------------------------------------------
-Python                           9            296            501            563
+Python                           9            301            506            575
 MATLAB                           8             49            153            289
-Markdown                         2             56              0            134
+Markdown                         3             98              0            241
 -------------------------------------------------------------------------------
-SUM:                            19            401            654            986
+SUM:                            20            448            659           1105
 -------------------------------------------------------------------------------
 ```
