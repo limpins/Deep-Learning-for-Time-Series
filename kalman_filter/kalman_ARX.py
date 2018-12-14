@@ -111,7 +111,7 @@ print(term)
 normalized_signals, Kalman_H, candidate_terms, Kalman_S_No = term.make_selection()
 
 # *构造估计器
-kf = torch4FROLS(normalized_signals, Kalman_H, n_epoch=50)
+kf = torch4FROLS(normalized_signals, Kalman_H, n_epoch=100)
 y_coef = kf.estimate_coef()
 print(y_coef)
 
