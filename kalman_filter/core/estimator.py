@@ -491,7 +491,7 @@ class Kalman4FROLS(KalmanFilter):
 
 
 class torch4FROLS:
-    def __init__(self, signals, Kalman_H, n_epoch=10, batchsize=32, learning_rate=0.001):
+    def __init__(self, signals, Kalman_H, n_epoch=50, batchsize=32, learning_rate=0.001):
         """构造函数
 
         Args:

@@ -14,7 +14,7 @@ import numpy as np
 
 from core import (Kalman4ARX, Kalman4FROLS, Selector, Timer, get_mat_data,
                   make_func4K4FROLS, make_linear_func, normalize, save_2Darray,
-                  save_3Darray)
+                  save_3Darray, torch4FROLS)
 
 timer = Timer()
 timer.start()
@@ -75,7 +75,7 @@ print(est_model)
 
 timer.stop()
 
-# !线性模型 Kalmal4FROLS 算法(matlab 自带标准化)
+# !线性模型 Kalmal4FROLS 算法(matlab 标准化)
 terms_path = './kalman_filter/data/nor_linear_terms.mat'
 term = Selector(terms_path)
 terms_repr = term.make_terms()
@@ -95,4 +95,26 @@ print(y_coef)
 
 # *估计模型生成
 est_model = make_func4K4FROLS(y_coef, candidate_terms, Kalman_S_No, fname='./kalman_filter/data/linear_Kalmal4FROLS_est_model.txt')
+print(est_model)
+
+# !线性模型 torch4FROLS 算法(matlab 标准化)
+terms_path = './kalman_filter/data/nor_linear_terms.mat'
+term = Selector(terms_path)
+terms_repr = term.make_terms()
+
+# *保存候选项集合
+fname = './kalman_filter/data/linear_candidate_terms.txt'
+np.savetxt(fname, terms_repr, fmt='%s')
+
+# *selection
+print(term)
+normalized_signals, Kalman_H, candidate_terms, Kalman_S_No = term.make_selection()
+
+# *构造估计器
+kf = torch4FROLS(normalized_signals, Kalman_H, n_epoch=50)
+y_coef = kf.estimate_coef()
+print(y_coef)
+
+# *估计模型生成
+est_model = make_func4K4FROLS(y_coef, candidate_terms, Kalman_S_No, fname='./kalman_filter/data/linear_torch4FROLS_est_model.txt')
 print(est_model)

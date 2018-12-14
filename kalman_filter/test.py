@@ -116,7 +116,7 @@ np.savetxt(fname, terms_repr, fmt='%s')
 normalized_signals, Kalman_H, candidate_terms, Kalman_S_No = term.make_selection()
 
 # *构造 估计器
-kf = torch4FROLS(normalized_signals, Kalman_H)
+kf = torch4FROLS(normalized_signals, Kalman_H, n_epoch=50)
 y_coef = kf.estimate_coef()
 print(y_coef)
 
