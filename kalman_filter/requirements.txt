@@ -1,6 +1,0 @@
-numpy
-matplotlib
-filterpy
-scipy
-scikit-learn
-yapf
