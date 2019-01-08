@@ -43,6 +43,7 @@ def train_valid(in_dim, hidden_dim, out_dim, ckpt, test_data, loaders):
     # 预测并计算误差
     model.save_trained_model(ckpt)
     model.load_best_model(ckpt)    # 使用最好的模型进行预测
+    model.save_model('model.pth')
     err = model.predit_point_by_point(*test_data)[1]
     return err
 
@@ -109,7 +110,7 @@ if __name__ == '__main__':
 
     avg_gc_matrix = 0
     # for signal_type in all_signal_type:
-    signal_type = all_signal_type[5]
+    signal_type = all_signal_type[0]
     print(f'signal type: {signal_type}')
     cfg = config[signal_type]
     for _ in range(cfg['num_trial']):

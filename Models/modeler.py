@@ -14,7 +14,7 @@ class Modeler:
     """A base class for model training, validation, prediction etc.
 
     Args:
-            network (nn.Module): instance of defined model without device allocated. 
+            network (nn.Module): instance of defined model without device allocated.
             opt (torch.optim): the optimizer for network training.
             criterion (nn.Module): the criterion for network training.
             device (torch.device): the device setting for network training.
@@ -69,11 +69,11 @@ class Modeler:
     @torch.no_grad()
     def evaluate_model(self, loaders, epoch=None):
         """evaluate or test modelself.
-        
+
         Args:
             loaders (DataLoader): dataset for evaluatingself.
             epoch (int): Defaults to None
-        
+
         Returns:
             float: elementwise mean loss on each epoch.
         """
@@ -92,11 +92,11 @@ class Modeler:
     @torch.no_grad()
     def predit_point_by_point(self, x, y):
         """predict the sequence with point by point method on the whole sequence.
-        
+
         Args:
             x (torch.tensor): input data.
             y (torch.tensor): target.
-        
+
         Returns:
             out (torch.tensor): output, prediction, num_point*out_dim.
             err (float): prediction error. (pred - target), num_point*out_dim.
@@ -108,7 +108,7 @@ class Modeler:
 
     def save_trained_model(self, path):
         """save trained model's weights.
-        
+
         Args:
             path (str): the path to save checkpoint.
         """
@@ -116,9 +116,19 @@ class Modeler:
         # save model weights
         torch.save(self.model.state_dict(), path)
 
+    def save_model(self, path):
+        """save model.
+
+        Args:
+            path (str): the path to save checkpoint.
+        """
+
+        # save model weights
+        torch.save(self.model, path)
+
     def load_best_model(self, path):
         """load best model's weights.
-        
+
         Args:
             path (str): the path to saved checkpoint.
         """
