@@ -4,6 +4,8 @@
 Email: autuanliu@163.com
 ```
 
+**！！！本库的所有文件，作者保留一切版权，在未经作者许可，请不要擅自使用或者发表！！！**
+
 - [Deep Learning for Time Series](#deep-learning-for-time-series)
   - [1 RNN Granger Causality](#1-rnn-granger-causality)
     - [1.1 Granger Causality Definition$^1$](#11-granger-causality-definition1)
