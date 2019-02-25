@@ -139,4 +139,4 @@ if __name__ == '__main__':
         plt.savefig(f'images/with_NUE/{signal_type}.png')
 
     # 计时结束
-    timer.stop()
+    b = timer.stop()

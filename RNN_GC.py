@@ -8,7 +8,7 @@ import torch
 from torch import nn, optim
 
 from core import (Timer, get_Granger_Causality, get_json_data, get_mat_data, make_loader, matshow, set_device)
-from models import Modeler, RNN_Net
+from Models import Modeler, RNN_Net
 from tools import cyclical_lr
 
 
@@ -49,7 +49,7 @@ def train_valid(in_dim, hidden_dim, out_dim, ckpt, test_data, loaders):
 
 
 def main():
-    """RNN_GC with NUE(non-uniform embedding) 算法的实现，对应论文中的算法2(返回格兰杰矩阵)
+    """RNN_GC without NUE(non-uniform embedding) 算法的实现，对应论文中的算法2(返回格兰杰矩阵)
     """
 
     if signal_type in all_signal_type[:3]:
@@ -124,4 +124,4 @@ if __name__ == '__main__':
     np.savetxt(f'checkpoints/without_NUE/{signal_type}_granger_matrix.txt', avg_gc_matrix)
 
     # 计时结束
-    timer.stop()
+    b = timer.stop()

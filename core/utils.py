@@ -20,7 +20,9 @@ class Timer():
 
     def stop(self):
         end_dt = dt.datetime.now()
-        print(f'Time taken: {(end_dt - self.start_dt).total_seconds():.2f}s')
+        spend = (end_dt - self.start_dt).total_seconds()
+        print(f'Time taken: {spend:.2f}s')
+        return spend
 
 
 def set_device():
@@ -51,7 +53,7 @@ def init_params(net):
 
 def one_hot_encoding(labels, num_classes):
     """Embedding labels to one-hot.
-    
+
     Args:
       labels: (LongTensor) class labels, sized [N,].
       num_classes: (int) number of classes.
@@ -72,11 +74,11 @@ def repackage_hidden(h):
 
 def get_Granger_Causality(err_cond, err_all):
     """计算 Granger Causality matrix. (err_cond, err_all 应该有相同的数据形式)
-    
+
     Args:
         err_cond (matrix like data, numpy.ndarray or torch.Tensor): 条件误差, num_channel * n_point * num_channel
         err_all (matrix like data, numpy.ndarray or torch.Tensor): 整体误差, n_point * num_channel
-    
+
     Returns:
         (np.ndarray) Granger Causality matrix.
     """
@@ -96,7 +98,7 @@ def get_Granger_Causality(err_cond, err_all):
 
 def get_gc_precent(gc_matrix):
     """获取 Granger Causality matrix 的百分比矩阵(当前 i 信号对 j 信号影响的百分比)
-    
+
     Args:
         gc_matrix (np.ndarray): Granger Causality matrix.
     """
@@ -110,12 +112,12 @@ def get_gc_precent(gc_matrix):
 
 def early_stopping(val_loss, patience: int = 5, min_val_loss: float = 0.5):
     """使用 early_stopping 策略，判断是否要停止训练
-    
+
     Args:
         val_loss (np.ndarray or list or tuple): 验证损失, 维度(patience,)
         patience (int, optional): Defaults to 5. 保持的长度，即验证损失不再提升的状态应保持 patience 个 epoch
         min_val_loss (float, optional): Defaults to 0.5. 到目前 epoch 为止的最小验证损失
-    
+
     Returns:
         bool: 是否要停止训练
     """
@@ -129,7 +131,7 @@ def early_stopping(val_loss, patience: int = 5, min_val_loss: float = 0.5):
 
 def plot_save_gc_precent(txt_path: str, save_png_path: str, png_title: str, save_txt_path: str):
     """画图并保存 Granger Causality matrix 的百分比矩阵
-    
+
     Args:
         txt_path (str): the path to Granger Causality matrix have been saved.
         save_png_path (str): the path to save figures.
@@ -148,7 +150,7 @@ def plot_save_gc_precent(txt_path: str, save_png_path: str, png_title: str, save
 
 def matshow(data: np.ndarray, xlabel: str, ylabel: str, title: str, png_name: str):
     """绘制矩阵图
-    
+
     Args:
         data (np.ndarray): 要绘制的数据
         xlabel (str): 横向的标签
@@ -183,7 +185,7 @@ def matshow(data: np.ndarray, xlabel: str, ylabel: str, title: str, png_name: st
 
 def download_file(url: str):
     """download file from url.
-    
+
     Args:
         url (str): url.
     """
