@@ -110,4 +110,5 @@ log/
 checkpoints/with_NUE/*.pth
 checkpoints/without_NUE/*.pth
 runs/
-Data/*.mat
+*.csv
+*.mat
