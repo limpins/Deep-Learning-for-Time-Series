@@ -112,3 +112,4 @@ runs/
 *.csv
 *.mat
 depression/
+checkpoints/
