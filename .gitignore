@@ -107,8 +107,8 @@ venv.bak/
 .vscode/
 .idea/
 log/
-checkpoints/with_NUE/*.pth
-checkpoints/without_NUE/*.pth
+*.pth
 runs/
 *.csv
 *.mat
+depression/
