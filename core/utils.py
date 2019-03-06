@@ -192,3 +192,22 @@ def download_file(url: str):
 
     import wget
     wget.download(url)
+
+def save_3Darray(file_path, data):
+    """save np.ndarray(3D) into txt file.(Ref2)
+    Args:
+        file_path (str or instance of Path(windowns or linux)): the file path to save data.
+        data (np.ndarray): the data need be saved.
+    """
+
+    with open(file_path, 'w') as outfile:
+        # I'm writing a header here just for the sake of readability
+        # Any line starting with "#" will be ignored by numpy.loadtxt
+        outfile.write(f'# Array shape: {data.shape}\n')
+
+        # Iterating through a ndimensional array produces slices along
+        # the last axis. This is equivalent to data[i,:,:] in this case
+        for data_slice in data:
+            np.savetxt(outfile, data_slice, fmt='%.6f')
+            # Writing out a break to indicate different slices...
+            outfile.write('# New trial\n')
