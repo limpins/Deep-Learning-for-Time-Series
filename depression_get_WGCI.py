@@ -91,7 +91,8 @@ if __name__ == '__main__':
     device = set_device()
 
     # 对每个患者读取数据
-    for patient in range(1, 70):
+    # for patient in range(1, 70):
+    for patient in cfg['high']:
         data = get_mat_data(f'Data/depression/{patient}.mat', 'MK')    # 读取数据
         data = data[:, 1:]
         WGCI = []
@@ -99,10 +100,10 @@ if __name__ == '__main__':
             tmp = trial * cfg['n_point'] // 2
             idx = slice(tmp, cfg['n_point'] + tmp)
             gc_matrix = main(data[idx])  # 求WGCI
-            print(gc_matrix)
+            # print(gc_matrix)
             WGCI.append(gc_matrix)
         WGCI = np.array(WGCI)
-        save_3Darray(f'depression/WGCI_{patient}', WGCI)
+        save_3Darray(f'depression/WGCI_{patient}.txt', WGCI)
     # label = ['ch' + str(t + 1) for t in range(cfg['num_channel'])]
     # matshow(avg_gc_matrix, label, label, f'{signal_type} Granger Causality Matrix', f'images/without_NUE/{signal_type}_Granger_Matrix.png')
 
