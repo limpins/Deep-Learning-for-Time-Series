@@ -85,8 +85,6 @@ def main(seqdata_all):
 
 if __name__ == '__main__':
     # 基本设置
-    timer = Timer()
-    timer.start()
     cfg= get_json_data('configs/depression.json')
     device = set_device()
 
@@ -97,16 +95,17 @@ if __name__ == '__main__':
         data = data[:, 1:]
         WGCI = []
         for trial in range(cfg['trial']):
+            print(f'patient ID: {patient}, trial: {trial}')
+            timer = Timer()
+            timer.start()
             tmp = trial * cfg['n_point'] // 2
             idx = slice(tmp, cfg['n_point'] + tmp)
             gc_matrix = main(data[idx])  # 求WGCI
             # print(gc_matrix)
             WGCI.append(gc_matrix)
+            # 计时结束
+            b = timer.stop()
         WGCI = np.array(WGCI)
         save_3Darray(f'depression/WGCI_{patient}.txt', WGCI)
     # label = ['ch' + str(t + 1) for t in range(cfg['num_channel'])]
     # matshow(avg_gc_matrix, label, label, f'{signal_type} Granger Causality Matrix', f'images/without_NUE/{signal_type}_Granger_Matrix.png')
-
-
-    # 计时结束
-    b = timer.stop()
