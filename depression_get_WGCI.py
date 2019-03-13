@@ -89,8 +89,7 @@ if __name__ == '__main__':
     device = set_device()
 
     # 对每个患者读取数据
-    # for patient in range(1, 70):
-    for patient in cfg['mid'][14:]:
+    for patient in range(1, 70):
         data = get_mat_data(f'Data/depression/{patient}.mat', 'MK')    # 读取数据
         data = data[:, 1:]
         WGCI = []
