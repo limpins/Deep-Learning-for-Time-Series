@@ -8,7 +8,7 @@ import torch
 from torch import nn, optim
 
 from core import (Timer, get_Granger_Causality, get_json_data, get_mat_data, make_loader, matshow, set_device, save_3Darray)
-from Models import Modeler, RNN_Net
+from Models import Modeler, RNN_Net, AdaBound
 from tools import cyclical_lr
 
 
@@ -16,8 +16,10 @@ def train_valid(in_dim, hidden_dim, out_dim, ckpt, test_data, loaders):
     """训练与验证模型，每个epoch都进行训练与验证
     """
 
-    net = RNN_Net(in_dim, hidden_dim, out_dim, rnn_type=cfg['rnn_type'], num_layers=cfg['num_layers'], dropout=cfg['dropout'])    # 创建模型实例
-    opt = optim.RMSprop(net.parameters(), lr=cfg['lr_rate'], momentum=cfg['momentum'], weight_decay=cfg['weight_decay'])    # 优化器定义
+    net = RNN_Net(
+        in_dim, hidden_dim, out_dim, rnn_type=cfg['rnn_type'], num_layers=cfg['num_layers'], dropout=cfg['dropout'],
+        bidirectional=cfg['bidirectional'])    # 创建模型实例
+    opt = AdaBound(net.parameters(), lr=cfg['lr_rate'], weight_decay=cfg['weight_decay'])    # 优化器定义
     lr_decay2 = optim.lr_scheduler.ReduceLROnPlateau(opt, patience=5)    # 学习率衰减
     # CLR policy
     # step_size = 5
@@ -27,7 +29,6 @@ def train_valid(in_dim, hidden_dim, out_dim, ckpt, test_data, loaders):
     model = Modeler(net, opt, criterion, device)
 
     val_loss = []
-    min_val_loss = 0.5
     for epoch in range(cfg['num_epoch']):
         # lr_decay1.step()
         train_loss = model.train_model(loaders['train'])    # 当前 epoch 的训练损失
@@ -107,4 +108,4 @@ if __name__ == '__main__':
         WGCI = np.array(WGCI)
         save_3Darray(f'depression/WGCI_{patient}.txt', WGCI)
     # label = ['ch' + str(t + 1) for t in range(cfg['num_channel'])]
-    # matshow(avg_gc_matrix, label, label, f'{signal_type} Granger Causality Matrix', f'images/without_NUE/{signal_type}_Granger_Matrix.png')
+    # matshow(avg_gc_matrix, label, label, f'{signal_type} Granger Causality Matrix', f'images/without_NUE/Granger_Matrix.png')

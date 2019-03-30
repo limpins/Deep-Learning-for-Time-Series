@@ -83,7 +83,7 @@ def train_test_split2(inputs: np.ndarray, targets: np.ndarray, split: float = 0.
 
 def normalize(train_data, test_data, scaler_type: str = 'MinMaxScaler'):
     """归一化数据(一定是在训练集测试集已经划分完后进行)
-    
+
     Args:
         train_data (np.ndarray): 未经过归一化的训练集原始数据
         test_data (np.ndarray): 未经过归一化的测试集原始数据
@@ -93,13 +93,19 @@ def normalize(train_data, test_data, scaler_type: str = 'MinMaxScaler'):
     from inspect import isfunction
     from sklearn import preprocessing as skp
 
+    train_len, seq, dim = train_data.shape
+    test_len = test_data.shape[0]
     if scaler_type in ['MinMaxScaler', 'StandardScaler']:
+        train_data = train_data.reshape(-1, dim)
+        test_data = test_data.reshape(-1, dim)
         scaler = getattr(skp, scaler_type)().fit(train_data)
-        train_data = scaler.transform(train_data)
-        test_data = scaler.transform(test_data)
+        train_data = scaler.transform(train_data).reshape(train_len, seq, dim)
+        test_data = scaler.transform(test_data).reshape(test_len, seq, dim)
     elif isfunction(scaler_type):
-        train_data = scaler_type(train_data)
-        test_data = scaler_type(test_data)
+        train_data = train_data.reshape(-1, dim)
+        test_data = test_data.reshape(-1, dim)
+        train_data = scaler_type(train_data).reshape(train_len, seq, dim)
+        test_data = scaler_type(test_data).reshape(test_len, seq, dim)
     else:
         raise ValueError("""An invalid option was supplied, options are ['MinMaxScaler', 'StandardScaler', None] or lambda function.""")
     return train_data, test_data
@@ -107,14 +113,14 @@ def normalize(train_data, test_data, scaler_type: str = 'MinMaxScaler'):
 
 def series2xy(series_data: np.ndarray, idx_x=None, idx_y=None, seq_length: int = 20, num_shift: int = 1):
     """将序列数据转换为监督学习数据
-    
+
     Args:
         series_data (np.ndarray): 原始的序列数据
         idx_x (list or tuple or index slice or int): x 的索引位置, defaults to None.
         idx_y (list or tuple or index slice or int): y 的索引位置, defaults to None.
         seq_length (int, optional): Defaults to 20. 序列的长度或者采样窗宽
         num_shift (int, optional): Defaults to 1. 窗口每次平移的距离
-    
+
     Returns:
         inputs, targets (np.ndarray)
     """
@@ -188,16 +194,21 @@ def make_loader(seq_data: np.ndarray, idx_x=None, idx_y=None, tt_split=0.7, tv_s
     """
 
     # 训练集、测试集数据分割
-    train_subseq, test_subseq = train_test_split1(seq_data, split=tt_split)
-    # 全部数据归一化
-    train_subseq, test_subseq = normalize(train_subseq, test_subseq, scaler_type=s_type)
+    train_subseq, test_subseq = train_test_split1(seq_data, split = tt_split)
+
     # 转为窗口数据
     X_train, y_train = series2xy(train_subseq, idx_x=idx_x, idx_y=idx_y, seq_length=seq_len, num_shift=num_shift)
-    X_test, y_test = series2xy(test_subseq, idx_x=idx_x, idx_y=idx_y, seq_length=seq_len, num_shift=num_shift)
-    # 训练集、验证集数据分割(已经归一化)
-    X_train, X_valid, y_train, y_valid = train_test_split2(X_train, y_train, split=tv_split)
+    X_test, y_test = series2xy(test_subseq, idx_x = idx_x, idx_y = idx_y, seq_length = seq_len, num_shift = num_shift)
+
+    # 特征数据归一化
+    X_train, X_test = normalize(X_train, X_test, scaler_type = s_type)
+
+    # 训练集、验证集数据分割
+    X_train, X_valid, y_train, y_valid = train_test_split2(X_train, y_train, split = tv_split)
+
     # 构造数据集
     sub = [train_subseq, valid_subseq, test_subseq] = [MakeSeqData(x, y) for x, y in zip([X_train, X_valid, X_test], [y_train, y_valid, y_test])]
-    # 为了保证维度的匹配，需要去掉不满足一个batchsize的其余数据，测试集不需要随机打乱
+
+    # 测试集不需要随机打乱
     [train_loader, valid_loader, test_loader] = [DataLoader(t, batch_size=bt_sz, shuffle=sf, drop_last=False) for t, sf in zip(sub, [True, False, False])]
     return train_loader, valid_loader, test_loader

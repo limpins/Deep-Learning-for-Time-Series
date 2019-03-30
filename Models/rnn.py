@@ -1,7 +1,7 @@
 """
 Email: autuanliu@163.com
 Date: 2018/9/28
-Ref: 
+Ref:
 1. [Estimating Brain Connectivity With Varying-Length Time Lags Using a Recurrent Neural Network](https://ieeexplore.ieee.org/document/8370751/)
 2. [RNN-GC](https://github.com/shaozhefeng/RNN-GC)
 3. https://github.com/pytorch/examples/blob/master/word_language_model/model.py
@@ -24,17 +24,20 @@ class RNN_Net(nn.Module):
         dropout (float): dropout概率值，默认为 0.
     """
 
-    def __init__(self, input_dim, hidden_dim, output_dim, rnn_type='LSTM', num_layers=1, dropout=0.):
+    def __init__(self, input_dim, hidden_dim, output_dim, rnn_type='LSTM', num_layers=1, dropout=0., bidirectional=False):
         super().__init__()
         self.hidden_dim = hidden_dim
         self.num_layers = num_layers
-        self.rnn_type = rnn_type
+        self.rnn_type=rnn_type
+        self.bidirectional = 2 if bidirectional else 1
         dropout = 0. if num_layers == 1 else dropout
         if rnn_type in ['LSTM', 'GRU']:
-            self.rnn = getattr(nn, rnn_type)(input_dim, hidden_dim, num_layers=num_layers, batch_first=True, dropout=dropout)
+            self.rnn = getattr(nn, rnn_type)(input_dim, hidden_dim, num_layers=num_layers, batch_first=True, dropout=dropout, bidirectional=bidirectional)
         else:
             raise ValueError("""An invalid option was supplied, options are ['LSTM', 'GRU']""")
-        self.fc = nn.Linear(hidden_dim, output_dim)
+        self.fc = nn.Linear(hidden_dim * self.bidirectional, 8)
+        self.ac = nn.ReLU()
+        self.fc1 = nn.Linear(8, output_dim)
 
     def forward(self, x):
         """网络的前向传播
@@ -47,7 +50,9 @@ class RNN_Net(nn.Module):
 
         # pytorch的输入会记录所有时间点的输出，这里输出维度为 batchsize*seq_length*hidden_dim
         # 因为我们做的是预测模型也即多对一的RNN模型，所以取最后一个为输出即预测结果
-        return self.fc(y[:, -1, :])
+        out = self.ac(self.fc(y))
+        out = self.fc1(out)
+        return out[:, -1, :]
 
     def initHidden(self, batchsize):
         """初始化RNN的隐变量
@@ -61,7 +66,7 @@ class RNN_Net(nn.Module):
 
         # 获取并创建与weight属性相同的变量，数据类型，运行设备，requires_grad等
         weight = next(self.parameters())
-        h0 = weight.new_zeros(self.num_layers, batchsize, self.hidden_dim).requires_grad_(False)
+        h0 = weight.new_zeros(self.num_layers * self.bidirectional, batchsize, self.hidden_dim).requires_grad_(False)
         if self.rnn_type == 'LSTM':
             return (h0, h0)
         else:

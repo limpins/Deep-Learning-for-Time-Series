@@ -56,7 +56,7 @@ def main():
         seqdata_all = get_mat_data(f'Data/{signal_type}_noise1.mat', f'{signal_type}')    # 读取数据
     else:
         seqdata_all = get_mat_data(f'Data/{signal_type}.mat', f'{signal_type}')    # 读取数据
-
+    print(seqdata_all.shape)
     # 在完整数据集上训练模型
     model_id = 1
     print(f'model_id: {model_id}')
