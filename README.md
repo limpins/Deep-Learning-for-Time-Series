@@ -141,6 +141,8 @@ $$
 
 1. [RNN-GC](https://github.com/shaozhefeng/RNN-GC)
 2. [Deep Learning for Time Series Classification](https://github.com/hfawaz/dl-4-tsc)
+3. [LSTM-FCN: Codebase for the paper LSTM Fully Convolutional Networks for Time Series Classification](https://github.com/titu1994/LSTM-FCN)
+4. [How to Normalize and Standardize Time Series Data in Python](https://machinelearningmastery.com/normalize-standardize-time-series-data-python/)
 
 - Notes
 

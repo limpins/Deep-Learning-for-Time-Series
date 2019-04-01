@@ -50,65 +50,48 @@ def get_excel_data(file_name, sheet_name, skiprows=0, dtype=np.float32):
     return data_df.values
 
 
-def train_test_split1(data: np.ndarray, split: float = 0.7):
+def time_series_split(data: np.ndarray, splits=[0.8, 0.1, 0.1]):
     """序列数据的 train、test 划分
 
     Args:
         data (np.ndarray): 原始或者待划分的时间序列数据
-        spilt (float, optional): Defaults to 0.8. 分割时序数据的分割比例，spilt之前的为训练集
+        spilts (list) 分割时序数据的分割比例
 
     Returns:
         train_subseq, test_subseq (tuple): train_subseq, test_subseq
     """
 
-    split_point = int(np.ceil(data.shape[0] * split))
-    return data[:split_point, :], data[split_point:, :]
+    lens = data.shape[0]
+    split_point1 = int(np.ceil(lens * splits[0]))
+    split_point2 = int(np.ceil(lens * splits[1]))
+    train_set, valid_set, test_set = data[:split_point1, :], data[split_point1:(split_point1 + split_point2), :], data[(split_point1 + split_point2):, :]
+
+    return train_set, valid_set, test_set
 
 
-def train_test_split2(inputs: np.ndarray, targets: np.ndarray, split: float = 0.7):
-    """序列窗口分割后数据的 train、test 划分
-
-    Args:
-        inputs (np.ndarray): 输入数据 x
-        targets (np.ndarray): 输出数据 y
-        spilt (float, optional): Defaults to 0.8. 分割数据的分割比例，spilt之前的为训练集
-
-    Returns:
-        X_train, X_test, y_train, y_test (np.ndarray)
-    """
-
-    split_point = int(np.ceil(inputs.shape[0] * split))
-    return inputs[:split_point, :], inputs[split_point:, :], targets[:split_point, :], targets[split_point:, :]
-
-
-def normalize(train_data, test_data, scaler_type: str = 'MinMaxScaler'):
+def normalize(train_data, valid_data, test_data):
     """归一化数据(一定是在训练集测试集已经划分完后进行)
+
+    EEG 数据有正有负，归一化到 [-1, 1]
 
     Args:
         train_data (np.ndarray): 未经过归一化的训练集原始数据
+        valid_data (np.ndarray): 未经过归一化的验证集原始数据
         test_data (np.ndarray): 未经过归一化的测试集原始数据
-        scaler_type (str, optional): Defaults to 'MinMaxScaler'. 归一化方式
     """
 
-    from inspect import isfunction
     from sklearn import preprocessing as skp
+    def rescaler(x, scalers):
+        new_data = scalers.transform(x) * (1 - (-1)) - 1
+        return new_data
 
-    train_len, seq, dim = train_data.shape
-    test_len = test_data.shape[0]
-    if scaler_type in ['MinMaxScaler', 'StandardScaler']:
-        train_data = train_data.reshape(-1, dim)
-        test_data = test_data.reshape(-1, dim)
-        scaler = getattr(skp, scaler_type)().fit(train_data)
-        train_data = scaler.transform(train_data).reshape(train_len, seq, dim)
-        test_data = scaler.transform(test_data).reshape(test_len, seq, dim)
-    elif isfunction(scaler_type):
-        train_data = train_data.reshape(-1, dim)
-        test_data = test_data.reshape(-1, dim)
-        train_data = scaler_type(train_data).reshape(train_len, seq, dim)
-        test_data = scaler_type(test_data).reshape(test_len, seq, dim)
-    else:
-        raise ValueError("""An invalid option was supplied, options are ['MinMaxScaler', 'StandardScaler', None] or lambda function.""")
-    return train_data, test_data
+    dim = train_data.shape[-1]
+    s1, s2, s3 = train_data.shape, valid_data.shape, test_data.shape
+    scaler = skp.MinMaxScaler().fit(train_data.reshape(-1, dim))
+    train_data = rescaler(train_data.reshape(-1, dim), scaler).reshape(s1)
+    valid_data = rescaler(valid_data.reshape(-1, dim), scaler).reshape(s2)
+    test_data = rescaler(test_data.reshape(-1, dim), scaler).reshape(s3)
+    return train_data, valid_data, test_data
 
 
 def series2xy(series_data: np.ndarray, idx_x=None, idx_y=None, seq_length: int = 20, num_shift: int = 1):
@@ -163,11 +146,6 @@ class MakeSeqData(Dataset):
         self.data = self.fill_dim(torch.from_numpy(inputs))
         self.target = self.fill_dim(torch.from_numpy(targets))
 
-    def get_tensor_data(self):
-        """获取处理后的序列数据"""
-
-        return self.data, self.target
-
     def __getitem__(self, index):
         return self.data[index], self.target[index]
 
@@ -175,39 +153,33 @@ class MakeSeqData(Dataset):
         return self.data.shape[0]
 
 
-def make_loader(seq_data: np.ndarray, idx_x=None, idx_y=None, tt_split=0.7, tv_split=0.7, seq_len=20, num_shift=1, bt_sz=32, s_type='MinMaxScaler'):
+def make_loader(train_set, valid_set, test_set, idx_x=None, idx_y=None, seq_len=20, num_shift=1, bt_sz=32):
     """获取可以迭代的分割后的数据
 
     Args:
-        seq_data (np.ndarray): 原始的序列数据
+        train_set (np.ndarray): 训练数据
+        valid_set (np.ndarray): 验证数据
+        test_set (np.ndarray): 测试数据
         idx_x (list or tuple or index slice or int): x 的索引位置, defaults to None.
         idx_y (list or tuple or index slice or int): y 的索引位置, defaults to None.
-        tt_split (float, optional): Defaults to 0.7. 训练集测试集划分时训练集所占的比例
-        tv_split (float, optional): Defaults to 0.7. 训练集验证集划分时训练集所占的比例
         seq_len (int, optional): Defaults to 20. 窗口的长度
         num_shift (int, optional): Defaults to 1. 窗口每次平移的距离
         bt_sz (int, optional): Defaults to 32. batchsize
-        s_type (str, optional): Defaults to 'MinMaxScaler'. 归一化方式
 
     Returns:
         [torch.utils.data.DataLoader]: train_loader, valid_loader, test_loader
     """
 
-    # 训练集、测试集数据分割
-    train_subseq, test_subseq = train_test_split1(seq_data, split = tt_split)
-
     # 转为窗口数据
-    X_train, y_train = series2xy(train_subseq, idx_x=idx_x, idx_y=idx_y, seq_length=seq_len, num_shift=num_shift)
-    X_test, y_test = series2xy(test_subseq, idx_x = idx_x, idx_y = idx_y, seq_length = seq_len, num_shift = num_shift)
+    X_train, y_train = series2xy(train_set, idx_x=idx_x, idx_y=idx_y, seq_length=seq_len, num_shift=num_shift)
+    X_valid, y_valid = series2xy(valid_set, idx_x=idx_x, idx_y=idx_y, seq_length=seq_len, num_shift=num_shift)
+    X_test, y_test = series2xy(test_set, idx_x=idx_x, idx_y=idx_y, seq_length=seq_len, num_shift=num_shift)
 
     # 特征数据归一化
-    X_train, X_test = normalize(X_train, X_test, scaler_type = s_type)
-
-    # 训练集、验证集数据分割
-    X_train, X_valid, y_train, y_valid = train_test_split2(X_train, y_train, split = tv_split)
+    X_train, X_valid, X_test = normalize(X_train, X_valid, X_test)
 
     # 构造数据集
-    sub = [train_subseq, valid_subseq, test_subseq] = [MakeSeqData(x, y) for x, y in zip([X_train, X_valid, X_test], [y_train, y_valid, y_test])]
+    sub = [MakeSeqData(x, y) for x, y in zip([X_train, X_valid, X_test], [y_train, y_valid, y_test])]
 
     # 测试集不需要随机打乱
     [train_loader, valid_loader, test_loader] = [DataLoader(t, batch_size=bt_sz, shuffle=sf, drop_last=False) for t, sf in zip(sub, [True, False, False])]

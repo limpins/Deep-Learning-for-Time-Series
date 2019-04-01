@@ -45,6 +45,7 @@ class RNN_Net(nn.Module):
         Args:
             x (tensor): 输入
         """
+        
         hidden = self.initHidden(x.size(0))
         y, _ = self.rnn(x, hidden)
 

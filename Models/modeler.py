@@ -62,6 +62,7 @@ class Modeler:
             self.opt.zero_grad()
             loss.backward()
             self.opt.step()
+            
         if epoch is not None:
             self.write.add_scalar('train loss', loss.item(), epoch)
         return loss.item()
