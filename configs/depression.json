@@ -18,7 +18,7 @@
     "threshold": 0.1,
     "num_epoch": 10,
     "trial_points": 4000,
-    "vis": true,
+    "vis": false,
     "overlap": 0.5,
     "trials": 100,
     "low": [3, 4, 6, 10, 13, 16, 19, 21, 27, 29, 31, 40, 49, 50, 57],
