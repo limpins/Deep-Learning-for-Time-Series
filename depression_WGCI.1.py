@@ -116,7 +116,7 @@ if __name__ == '__main__':
     root = r'Data/depression/'
     save_root = r'depression/'
 
-    for patient in range(1, 18):
+    for patient in range(18, 36):
         print(f'patient ID: {patient}')
         WGCI = get_person_WGCI(f'{root}{patient}normalized.mat', 'data', cfg)
         save_3Darray(f'{save_root}WGCI_{patient}.txt', WGCI)

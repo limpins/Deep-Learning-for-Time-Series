@@ -5,7 +5,7 @@
     "lr_rate": 0.003,
     "momentum": 0.9,
     "weight_decay": 0.001,
-    "bt_sz": 32,
+    "bt_sz": 64,
     "seq_len": 50,
     "num_channel": 3,
     "in_dim": 3,
