@@ -1,6 +1,6 @@
-% 获取信号的 PDC 值, 使用基于 Kalman Filter 的参数估计
 % autuanliu@163.com
-% 2018/03/24
+% 2019/04/08
+%
 clc;
 clear all;
 
@@ -9,25 +9,26 @@ format long;
 threshold = 0.1;
 inputDir = 'input/';
 outputDir = 'output/';
-dataName = 'PDC_pre_ictal.mat';
-dataName1 = 'PDC_ictal.mat';
-dataName2 = 'PDC_post_ictal.mat';
+dataName = 'workspace.mat';
 
 % 加载数据
-PDC_pre_ictal = load([inputDir, dataName]);
-PDC_pre_ictal = PDC_pre_ictal.PDC_mean;
-PDC_ictal = load([inputDir, dataName1]);
-PDC_ictal = PDC_ictal.PDC_mean;
-PDC_post_ictal = load([inputDir, dataName2]);
-PDC_post_ictal = PDC_post_ictal.PDC_mean;
+load([inputDir, dataName]);
+
+% 数据截取与备份
+% WGCI_mean_low1 = WGCI_mean_low;
+% WGCI_mean_mid1 = WGCI_mean_mid(1:15, :, :);
+% WGCI_mean_high1 = WGCI_mean_high(1:15, :, :);
+% WGCI_median_low1 = WGCI_median_low;
+% WGCI_median_mid1 = WGCI_median_mid(1:15, :, :);
+% WGCI_median_high1 = WGCI_median_high(1:15, :, :);
 
 % 执行程序
-dataPre;
-statistics04;
-statistics06;
+% 中值检验和均值检验
+statistics_mean;
+statistics_median;
 
 % 保存变量
-save([outputDir, 'data/', 'workspace.mat'])
+save([outputDir, 'data/', 'workspace_result.mat'])
 
 % 清除中间变量
 clear avg* backup* *Dir;

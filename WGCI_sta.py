@@ -9,7 +9,7 @@ import ujson
 
 data_root = Path(r'depression/')
 WGCI_persons, med_values, med_type_presons = {}, {}, {}
-sta_type = 'mean' # 'median'
+sta_type = 'median' # 'median'
 
 for id in range(1, 70):
     data = np.loadtxt(data_root / f'WGCI_{id}.txt', dtype=np.float32, skiprows=1, comments='#')
@@ -22,15 +22,25 @@ for id in range(1, 70):
 with open(data_root/ r'result/WGCI_persons.pkl', 'wb') as outfile:
     pickle.dump(WGCI_persons, outfile, 0)
 
-# mat 格式
-sio.savemat(data_root/ r'result/WGCI_persons.mat', {'WGCI_persons': WGCI_persons})
 
 # 保存结果
 with open(data_root/ rf'result/WGCI_{sta_type}_persons.pkl', 'wb') as outfile:
     pickle.dump(med_values, outfile, 0)
 
 # mat 格式
-sio.savemat(data_root/ rf'result/WGCI_{sta_type}_persons.mat', {'med_values': med_values})
+if sta_type == 'mean':
+    WGCI_mean_persons1 = []
+    for id in range(1, 70):
+        WGCI_mean_persons1.append(med_values[id])
+    WGCI_mean_persons1 = np.array(WGCI_mean_persons1)
+    sio.savemat(data_root/ rf'result/WGCI_mean_persons.mat', {'WGCI_mean_persons': WGCI_mean_persons1})
+
+if sta_type == 'median':
+    WGCI_median_persons1 = []
+    for id in range(1, 70):
+        WGCI_median_persons1.append(med_values[id])
+    WGCI_median_persons1 = np.array(WGCI_median_persons1)
+    sio.savemat(data_root/ rf'result/WGCI_median_persons.mat', {'WGCI_median_persons': WGCI_median_persons1})
 
 # 读取结果
 # with open(data_root/ rf'result/WGCI_persons.pkl', 'rb') as instream:
@@ -56,8 +66,6 @@ for type in ['low', 'mid', 'high']:
 with open(data_root / rf'result/WGCI_{sta_type}_type_persons.pkl' , 'wb') as outstream:
     pickle.dump(med_type_presons, outstream, 0)
 
-# mat 格式
-sio.savemat(data_root / rf'result/WGCI_{sta_type}_type_persons.mat', {'med_type_presons': med_type_presons})
 
 # 读取结果
 # with open(data_root / rf'result/WGCI_{sta_type}_type_persons.pkl' , 'rb') as instream:
@@ -73,9 +81,6 @@ for p_type in ['low', 'mid', 'high']:
 # 保存结果
 with open(data_root / r'result/patient_label.pkl' , 'wb') as outstream:
     pickle.dump(type_label, outstream, 0)
-
-# mat 格式
-sio.savemat(data_root / r'result/patient_label.mat', {'type_label': type_label})
 
 # 读取结果
 # with open(data_root / r'result/patient_label.pkl' , 'rb') as instream:
