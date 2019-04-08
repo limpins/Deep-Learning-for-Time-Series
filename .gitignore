@@ -113,3 +113,5 @@ runs/
 *.mat
 depression/
 checkpoints/
+anova/input/
+anova/output/
