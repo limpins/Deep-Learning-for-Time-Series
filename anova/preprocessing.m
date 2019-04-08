@@ -40,6 +40,14 @@ for id=high
     group{1, id} = 'high depression';
 end
 
+% 调整数据格式
+% 全部考虑
+WGCI_mean1 = reshape(WGCI_mean_persons, 69, 9).';
+WGCI_median1 = reshape(WGCI_median_persons, 69, 9).';
+
+% 只考虑(0, 1), (1, 0)
+WGCI_mean2 = reshape(WGCI_mean_persons(:, [2, 4]), 69, 2).';
+WGCI_median2 = reshape(WGCI_median_persons(:, [2, 4]), 69, 2).';
 
 % 清除多余变量
 clear low mid high dataName1 dataName2 id
