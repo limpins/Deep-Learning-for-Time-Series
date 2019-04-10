@@ -22,6 +22,7 @@ Email: autuanliu@163.com
   - [Docs](#docs)
   - [Reference](#reference)
   - [Useful website](#useful-website)
+  - [EEG 信号预处理](#eeg-%E4%BF%A1%E5%8F%B7%E9%A2%84%E5%A4%84%E7%90%86)
   - [Info](#info)
 
 ## 1 RNN Granger Causality
@@ -155,6 +156,12 @@ $$
 2. [Documentation - Overleaf, Online LaTeX Editor](https://www.overleaf.com/learn/latex/Main_Page)
 3. [Supported Functions · KaTeX](https://katex.org/docs/supported.html)
 4. [Understanding and interpreting box plots | Wellbeing@School](https://www.wellbeingatschool.org.nz/information-sheet/understanding-and-interpreting-box-plots)
+
+## EEG 信号预处理
+1. [EEG Data Processing and Classification with g.BSanalyze Under MATLAB - MATLAB & Simulink](https://www.mathworks.com/company/newsletters/articles/eeg-data-processing-and-classification-with-gbsanalyze-under-matlab.html)
+2. [EEG-Clean-Tools (PREP Pipeline)](http://vislab.github.io/EEG-Clean-Tools/)
+3. [EEGLAB](https://sccn.ucsd.edu/eeglab/index.php)
+4. [介绍 · eeglab_cn](https://lix90.gitbooks.io/eeglab_cn/content/)
 
 ## Info
 
