@@ -106,6 +106,7 @@ venv.bak/
 # other dir ignore
 .vscode/
 .idea/
+*.mat
 log/
 *.pth
 runs/

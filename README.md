@@ -162,6 +162,10 @@ $$
 2. [EEG-Clean-Tools (PREP Pipeline)](http://vislab.github.io/EEG-Clean-Tools/)
 3. [EEGLAB](https://sccn.ucsd.edu/eeglab/index.php)
 4. [介绍 · eeglab_cn](https://lix90.gitbooks.io/eeglab_cn/content/)
+5. [EEGLAB操作手册](https://wenku.baidu.com/view/b981d9c06137ee06eff91891.html)
+6. [Matlab之EEGLAB工具箱脑电数据预处理 - matlab教程](http://www.lishimeiye.cn/fun/977.html)
+7. [joramvd/eegpreproc: Preprocessing EEG data: Matlab code pipeline and pdf manual](https://github.com/joramvd/eegpreproc)
+8. [[图文]ERP实验设计和数据分析 - 百度文库](https://wenku.baidu.com/view/d5b13f90eefdc8d377ee323c.html)
 
 ## Info
 

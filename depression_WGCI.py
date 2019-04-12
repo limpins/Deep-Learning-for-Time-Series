@@ -102,7 +102,7 @@ def train_net(train_set, valid_set, test_set, in_dim, out_dim, cfg):
     for ch in range(prediction.shape[-1]):
         plt.figure(figsize=(12, 5))
         plt.plot(np.c_[prediction.cpu().numpy()[:, ch], test_loader.dataset.target.cpu().numpy()[:, ch]])
-        plt.legend([f'prediction dim{ch}', f'label dim{ch}'])
+        plt.legend([f'prediction EEG channel{ch + 1}', f'label EEG channel{ch + 1}'])
         if cfg['vis']:
             plt.show()
 
@@ -113,10 +113,10 @@ if __name__ == '__main__':
     # 设置参数
     cfg = get_json_data('configs/depression.json')
     device = set_device()
-    root = r'Data/depression/'
+    root = r'Data/new_eeg/'
     save_root = r'depression/'
 
     for patient in range(1, 70):
         print(f'patient ID: {patient}')
-        WGCI = get_person_WGCI(f'{root}{patient}normalized.mat', 'data', cfg)
+        WGCI = get_person_WGCI(f'{root}{patient}.mat', 'data', cfg)
         save_3Darray(f'{save_root}WGCI_{patient}.txt', WGCI)
