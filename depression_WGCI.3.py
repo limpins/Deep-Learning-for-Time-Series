@@ -99,12 +99,12 @@ def train_net(train_set, valid_set, test_set, in_dim, out_dim, cfg):
     prediction, err = model.predit_point_by_point(test_loader.dataset.data, test_loader.dataset.target)
 
     # 可视化预测效果
-    for ch in range(prediction.shape[-1]):
-        plt.figure(figsize=(12, 5))
-        plt.plot(np.c_[prediction.cpu().numpy()[:, ch], test_loader.dataset.target.cpu().numpy()[:, ch]])
-        plt.legend([f'prediction EEG channel{ch + 1}', f'label EEG channel{ch + 1}'])
-        if cfg['vis']:
-            plt.show()
+    # for ch in range(prediction.shape[-1]):
+    #     plt.figure(figsize=(12, 5))
+    #     plt.plot(np.c_[prediction.cpu().numpy()[:, ch], test_loader.dataset.target.cpu().numpy()[:, ch]])
+    #     plt.legend([f'prediction EEG channel{ch + 1}', f'label EEG channel{ch + 1}'])
+    #     if cfg['vis']:
+    #         plt.show()
 
     return prediction, err
 
