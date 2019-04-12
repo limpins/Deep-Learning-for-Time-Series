@@ -116,7 +116,7 @@ if __name__ == '__main__':
     root = r'Data/new_eeg/'
     save_root = r'depression/'
 
-    for patient in range(1, 17):
+    for patient in range(34, 51):
         print(f'patient ID: {patient}')
         WGCI = get_person_WGCI(f'{root}{patient}.mat', 'data', cfg)
         save_3Darray(f'{save_root}WGCI_{patient}.txt', WGCI)
