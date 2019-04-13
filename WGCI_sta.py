@@ -1,4 +1,5 @@
 import pickle
+import pandas as pd
 import scipy.io as sio
 from pathlib import Path
 
@@ -9,11 +10,26 @@ import ujson
 
 data_root = Path(r'depression/')
 WGCI_persons, med_values, med_type_presons = {}, {}, {}
-sta_type = 'median' # 'median'
+file_name = rf'./configs/depression.json'
+cfg = ujson.load(open(file_name, 'r'))
+sta_type = 'mean'  # 'median'
+
+# 获取哈密顿分数信息
+data = pd.read_csv(r'Data/depression/info.csv')
+scores = {data.ix[i, 'subjects']: data.ix[i, 'score'] for i in range(data.shape[0])}
+ret = sorted(scores.items(), key=lambda x: x[1])
+
+# 保存结果
+with open(data_root/ r'result/scores_persons.pkl', 'wb') as outfile:
+    pickle.dump(ret, outfile, 0)
+
+# 保存结果
+with open(data_root/ r'result/scores.pkl', 'wb') as outfile:
+    pickle.dump(scores, outfile, 0)
 
 for id in range(1, 70):
     data = np.loadtxt(data_root / f'WGCI_{id}.txt', dtype=np.float32, skiprows=1, comments='#')
-    WGCI_trials = data.reshape(100, 3, 3)
+    WGCI_trials = data.reshape(cfg['trials'], 3, 3)
     WGCI_persons[id] = WGCI_trials
     med_WGCI_persons = getattr(np, sta_type)(WGCI_trials, 0)  # 中值或均值
     med_values[id] = med_WGCI_persons
@@ -21,7 +37,6 @@ for id in range(1, 70):
 # 保存结果
 with open(data_root/ r'result/WGCI_persons.pkl', 'wb') as outfile:
     pickle.dump(WGCI_persons, outfile, 0)
-
 
 # 保存结果
 with open(data_root/ rf'result/WGCI_{sta_type}_persons.pkl', 'wb') as outfile:
@@ -53,8 +68,6 @@ if sta_type == 'median':
 #     print(data)
 
 # 每种患者的 WGCI 中值
-file_name = rf'./configs/depression.json'
-cfg = ujson.load(open(file_name, 'r'))
 
 for type in ['low', 'mid', 'high']:
     type_med = np.zeros((len(cfg[type]), 3, 3))
@@ -66,11 +79,9 @@ for type in ['low', 'mid', 'high']:
 with open(data_root / rf'result/WGCI_{sta_type}_type_persons.pkl' , 'wb') as outstream:
     pickle.dump(med_type_presons, outstream, 0)
 
-
 # 读取结果
 # with open(data_root / rf'result/WGCI_{sta_type}_type_persons.pkl' , 'rb') as instream:
 #     med_type_presons = pickle.load(instream)
-
 
 # 患者类型标签
 type_label = {}
