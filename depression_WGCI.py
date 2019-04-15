@@ -111,9 +111,11 @@ def train_net(train_set, valid_set, test_set, in_dim, out_dim, cfg):
 
 if __name__ == '__main__':
     # 设置参数
-    cfg = get_json_data('configs/depression.json')
+    # cfg = get_json_data('configs/depression.json')
+    cfg = get_json_data('configs/depression512.json')
     device = set_device()
-    root = r'Data/new_eeg/'
+    # root = r'Data/new_eeg/'
+    root = r'Data/new_eeg512/'
     save_root = r'depression/'
 
     for patient in range(1, 70):
