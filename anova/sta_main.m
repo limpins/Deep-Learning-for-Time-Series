@@ -26,7 +26,7 @@ load([inputDir, dataName]);
 [pValueVector.median1, ~, stats] = anova1(WGCI_median1, group, 'on');   % 全部考虑
 saveas(gcf, [outputDir, 'median_all_anova.png']);
 savefig([outputDir, 'median_all_anova.fig']);
-
+ 
 [c, medians.median1, ~, gs] = multcompare(stats, 'CType', 'bonferroni', 'display', 'on');
 results.median1 = [gs(c(:,1)), gs(c(:,2)), num2cell(c(:, 3:6))];
 saveas(gcf, [outputDir, 'median_all.png']);
