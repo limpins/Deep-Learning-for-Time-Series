@@ -19,10 +19,6 @@ def train_valid(in_dim, hidden_dim, out_dim, ckpt, test_data, loaders):
     net = RNN_Net(in_dim, hidden_dim, out_dim, rnn_type=cfg['rnn_type'], num_layers=cfg['num_layers'], dropout=cfg['dropout'])    # 创建模型实例
     opt = optim.RMSprop(net.parameters(), lr=cfg['lr_rate'], momentum=cfg['momentum'], weight_decay=cfg['weight_decay'])    # 优化器定义
     lr_decay2 = optim.lr_scheduler.ReduceLROnPlateau(opt, patience=5)    # 学习率衰减
-    # CLR policy
-    # step_size = 5
-    # clr = cyclical_lr(step_size, min_lr=0.001, max_lr=0.005)
-    # lr_decay1 = lr_scheduler.LambdaLR(optimizer, [clr])
     criterion = nn.MSELoss()    # 损失函数定义，由于是回归预测，所以设为 MSE loss
     model = Modeler(net, opt, criterion, device)
 
@@ -34,10 +30,6 @@ def train_valid(in_dim, hidden_dim, out_dim, ckpt, test_data, loaders):
         valid_loss = model.evaluate_model(loaders['valid'])    # 当前 epoch 的验证损失
         lr_decay2.step(valid_loss)
 
-        # 增加 early_stopping 策略
-        # if valid_loss <= min_val_loss:
-        #     min_val_loss = valid_loss
-        #     model.save_trained_model(ckpt)
         print(f"[{epoch+1}/{cfg['num_epoch']}] ===>> train_loss: {train_loss: .4f} | valid_loss: {valid_loss: .4f}")
 
     # 预测并计算误差
