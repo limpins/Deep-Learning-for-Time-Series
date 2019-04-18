@@ -13,7 +13,7 @@ WGCI_persons, med_values, med_type_presons = {}, {}, {}
 file_name = rf'./configs/depression.json'
 # file_name = rf'./configs/depression512.json'
 cfg = ujson.load(open(file_name, 'r'))
-sta_type = 'mean'  # 'median'
+sta_type = 'max'  # 'median', 'mean
 
 # 获取哈密顿分数信息
 data = pd.read_csv(r'Data/depression/info.csv')
@@ -44,19 +44,12 @@ with open(data_root/ rf'result/WGCI_{sta_type}_persons.pkl', 'wb') as outfile:
     pickle.dump(med_values, outfile, 0)
 
 # mat 格式
-if sta_type == 'mean':
-    WGCI_mean_persons1 = []
-    for id in range(1, 70):
-        WGCI_mean_persons1.append(med_values[id])
-    WGCI_mean_persons1 = np.array(WGCI_mean_persons1)
-    sio.savemat(data_root/ rf'result/WGCI_mean_persons.mat', {'WGCI_mean_persons': WGCI_mean_persons1})
+WGCI_persons1 = []
+for id in range(1, 70):
+    WGCI_persons1.append(med_values[id])
+WGCI_persons1 = np.array(WGCI_persons1)
+sio.savemat(data_root / rf'result/WGCI_{sta_type}_persons.mat', {'WGCI_persons': WGCI_persons1})
 
-if sta_type == 'median':
-    WGCI_median_persons1 = []
-    for id in range(1, 70):
-        WGCI_median_persons1.append(med_values[id])
-    WGCI_median_persons1 = np.array(WGCI_median_persons1)
-    sio.savemat(data_root/ rf'result/WGCI_median_persons.mat', {'WGCI_median_persons': WGCI_median_persons1})
 
 # 读取结果
 # with open(data_root/ rf'result/WGCI_persons.pkl', 'rb') as instream:

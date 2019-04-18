@@ -22,6 +22,7 @@ WGCI_mean_low = WGCI_mean_persons(low, :, :);
 WGCI_mean_mid = WGCI_mean_persons(mid, :, :);
 WGCI_mean_high = WGCI_mean_persons(high, :, :);
 
+
 WGCI_median_low = WGCI_median_persons(low, :, :);
 WGCI_median_mid = WGCI_median_persons(mid, :, :);
 WGCI_median_high = WGCI_median_persons(high, :, :);
