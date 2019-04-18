@@ -129,6 +129,7 @@ if __name__ == '__main__':
         print(f'signal type: {signal_type}')
         cfg = config[signal_type]
         gc_matrix = main(signal_type, all_signal_type, cfg)
+        gc_matrix = np.squeeze(gc_matrix)
         gc_matrix[gc_matrix < cfg['threshold']] = 0.    # 阈值处理
         label = ['ch' + str(t + 1) for t in range(cfg['num_channel'])]
         matshow(gc_matrix, label, label, f'{signal_type} Granger Causality Matrix', f'images/without_NUE/{signal_type}_Granger_Matrix.png')

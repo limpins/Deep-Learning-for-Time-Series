@@ -77,7 +77,7 @@
         "weight_decay": 0.0,
         "bt_sz": 16,
         "seq_len": 50,
-        "num_channel": 5,
+        "num_channel": 20,
         "in_dim": 20,
         "out_dim": 20,
         "hidden_dim": 50,
