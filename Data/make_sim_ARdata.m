@@ -1,10 +1,10 @@
 % Email: autuanliu@163.com
 % Date: 2018/10/10
 % 生成 仿真数据
-% 
+%
 % 初始化设置
-npoint = 10000;     % 待研究或者采样的信号长度
-nlen = 10100;       % 仿真信号的总长度
+npoint = 5000;     % 待研究或者采样的信号长度
+nlen = 5100;       % 仿真信号的总长度
 nchannel = 5;       % 信号的维度
 max_lag = 20;       % 最大时延
 err_var = 1;        % 噪音的方差
@@ -30,6 +30,7 @@ end
 % 设置线性信号并保存仿真数据
 linear_signals = [x1, x2, x3, x4, x5];
 linear_signals = linear_signals((max_lag+1):(max_lag+npoint), :);
+linear_signals = mapminmax(linear_signals.', -1, 1).';
 plot(linear_signals);
 if flag == 1
     % 含有噪音
@@ -55,6 +56,7 @@ end
 % 设置非线性信号并保存仿真数据
 nonlinear_signals = [x1, x2, x3, x4, x5];
 nonlinear_signals = nonlinear_signals((max_lag+1):(max_lag+npoint), :);
+nonlinear_signals = mapminmax(nonlinear_signals.', -1, 1).';
 plot(nonlinear_signals);
 if flag == 1
     % 含有噪音
@@ -80,6 +82,7 @@ end
 % 设置长时延非线性信号并保存仿真数据
 longlag_nonlinear_signals = [x1, x2, x3, x4, x5];
 longlag_nonlinear_signals = longlag_nonlinear_signals((max_lag+1):(max_lag+npoint), :);
+longlag_nonlinear_signals = mapminmax(longlag_nonlinear_signals.', -1, 1).';
 plot(longlag_nonlinear_signals);
 if flag == 1
     % 含有噪音

@@ -10,8 +10,8 @@ import ujson
 
 data_root = Path(r'depression/')
 WGCI_persons, med_values, med_type_presons = {}, {}, {}
-# file_name = rf'./configs/depression.json'
-file_name = rf'./configs/depression512.json'
+file_name = rf'./configs/depression.json'
+# file_name = rf'./configs/depression512.json'
 cfg = ujson.load(open(file_name, 'r'))
 sta_type = 'mean'  # 'median'
 

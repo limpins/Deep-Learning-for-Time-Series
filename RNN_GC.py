@@ -3,91 +3,114 @@ Email: autuanliu@163.com
 Date: 2018/10/11
 """
 
+import matplotlib.pyplot as plt
 import numpy as np
 import torch
 from torch import nn, optim
 
-from core import (Timer, get_Granger_Causality, get_json_data, get_mat_data, make_loader, matshow, set_device)
-from Models import Modeler, RNN_Net
-from tools import cyclical_lr
+from core import (Timer, get_Granger_Causality, get_json_data, get_mat_data, make_loader, matshow, save_3Darray, set_device, time_series_split)
+from Models import AdaBound, Modeler, RNN_Net
 
 
-def train_valid(in_dim, hidden_dim, out_dim, ckpt, test_data, loaders):
-    """训练与验证模型，每个epoch都进行训练与验证
-    """
+def train_net(train_set, valid_set, test_set, in_dim, out_dim, cfg):
+    # 在完整数据集上训练模型
+    train_loader, valid_loader, test_loader = make_loader(
+        train_set, valid_set, test_set, seq_len=cfg['seq_len'], num_shift=cfg['num_shift'], bt_sz=cfg['bt_sz'])
 
-    net = RNN_Net(in_dim, hidden_dim, out_dim, rnn_type=cfg['rnn_type'], num_layers=cfg['num_layers'], dropout=cfg['dropout'])    # 创建模型实例
-    opt = optim.RMSprop(net.parameters(), lr=cfg['lr_rate'], momentum=cfg['momentum'], weight_decay=cfg['weight_decay'])    # 优化器定义
-    lr_decay2 = optim.lr_scheduler.ReduceLROnPlateau(opt, patience=5)    # 学习率衰减
-    criterion = nn.MSELoss()    # 损失函数定义，由于是回归预测，所以设为 MSE loss
-    model = Modeler(net, opt, criterion, device)
+    # 创建模型实例
+    net = RNN_Net(
+        in_dim, cfg['hidden_dim'], out_dim, rnn_type=cfg['rnn_type'], num_layers=cfg['num_layers'], dropout=cfg['dropout'], bidirectional=cfg['bidirectional'])
 
-    val_loss = []
-    min_val_loss = 0.5
+    # 优化器定义
+    opt = AdaBound(net.parameters(), lr=cfg['lr_rate'], weight_decay=cfg['weight_decay'])
+
+    # 损失定义
+    criterion = nn.MSELoss()
+
+    # 封装
+    model = Modeler(net, opt, criterion, set_device())
+
+    # 训练
     for epoch in range(cfg['num_epoch']):
-        # lr_decay1.step()
-        train_loss = model.train_model(loaders['train'])    # 当前 epoch 的训练损失
-        valid_loss = model.evaluate_model(loaders['valid'])    # 当前 epoch 的验证损失
-        lr_decay2.step(valid_loss)
-
+        train_loss = model.train_model(train_loader)    # 当前 epoch 的训练损失
+        valid_loss = model.evaluate_model(valid_loader)    # 当前 epoch 的验证损失
         print(f"[{epoch+1}/{cfg['num_epoch']}] ===>> train_loss: {train_loss: .4f} | valid_loss: {valid_loss: .4f}")
 
-    # 预测并计算误差
-    model.save_trained_model(ckpt)
-    model.load_best_model(ckpt)    # 使用最好的模型进行预测
-    model.save_model('model.pth')
-    err = model.predit_point_by_point(*test_data)[1]
-    return err
+    # 训练结束 预测
+    prediction, err = model.predit_point_by_point(test_loader.dataset.data, test_loader.dataset.target)
+
+    # 可视化预测效果
+    # for ch in range(prediction.shape[-1]):
+    #     plt.figure(figsize=(12, 5))
+    #     plt.plot(np.c_[prediction.cpu().numpy()[:, ch], test_loader.dataset.target.cpu().numpy()[:, ch]])
+    #     plt.legend([f'prediction channel{ch + 1}', f'label channel{ch + 1}'])
+    #     if cfg['vis']:
+    #         plt.show()
+
+    return prediction, err
 
 
-def main():
+def main(signal_type, all_signal_type, cfg):
     """RNN_GC without NUE(non-uniform embedding) 算法的实现，对应论文中的算法2(返回格兰杰矩阵)
+    1. 读取数据
+    2. 分割 trial
+        3. 分割数据集
+        4. 求 WGCI 并保存
     """
 
     if signal_type in all_signal_type[:3]:
-        seqdata_all = get_mat_data(f'Data/{signal_type}_noise1.mat', f'{signal_type}')    # 读取数据
+        origin_data = get_mat_data(f'Data/{signal_type}_noise1.mat', f'{signal_type}')    # 读取数据
     else:
-        seqdata_all = get_mat_data(f'Data/{signal_type}.mat', f'{signal_type}')    # 读取数据
-    print(seqdata_all.shape)
-    # 在完整数据集上训练模型
-    model_id = 1
-    print(f'model_id: {model_id}')
-    train_loader, valid_loader, test_loader = make_loader(
-        seqdata_all, tt_split=cfg['tt_split'], tv_split=cfg['tv_split'], seq_len=cfg['seq_len'], bt_sz=cfg['bt_sz'])
-    loaders = {'train': train_loader, 'valid': valid_loader}
-    err_all = train_valid(cfg['in_dim'], cfg['num_hidden'], cfg['out_dim'], f'checkpoints/without_NUE/{signal_type}_model_weights.pth',
-                          test_loader.dataset.get_tensor_data(), loaders)
+        origin_data = get_mat_data(f'Data/{signal_type}.mat', f'{signal_type}')    # 读取数据
 
-    # 去掉一个变量训练模型
-    temp = []
-    for ch in range(cfg['num_channel']):
-        model_id += 1
+    # 存储 WGCI
+    WGCI = []
+
+    # 分割 trial
+    for trial in range(cfg['trials']):
+        start = int(trial * cfg['trial_points'] * cfg['overlap'])    # 50% 的 overlap
+        idx = slice(start, cfg['trial_points'] + start)
+        trial_set = origin_data[idx]
+
+        # 训练集、验证集、测试集划分
+        train_set, valid_set, test_set = time_series_split(trial_set, cfg['splits'])
+
+        # 在完整数据集上训练模型
+        model_id = 1
         print(f'model_id: {model_id}')
-        idx = list(set(range(cfg['num_channel'])) - {ch})    # 剩余变量的索引
-        seq_data = seqdata_all[:, idx]    # 当前的序列数据
-        train_loader, valid_loader, test_loader = make_loader(
-            seq_data, tt_split=cfg['tt_split'], tv_split=cfg['tv_split'], seq_len=cfg['seq_len'], bt_sz=cfg['bt_sz'])
-        loaders = {'train': train_loader, 'valid': valid_loader}
-        err = train_valid(cfg['in_dim'] - 1, cfg['num_hidden'], cfg['out_dim'] - 1, f'checkpoints/without_NUE/{signal_type}_model_weights{ch}.pth',
-                          test_loader.dataset.get_tensor_data(), loaders)
-        temp += [err]
-    temp = torch.stack(temp)    # cfg['num_channel'] * num_point * out_dim
 
-    # 扩充对角线
-    err_cond = temp.new_zeros(temp.size(0), temp.size(1), cfg['num_channel'])
-    for idx in range(cfg['num_channel']):
-        col = list(set(range(cfg['num_channel'])) - {idx})
-        err_cond[idx, :, col] = temp[idx]
-    return get_Granger_Causality(err_cond, err_all)
+        _, err_all = train_net(train_set, valid_set, test_set, cfg['in_dim'], cfg['out_dim'], cfg)
+
+        #  去掉某变量 训练网络
+        temp = []
+        for ch in range(cfg['num_channel']):
+            model_id += 1
+            print(f'model_id: {model_id}')
+            idx = list(set(range(cfg['num_channel'])) - {ch})    # 剩余变量的索引
+            # 把要去掉的数据的某维变为 0
+            _, err = train_net(train_set[:, idx], valid_set[:, idx], test_set[:, idx], cfg['in_dim'] - 1, cfg['out_dim'] - 1, cfg)
+
+            temp += [err]
+        temp = torch.stack(temp)    # cfg['num_channel'] * num_point * out_dim
+
+        # 扩充对角线
+        err_cond = temp.new_zeros(temp.size(0), temp.size(1), cfg['num_channel'])
+        for idx in range(cfg['num_channel']):
+            col = list(set(range(cfg['num_channel'])) - {idx})
+            err_cond[idx, :, col] = temp[idx]
+
+        res = get_Granger_Causality(err_cond, err_all)
+        WGCI.append(res)
+    return np.array(WGCI)
 
 
 if __name__ == '__main__':
     # 基本设置
     timer = Timer()
     timer.start()
-    config = get_json_data('configs/cfg.json')
+    config = get_json_data('configs/WGCI_cfg.json')
     device = set_device()
-    all_signal_type = ['linear_signals', 'nonlinear_signals', 'longlag_nonlinear_signals', 'iEEG_o', 'EEG64s', 'EEG72s']
+    all_signal_type = ['linear_signals', 'nonlinear_signals', 'longlag_nonlinear_signals', 'EEG64s']
 
     # RNN_GC
     # ground truth
@@ -100,20 +123,18 @@ if __name__ == '__main__':
     # label = ['ch' + str(t + 1) for t in range(5)]
     # matshow(ground_truth, label, label, f'Ground truth Granger Causality Matrix', f'images/Ground_truth_Granger_Matrix.png')
 
-    avg_gc_matrix = 0
-    # for signal_type in all_signal_type:
-    signal_type = all_signal_type[2]
-    print(f'signal type: {signal_type}')
-    cfg = config[signal_type]
-    for _ in range(cfg['num_trial']):
-        avg_gc_matrix += main()
-    avg_gc_matrix /= cfg['num_trial']
-    avg_gc_matrix[avg_gc_matrix < cfg['threshold']] = 0.    # 阈值处理
-    label = ['ch' + str(t + 1) for t in range(cfg['num_channel'])]
-    matshow(avg_gc_matrix, label, label, f'{signal_type} Granger Causality Matrix', f'images/without_NUE/{signal_type}_Granger_Matrix.png')
+    gc_matrix = 0
+    for signal_type in all_signal_type:
+    # signal_type = all_signal_type[3]
+        print(f'signal type: {signal_type}')
+        cfg = config[signal_type]
+        gc_matrix = main(signal_type, all_signal_type, cfg)
+        gc_matrix[gc_matrix < cfg['threshold']] = 0.    # 阈值处理
+        label = ['ch' + str(t + 1) for t in range(cfg['num_channel'])]
+        matshow(gc_matrix, label, label, f'{signal_type} Granger Causality Matrix', f'images/without_NUE/{signal_type}_Granger_Matrix.png')
 
-    # 保存结果
-    np.savetxt(f'checkpoints/without_NUE/{signal_type}_granger_matrix.txt', avg_gc_matrix)
+        # 保存结果
+        np.savetxt(f'checkpoints/without_NUE/{signal_type}_granger_matrix.txt', gc_matrix)
 
     # 计时结束
     b = timer.stop()
