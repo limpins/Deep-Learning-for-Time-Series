@@ -124,7 +124,7 @@ if __name__ == '__main__':
     # matshow(ground_truth, label, label, f'Ground truth Granger Causality Matrix', f'images/Ground_truth_Granger_Matrix.png')
 
     gc_matrix = 0
-    for signal_type in all_signal_type[1:3]:
+    for signal_type in all_signal_type:
     # signal_type = all_signal_type[3]
         print(f'signal type: {signal_type}')
         cfg = config[signal_type]

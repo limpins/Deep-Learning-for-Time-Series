@@ -10,10 +10,11 @@ import ujson
 
 data_root = Path(r'depression/')
 WGCI_persons, med_values, med_type_presons = {}, {}, {}
-file_name = rf'./configs/depression.json'
+# file_name = rf'./configs/depression.json'
+file_name = rf'./configs/depression_no_overlap.json'
 # file_name = rf'./configs/depression512.json'
 cfg = ujson.load(open(file_name, 'r'))
-sta_type = 'max'  # 'median', 'mean
+sta_type = 'median'  # 'median', 'mean
 
 # 获取哈密顿分数信息
 data = pd.read_csv(r'Data/depression/info.csv')
