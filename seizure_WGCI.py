@@ -3,7 +3,7 @@ import numpy as np
 import torch
 from torch import nn, optim
 
-from core import (Timer, get_Granger_Causality, get_json_data, get_mat_data, make_loader, matshow, save_3Darray, set_device, time_series_split)
+from core import (Timer, get_Granger_Causality, get_json_data, get_mat_data, make_loader, matshow, set_device, time_series_split)
 from Models import AdaBound, Modeler, RNN_Net
 
 
@@ -111,15 +111,16 @@ def train_net(train_set, valid_set, test_set, in_dim, out_dim, cfg):
 
 if __name__ == '__main__':
     # 设置参数
-    # cfg = get_json_data('configs/depression.json')
-    cfg = get_json_data('configs/depression_no_overlap.json')
-    # cfg = get_json_data('configs/depression512.json')
+    cfg = get_json_data('configs/seizure.json')
     device = set_device()
-    root = r'Data/new_eeg/'
-    # root = r'Data/new_eeg512/'
-    save_root = r'depression/'
+    data_root = r'Data/Pp4_Dp1_seizure.mat'
+    # data_root = r'Data/Pp4_Dp1.mat'
+    save_root = r'seizure/'
 
-    for patient in range(18, 35):
-        print(f'patient ID: {patient}')
-        WGCI = get_person_WGCI(f'{root}{patient}.mat', 'data', cfg)
-        save_3Darray(f'{save_root}WGCI_{patient}.txt', WGCI)
+    WGCI = 0
+    for _ in range(cfg['num_trials']):
+        WGCI += get_person_WGCI(data_root, 'data', cfg)
+
+    # WGCI = get_person_WGCI(data_root, 'Pp4_Dp1', cfg)
+    WGCI /= cfg['num_trials']
+    print(WGCI)
