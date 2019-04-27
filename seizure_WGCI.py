@@ -113,14 +113,17 @@ if __name__ == '__main__':
     # 设置参数
     cfg = get_json_data('configs/seizure.json')
     device = set_device()
-    data_root = r'Data/Pp4_Dp1_seizure.mat'
+    # data_root = r'Data/Pp4_Dp1_seizure.mat'
     # data_root = r'Data/Pp4_Dp1.mat'
+    data_root = r'Data/EEG72s_data.mat'
     save_root = r'seizure/'
 
     WGCI = 0
     for _ in range(cfg['num_trials']):
-        WGCI += get_person_WGCI(data_root, 'data', cfg)
+        # WGCI += get_person_WGCI(data_root, 'data', cfg)
+        # WGCI = get_person_WGCI(data_root, 'Pp4_Dp1', cfg)
+        WGCI = get_person_WGCI(data_root, 'EEG72s_data', cfg)
 
-    # WGCI = get_person_WGCI(data_root, 'Pp4_Dp1', cfg)
     WGCI /= cfg['num_trials']
     print(WGCI)
+    np.savetxt(f'{save_root}WGCI.txt', WGCI)
