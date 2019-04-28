@@ -6,7 +6,7 @@ Ref: https://github.com/pytorch/examples/blob/master/word_language_model/main.py
 
 import torch
 import torch.nn.functional as F
-from tensorboardX import SummaryWriter
+# from tensorboardX import SummaryWriter
 from torch import nn
 
 
@@ -21,20 +21,21 @@ class Modeler:
             visualization (bool, optional): Defaults to False.
     """
 
-    def __init__(self, network, opt, criterion, device, visualization=False):
+    # def __init__(self, network, opt, criterion, device, visualization=False):
+    def __init__(self, network, opt, criterion, device):
         self.model = nn.DataParallel(network).to(device) if torch.cuda.device_count() > 1 else network.to(device)
         self.opt = opt
         self.criterion = criterion
         self.dev = device
         self.tsfm = lambda a: a.to(self.dev).float()
-        self.visualization = visualization
-        if self.visualization:
-            self.write = SummaryWriter('log/')
+        # self.visualization = visualization
+        # if self.visualization:
+        #     self.write = SummaryWriter('log/')
 
-    def __del__(self):
-        """close the tensorboard write."""
-        if self.visualization:
-            self.write.close()
+    # def __del__(self):
+    #     """close the tensorboard write."""
+    #     if self.visualization:
+    #         self.write.close()
 
     def train_model(self, loaders, epoch=None):
         """train model on each epoch.
@@ -63,8 +64,8 @@ class Modeler:
             loss.backward()
             self.opt.step()
             
-        if epoch is not None:
-            self.write.add_scalar('train loss', loss.item(), epoch)
+        # if epoch is not None:
+        #     self.write.add_scalar('train loss', loss.item(), epoch)
         return loss.item()
 
     @torch.no_grad()
@@ -86,8 +87,8 @@ class Modeler:
             data, target = self.tsfm(data), self.tsfm(target)
             out = self.model(data)
             loss = self.criterion(out, target)
-        if epoch is not None:
-            self.write.add_scalar('evaluate loss', loss.item(), epoch)
+        # if epoch is not None:
+        #     self.write.add_scalar('evaluate loss', loss.item(), epoch)
         return loss.item()
 
     @torch.no_grad()

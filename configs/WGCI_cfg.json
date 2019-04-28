@@ -1,8 +1,8 @@
 {
     "linear_signals": {
-        "rnn_type": "LSTM",
+        "rnn_type": "GRU",
         "num_layers": 1,
-        "dropout": 0.5,
+        "dropout": 0.0,
         "lr_rate": 0.003,
         "momentum": 0.9,
         "weight_decay": 0.0,
@@ -11,21 +11,22 @@
         "num_channel": 5,
         "in_dim": 5,
         "out_dim": 5,
-        "hidden_dim": 50,
+        "hidden_dim": 30,
         "splits": [0.8, 0.1, 0.1],
         "num_shift": 1,
         "threshold": 0.01,
-        "num_epoch": 5,
+        "num_epoch": 10,
         "bidirectional": false,
         "trial_points": 10000,
         "vis": false,
         "overlap": 0.5,
-        "trials": 1
+        "trials": 1,
+        "num_trials": 10
     },
     "nonlinear_signals": {
-        "rnn_type": "LSTM",
+        "rnn_type": "GRU",
         "num_layers": 1,
-        "dropout": 0.5,
+        "dropout": 0.0,
         "lr_rate": 0.003,
         "momentum": 0.9,
         "weight_decay": 0.0,
@@ -34,7 +35,7 @@
         "num_channel": 5,
         "in_dim": 5,
         "out_dim": 5,
-        "hidden_dim": 50,
+        "hidden_dim": 30,
         "splits": [0.8, 0.1, 0.1],
         "num_shift": 1,
         "threshold": 0.01,
@@ -43,12 +44,13 @@
         "trial_points": 10000,
         "vis": false,
         "overlap": 0.5,
-        "trials": 1
+        "trials": 1,
+        "num_trials": 10
     },
     "longlag_nonlinear_signals": {
-        "rnn_type": "LSTM",
+        "rnn_type": "GRU",
         "num_layers": 1,
-        "dropout": 0.5,
+        "dropout": 0.0,
         "lr_rate": 0.003,
         "momentum": 0.9,
         "weight_decay": 0.0,
@@ -57,7 +59,7 @@
         "num_channel": 5,
         "in_dim": 5,
         "out_dim": 5,
-        "hidden_dim": 50,
+        "hidden_dim": 30,
         "splits": [0.8, 0.1, 0.1],
         "num_shift": 1,
         "threshold": 0.01,
@@ -66,12 +68,13 @@
         "trial_points": 10000,
         "vis": false,
         "overlap": 0.5,
-        "trials": 1
+        "trials": 1,
+        "num_trials": 10
     },
     "EEG64s": {
-        "rnn_type": "LSTM",
+        "rnn_type": "GRU",
         "num_layers": 1,
-        "dropout": 0.5,
+        "dropout": 0.0,
         "lr_rate": 0.003,
         "momentum": 0.9,
         "weight_decay": 0.0,
@@ -80,7 +83,7 @@
         "num_channel": 20,
         "in_dim": 20,
         "out_dim": 20,
-        "hidden_dim": 50,
+        "hidden_dim": 30,
         "splits": [0.8, 0.1, 0.1],
         "num_shift": 1,
         "threshold": 0.01,
@@ -89,6 +92,7 @@
         "trial_points": 10000,
         "vis": false,
         "overlap": 0.5,
-        "trials": 1
+        "trials": 1,
+        "num_trials": 10
     }
 }

@@ -68,18 +68,21 @@ def get_person_WGCI(data_saved_name, data_field, cfg):
 
 def train_net(train_set, valid_set, test_set, in_dim, out_dim, cfg):
     # 在完整数据集上训练模型
-    train_loader, valid_loader, test_loader = make_loader(
-        train_set, valid_set, test_set, seq_len=cfg['seq_len'], num_shift=cfg['num_shift'], bt_sz=cfg['bt_sz'])
+    train_loader, valid_loader, test_loader = make_loader(train_set,
+                                                          valid_set,
+                                                          test_set,
+                                                          seq_len=cfg['seq_len'],
+                                                          num_shift=cfg['num_shift'],
+                                                          bt_sz=cfg['bt_sz'])
 
     # 创建模型实例
-    net = RNN_Net(
-        in_dim,
-        cfg['hidden_dim'],
-        out_dim,
-        rnn_type=cfg['rnn_type'],
-        num_layers=cfg['num_layers'],
-        dropout=cfg['dropout'],
-        bidirectional=cfg['bidirectional'])
+    net = RNN_Net(in_dim,
+                  cfg['hidden_dim'],
+                  out_dim,
+                  rnn_type=cfg['rnn_type'],
+                  num_layers=cfg['num_layers'],
+                  dropout=cfg['dropout'],
+                  bidirectional=cfg['bidirectional'])
 
     # 优化器定义
     opt = AdaBound(net.parameters(), lr=cfg['lr_rate'], weight_decay=cfg['weight_decay'])

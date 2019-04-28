@@ -72,7 +72,7 @@ def time_series_split(data: np.ndarray, splits=[0.8, 0.1, 0.1]):
 def normalize(train_data, valid_data, test_data):
     """归一化数据(一定是在训练集测试集已经划分完后进行)
 
-    EEG 数据有正有负，归一化到 [-1, 1]
+    EEG 数据有正有负，标准归一化
 
     Args:
         train_data (np.ndarray): 未经过归一化的训练集原始数据
@@ -81,16 +81,14 @@ def normalize(train_data, valid_data, test_data):
     """
 
     from sklearn import preprocessing as skp
-    def rescaler(x, scalers):
-        new_data = scalers.transform(x) * (1 - (-1)) - 1
-        return new_data
 
     dim = train_data.shape[-1]
     s1, s2, s3 = train_data.shape, valid_data.shape, test_data.shape
-    scaler = skp.MinMaxScaler().fit(train_data.reshape(-1, dim))
-    train_data = rescaler(train_data.reshape(-1, dim), scaler).reshape(s1)
-    valid_data = rescaler(valid_data.reshape(-1, dim), scaler).reshape(s2)
-    test_data = rescaler(test_data.reshape(-1, dim), scaler).reshape(s3)
+
+    scaler = skp.StandardScaler().fit(train_data.reshape(-1, dim))
+    train_data = scaler.transform(train_data.reshape(-1, dim)).reshape(s1)
+    valid_data = scaler.transform(valid_data.reshape(-1, dim)).reshape(s2)
+    test_data = scaler.transform(test_data.reshape(-1, dim)).reshape(s3)
     return train_data, valid_data, test_data
 
 

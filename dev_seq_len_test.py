@@ -37,8 +37,7 @@ def main(seq_length):
     seqdata_all = get_mat_data(f'dev_seq_data/{signal_type}.mat', f'{signal_type}')    # 读取数据
 
     # 在完整数据集上训练模型
-    train_loader, valid_loader, test_loader = make_loader(
-        seqdata_all, tt_split=0.7, tv_split=0.8, seq_len=seq_length, bt_sz=32)
+    train_loader, valid_loader, test_loader = make_loader(seqdata_all, tt_split=0.7, tv_split=0.8, seq_len=seq_length, bt_sz=32)
     loaders = {'train': train_loader, 'valid': valid_loader}
     err_all = train_valid(2, 15, 2, test_loader.dataset.get_tensor_data(), loaders)
 

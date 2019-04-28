@@ -3,7 +3,7 @@ import numpy as np
 import torch
 from torch import nn, optim
 
-from core import (Timer, get_Granger_Causality, get_json_data, get_mat_data, make_loader, matshow, set_device, time_series_split)
+from core import (Timer, get_Granger_Causality, get_json_data, get_mat_data, make_loader, matshow, save_3Darray, set_device, time_series_split)
 from Models import AdaBound, Modeler, RNN_Net
 
 
@@ -67,18 +67,21 @@ def get_person_WGCI(data_saved_name, data_field, cfg):
 
 def train_net(train_set, valid_set, test_set, in_dim, out_dim, cfg):
     # 在完整数据集上训练模型
-    train_loader, valid_loader, test_loader = make_loader(
-        train_set, valid_set, test_set, seq_len=cfg['seq_len'], num_shift=cfg['num_shift'], bt_sz=cfg['bt_sz'])
+    train_loader, valid_loader, test_loader = make_loader(train_set,
+                                                          valid_set,
+                                                          test_set,
+                                                          seq_len=cfg['seq_len'],
+                                                          num_shift=cfg['num_shift'],
+                                                          bt_sz=cfg['bt_sz'])
 
     # 创建模型实例
-    net = RNN_Net(
-        in_dim,
-        cfg['hidden_dim'],
-        out_dim,
-        rnn_type=cfg['rnn_type'],
-        num_layers=cfg['num_layers'],
-        dropout=cfg['dropout'],
-        bidirectional=cfg['bidirectional'])
+    net = RNN_Net(in_dim,
+                  cfg['hidden_dim'],
+                  out_dim,
+                  rnn_type=cfg['rnn_type'],
+                  num_layers=cfg['num_layers'],
+                  dropout=cfg['dropout'],
+                  bidirectional=cfg['bidirectional'])
 
     # 优化器定义
     opt = AdaBound(net.parameters(), lr=cfg['lr_rate'], weight_decay=cfg['weight_decay'])
@@ -112,18 +115,31 @@ def train_net(train_set, valid_set, test_set, in_dim, out_dim, cfg):
 if __name__ == '__main__':
     # 设置参数
     cfg = get_json_data('configs/seizure.json')
+    cfg1 = get_json_data('configs/pre_ictal.json')
     device = set_device()
-    # data_root = r'Data/Pp4_Dp1_seizure.mat'
-    # data_root = r'Data/Pp4_Dp1.mat'
-    data_root = r'Data/EEG72s_data.mat'
+    data_root = r'Data/'
+    data_root1 = r'Data/pre_ictal.mat'
     save_root = r'seizure/'
 
-    WGCI = 0
+    # seizure ictal1 计算
+    WGCI_ictal1 = 0
     for _ in range(cfg['num_trials']):
-        # WGCI += get_person_WGCI(data_root, 'data', cfg)
-        # WGCI = get_person_WGCI(data_root, 'Pp4_Dp1', cfg)
-        WGCI = get_person_WGCI(data_root, 'EEG72s_data', cfg)
+        WGCI_ictal1 = get_person_WGCI(f'{data_root}ictal1.mat', 'ictal1', cfg)
+    print(WGCI_ictal1)
+    save_3Darray(f'{save_root}WGCI_ictal1.txt', WGCI_ictal1)
 
-    WGCI /= cfg['num_trials']
-    print(WGCI)
-    np.savetxt(f'{save_root}WGCI.txt', WGCI)
+    # seizure ictal2 计算
+    WGCI_ictal2 = 0
+    for _ in range(cfg['num_trials']):
+        WGCI_ictal2 = get_person_WGCI(f'{data_root}ictal2.mat', 'ictal2', cfg)
+    print(WGCI_ictal2)
+    save_3Darray(f'{save_root}WGCI_ictal2.txt', WGCI_ictal2)
+
+    # pre_ictal
+    WGCI_pre_ictal = 0
+    for _ in range(cfg1['num_trials']):
+        WGCI_pre_ictal = get_person_WGCI(data_root1, 'pre_ictal', cfg1)
+
+    WGCI_pre_ictal /= cfg1['num_trials']
+    print(WGCI_pre_ictal)
+    save_3Darray(f'{save_root}WGCI_pre_ictal.txt', WGCI_pre_ictal)

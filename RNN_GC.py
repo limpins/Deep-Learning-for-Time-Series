@@ -14,12 +14,21 @@ from Models import AdaBound, Modeler, RNN_Net
 
 def train_net(train_set, valid_set, test_set, in_dim, out_dim, cfg):
     # 在完整数据集上训练模型
-    train_loader, valid_loader, test_loader = make_loader(
-        train_set, valid_set, test_set, seq_len=cfg['seq_len'], num_shift=cfg['num_shift'], bt_sz=cfg['bt_sz'])
+    train_loader, valid_loader, test_loader = make_loader(train_set,
+                                                          valid_set,
+                                                          test_set,
+                                                          seq_len=cfg['seq_len'],
+                                                          num_shift=cfg['num_shift'],
+                                                          bt_sz=cfg['bt_sz'])
 
     # 创建模型实例
-    net = RNN_Net(
-        in_dim, cfg['hidden_dim'], out_dim, rnn_type=cfg['rnn_type'], num_layers=cfg['num_layers'], dropout=cfg['dropout'], bidirectional=cfg['bidirectional'])
+    net = RNN_Net(in_dim,
+                  cfg['hidden_dim'],
+                  out_dim,
+                  rnn_type=cfg['rnn_type'],
+                  num_layers=cfg['num_layers'],
+                  dropout=cfg['dropout'],
+                  bidirectional=cfg['bidirectional'])
 
     # 优化器定义
     opt = AdaBound(net.parameters(), lr=cfg['lr_rate'], weight_decay=cfg['weight_decay'])
@@ -123,13 +132,13 @@ if __name__ == '__main__':
     # label = ['ch' + str(t + 1) for t in range(5)]
     # matshow(ground_truth, label, label, f'Ground truth Granger Causality Matrix', f'images/Ground_truth_Granger_Matrix.png')
 
-    gc_matrix = 0
     for signal_type in all_signal_type:
-    # signal_type = all_signal_type[3]
         print(f'signal type: {signal_type}')
+        gc_matrix = 0
         cfg = config[signal_type]
-        gc_matrix = main(signal_type, all_signal_type, cfg)
-        gc_matrix = np.squeeze(gc_matrix)
+        for _ in range(cfg['num_trials']):
+            gc_matrix += main(signal_type, all_signal_type, cfg)
+        gc_matrix = np.squeeze(gc_matrix / cfg['num_trials'])
         gc_matrix[gc_matrix < cfg['threshold']] = 0.    # 阈值处理
         label = ['ch' + str(t + 1) for t in range(cfg['num_channel'])]
         matshow(gc_matrix, label, label, f'{signal_type} Granger Causality Matrix', f'images/without_NUE/{signal_type}_Granger_Matrix.png')

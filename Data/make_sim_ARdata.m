@@ -30,7 +30,7 @@ end
 % 设置线性信号并保存仿真数据
 linear_signals = [x1, x2, x3, x4, x5];
 linear_signals = linear_signals((max_lag+1):(max_lag+npoint), :);
-% linear_signals = mapminmax(linear_signals.', -1, 1).';
+linear_signals = zscore(linear_signals);
 plot(linear_signals);
 if flag == 1
     % 含有噪音
@@ -56,7 +56,7 @@ end
 % 设置非线性信号并保存仿真数据
 nonlinear_signals = [x1, x2, x3, x4, x5];
 nonlinear_signals = nonlinear_signals((max_lag+1):(max_lag+npoint), :);
-% nonlinear_signals = mapminmax(nonlinear_signals.', -1, 1).';
+nonlinear_signals = zscore(nonlinear_signals);
 plot(nonlinear_signals);
 if flag == 1
     % 含有噪音
@@ -82,7 +82,7 @@ end
 % 设置长时延非线性信号并保存仿真数据
 longlag_nonlinear_signals = [x1, x2, x3, x4, x5];
 longlag_nonlinear_signals = longlag_nonlinear_signals((max_lag+1):(max_lag+npoint), :);
-% longlag_nonlinear_signals = mapminmax(longlag_nonlinear_signals.', -1, 1).';
+longlag_nonlinear_signals = zscore(longlag_nonlinear_signals);
 plot(longlag_nonlinear_signals);
 if flag == 1
     % 含有噪音
@@ -95,6 +95,16 @@ else
     saveas(gcf, '../images/longlag_nonlinear_signals_info_noise0.png')
     save('longlag_nonlinear_signals_noise0.mat', 'longlag_nonlinear_signals');
 end
+
+% iEEG
+load('dat64s.mat');
+EEG64s = zscore(dat_64s);
+plot(EEG64s);
+saveas(gcf, '../images/EEG64s.png');
+mesh(EEG64s);
+saveas(gcf, '../images/EEG64s_mesh.png');
+save('EEG64s.mat', 'EEG64s');
+save()
 
 % 后续处理
 close all;
