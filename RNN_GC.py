@@ -8,7 +8,8 @@ import numpy as np
 import torch
 from torch import nn, optim
 
-from core import (Timer, get_Granger_Causality, get_json_data, get_mat_data, make_loader, matshow, save_3Darray, set_device, time_series_split)
+from core import (Timer, get_Granger_Causality, get_Granger_Causality1, get_json_data, get_mat_data, make_loader, matshow, save_3Darray, set_device,
+                  time_series_split)
 from Models import AdaBound, Modeler, RNN_Net
 
 
@@ -109,6 +110,7 @@ def main(signal_type, all_signal_type, cfg):
             err_cond[idx, :, col] = temp[idx]
 
         res = get_Granger_Causality(err_cond, err_all)
+        # res = get_Granger_Causality1(err_cond, err_all)
         WGCI.append(res)
     return np.array(WGCI)
 
@@ -133,10 +135,10 @@ if __name__ == '__main__':
     # matshow(ground_truth, label, label, f'Ground truth Granger Causality Matrix', f'images/Ground_truth_Granger_Matrix.png')
 
     for signal_type in all_signal_type:
-        print(f'signal type: {signal_type}')
         gc_matrix = 0
         cfg = config[signal_type]
-        for _ in range(cfg['num_trials']):
+        for id in range(cfg['num_trials']):
+            print(f'signal type: {signal_type} 实验 {id + 1}')
             gc_matrix += main(signal_type, all_signal_type, cfg)
         gc_matrix = np.squeeze(gc_matrix / cfg['num_trials'])
         gc_matrix[gc_matrix < cfg['threshold']] = 0.    # 阈值处理

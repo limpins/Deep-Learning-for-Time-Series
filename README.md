@@ -43,7 +43,11 @@ $$
 where $A^\star$ is the model coefficients, $bias^\star$ is a vector, $\epsilon_{\backslash x_i}^\star(t)$ is Gaussian noise, and $\vec x_{\backslash x_i}(t)$ is a vector without containing $x_i$. Then we could define the Granger causality from $x_i$ to $x_j$ as:
 
 $$
-\tag{3}G_{x_i\rightarrow x_j}=\ln\frac{var{\epsilon_{x_j\backslash x_i}^\star(t)}}{var{\epsilon_{x_j}(t)}}
+\tag{3}G_{x_i\rightarrow x_j}=\ln\frac{\text{var}\;{\epsilon_{x_j\backslash x_i}^\star(t)}}{\text{var}\;{\epsilon_{x_j}(t)}}
+$$
+
+$$
+\tag{4}G_{x_i\rightarrow x_j}=1-\frac{\text{var}\;{\epsilon_{x_j}(t)}}{\text{var}\;{\epsilon_{x_j\backslash x_i}^\star(t)}}
 $$
 
 ### 1.2 Simulation Model

@@ -1,9 +1,13 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
+from scipy.io import savemat
 from torch import nn, optim
+from torchsummary import summary
 
-from core import (Timer, get_Granger_Causality, get_json_data, get_mat_data, make_loader, matshow, save_3Darray, set_device, time_series_split)
+from core import (Timer, get_Granger_Causality, get_json_data, get_mat_data,
+                  make_loader, matshow, save_3Darray, set_device,
+                  time_series_split)
 from Models import AdaBound, Modeler, RNN_Net
 
 
@@ -82,6 +86,9 @@ def train_net(train_set, valid_set, test_set, in_dim, out_dim, cfg):
                   num_layers=cfg['num_layers'],
                   dropout=cfg['dropout'],
                   bidirectional=cfg['bidirectional'])
+    
+    # summary
+    print(summary(net, (in_dim, cfg['hidden_dim'], out_dim,))
 
     # 优化器定义
     opt = AdaBound(net.parameters(), lr=cfg['lr_rate'], weight_decay=cfg['weight_decay'])
@@ -115,31 +122,67 @@ def train_net(train_set, valid_set, test_set, in_dim, out_dim, cfg):
 if __name__ == '__main__':
     # 设置参数
     cfg = get_json_data('configs/seizure.json')
+    cfg0 = get_json_data('configs/Pp4Dp1.json')
     cfg1 = get_json_data('configs/pre_ictal.json')
     device = set_device()
     data_root = r'Data/'
     data_root1 = r'Data/pre_ictal.mat'
     save_root = r'seizure/'
 
+    # Pp4->Dp1 pre_ictal 测试
+    WGCI_Pp4Dp1_pre_ictal = 0
+    for id in range(cfg0['num_trials']):
+        print(f'Pp4->Dp1 pre ictal 实验 {id}')
+        WGCI_Pp4Dp1_pre_ictal += get_person_WGCI(f'{data_root}Pp4Dp1_pre_ictal.mat', 'Pp4Dp1_pre_ictal', cfg0)
+    WGCI_Pp4Dp1_pre_ictal /= cfg0['num_trials']
+    print(WGCI_Pp4Dp1_pre_ictal)
+    save_3Darray(f'{save_root}WGCI_Pp4Dp1_pre_ictal.txt', WGCI_Pp4Dp1_pre_ictal)
+
+    # Pp4->Dp1 ictal1 测试
+    WGCI_Pp4Dp1_ictal1 = 0
+    for id in range(cfg0['num_trials']):
+        print(f'Pp4->Dp1 ictal1 实验 {id}')
+        WGCI_Pp4Dp1_ictal1 += get_person_WGCI(f'{data_root}Pp4Dp1_ictal1.mat', 'Pp4Dp1_ictal1', cfg0)
+    WGCI_Pp4Dp1_ictal1 /= cfg0['num_trials']
+    print(WGCI_Pp4Dp1_ictal1)
+    save_3Darray(f'{save_root}WGCI_Pp4Dp1_ictal1.txt', WGCI_Pp4Dp1_ictal1)
+
+    # Pp4->Dp1 ictal2 测试
+    WGCI_Pp4Dp1_ictal2 = 0
+    for id in range(cfg0['num_trials']):
+        print(f'Pp4->Dp1 ictal2 实验 {id}')
+        WGCI_Pp4Dp1_ictal2 += get_person_WGCI(f'{data_root}Pp4Dp1_ictal2.mat', 'Pp4Dp1_ictal2', cfg0)
+    WGCI_Pp4Dp1_ictal2 /= cfg0['num_trials']
+    print(WGCI_Pp4Dp1_ictal2)
+    save_3Darray(f'{save_root}WGCI_Pp4Dp1_ictal2.txt', WGCI_Pp4Dp1_ictal2)
+
     # seizure ictal1 计算
     WGCI_ictal1 = 0
-    for _ in range(cfg['num_trials']):
-        WGCI_ictal1 = get_person_WGCI(f'{data_root}ictal1.mat', 'ictal1', cfg)
+    for id in range(cfg['num_trials']):
+        print(f'seizure ictal1 实验 {id}')
+        WGCI_ictal1 += get_person_WGCI(f'{data_root}ictal1.mat', 'ictal1', cfg)
+    WGCI_ictal1 /= cfg['num_trials']
     print(WGCI_ictal1)
     save_3Darray(f'{save_root}WGCI_ictal1.txt', WGCI_ictal1)
+    savemat(f'{save_root}WGCI_ictal1.mat', {'data': np.squeeze(WGCI_ictal1)})
 
     # seizure ictal2 计算
     WGCI_ictal2 = 0
-    for _ in range(cfg['num_trials']):
-        WGCI_ictal2 = get_person_WGCI(f'{data_root}ictal2.mat', 'ictal2', cfg)
+    for id in range(cfg['num_trials']):
+        print(f'seizure ictal2 实验 {id}')
+        WGCI_ictal2 += get_person_WGCI(f'{data_root}ictal2.mat', 'ictal2', cfg)
+    WGCI_ictal2 /= cfg['num_trials']
     print(WGCI_ictal2)
     save_3Darray(f'{save_root}WGCI_ictal2.txt', WGCI_ictal2)
+    savemat(f'{save_root}WGCI_ictal2.mat', {'data': np.squeeze(WGCI_ictal2)})
 
     # pre_ictal
     WGCI_pre_ictal = 0
-    for _ in range(cfg1['num_trials']):
-        WGCI_pre_ictal = get_person_WGCI(data_root1, 'pre_ictal', cfg1)
+    for id in range(cfg1['num_trials']):
+        print(f'pre_ictal 实验 {id}')
+        WGCI_pre_ictal += get_person_WGCI(data_root1, 'pre_ictal', cfg1)
 
     WGCI_pre_ictal /= cfg1['num_trials']
     print(WGCI_pre_ictal)
     save_3Darray(f'{save_root}WGCI_pre_ictal.txt', WGCI_pre_ictal)
+    savemat(f'{save_root}WGCI_pre_ictal.mat', {'data': np.squeeze(WGCI_pre_ictal)})

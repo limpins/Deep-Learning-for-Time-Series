@@ -95,6 +95,29 @@ def get_Granger_Causality(err_cond, err_all):
     np.fill_diagonal(gc_matrix, 0.)    # 不考虑自身影响, 对角线为 0.
     return gc_matrix
 
+def get_Granger_Causality1(err_cond, err_all):
+    """计算 Granger Causality matrix. (err_cond, err_all 应该有相同的数据形式)
+
+    Args:
+        err_cond (matrix like data, numpy.ndarray or torch.Tensor): 条件误差, num_channel * n_point * num_channel
+        err_all (matrix like data, numpy.ndarray or torch.Tensor): 整体误差, n_point * num_channel
+
+    Returns:
+        (np.ndarray) Granger Causality matrix.
+    """
+
+    if isinstance(err_cond, np.ndarray) and isinstance(err_all, np.ndarray):
+        gc_matrix = np.double(err_all).var(0) / np.double(err_cond).var(1)
+        gc_matrix = 1 - gc_matrix.clip(min=1.)
+    elif isinstance(err_cond, torch.Tensor) and isinstance(err_all, torch.Tensor):
+        gc_matrix = err_all.double().var(0) / err_cond.double().var(1)
+        gc_matrix = (1 - gc_matrix.clamp(min=1.)).cpu().numpy()
+    else:
+        raise ValueError('input variables should have the same type(numpy.ndarray or torch.tensor).')
+
+    np.fill_diagonal(gc_matrix, 0.)    # 不考虑自身影响, 对角线为 0.
+    return gc_matrix
+
 
 def get_gc_precent(gc_matrix):
     """获取 Granger Causality matrix 的百分比矩阵(当前 i 信号对 j 信号影响的百分比)
