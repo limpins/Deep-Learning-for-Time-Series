@@ -6,6 +6,4 @@ pandas
 scikit-learn
 matplotlib
 seaborn
-tensorboard
-tensorboardX
 pyyaml

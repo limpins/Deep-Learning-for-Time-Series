@@ -1,14 +1,10 @@
-import matplotlib.pyplot as plt
 import numpy as np
 import torch
 from scipy.io import savemat
 from torch import nn, optim
-from torchsummary import summary
 
-from core import (Timer, get_Granger_Causality, get_json_data, get_mat_data,
-                  make_loader, matshow, save_3Darray, set_device,
-                  time_series_split)
 from Models import AdaBound, Modeler, RNN_Net
+from core import (get_Granger_Causality, get_json_data, get_mat_data, make_loader, save_3Darray, set_device, time_series_split)
 
 
 def get_person_WGCI(data_saved_name, data_field, cfg):
@@ -86,12 +82,9 @@ def train_net(train_set, valid_set, test_set, in_dim, out_dim, cfg):
                   num_layers=cfg['num_layers'],
                   dropout=cfg['dropout'],
                   bidirectional=cfg['bidirectional'])
-    
-    # summary
-    print(summary(net, (in_dim, cfg['hidden_dim'], out_dim,))
 
     # 优化器定义
-    opt = AdaBound(net.parameters(), lr=cfg['lr_rate'], weight_decay=cfg['weight_decay'])
+    opt = optim.RMSprop(net.parameters(), lr=cfg['lr_rate'], weight_decay=cfg['weight_decay'])
 
     # 损失定义
     criterion = nn.MSELoss()
@@ -103,7 +96,7 @@ def train_net(train_set, valid_set, test_set, in_dim, out_dim, cfg):
     for epoch in range(cfg['num_epoch']):
         train_loss = model.train_model(train_loader)    # 当前 epoch 的训练损失
         valid_loss = model.evaluate_model(valid_loader)    # 当前 epoch 的验证损失
-        print(f"[{epoch+1}/{cfg['num_epoch']}] ===>> train_loss: {train_loss: .4f} | valid_loss: {valid_loss: .4f}")
+        print(f"[{epoch + 1}/{cfg['num_epoch']}] ===>> train_loss: {train_loss: .4f} | valid_loss: {valid_loss: .4f}")
 
     # 训练结束 预测
     prediction, err = model.predit_point_by_point(test_loader.dataset.data, test_loader.dataset.target)

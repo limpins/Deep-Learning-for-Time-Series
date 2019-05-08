@@ -3,15 +3,13 @@ Email: autuanliu@163.com
 Date: 2018/10/11
 """
 
-import matplotlib.pyplot as plt
 import numpy as np
 import torch
 from torch import nn, optim
 
-from core import (Timer, get_Granger_Causality, get_Granger_Causality1, get_json_data, get_mat_data, make_loader,
-                  matshow, save_3Darray, set_device,
-                  time_series_split)
-from Models import AdaBound, Modeler, RNN_Net
+from Models import Modeler, RNN_Net
+from core import (Timer, get_Granger_Causality, get_json_data, get_mat_data, make_loader,
+                  matshow, set_device, time_series_split)
 
 
 def train_net(train_set, valid_set, test_set, in_dim, out_dim, cfg):
@@ -33,7 +31,7 @@ def train_net(train_set, valid_set, test_set, in_dim, out_dim, cfg):
                   bidirectional=cfg['bidirectional'])
 
     # 优化器定义
-    opt = AdaBound(net.parameters(), lr=cfg['lr_rate'], weight_decay=cfg['weight_decay'])
+    opt = optim.RMSprop(net.parameters(), lr=cfg['lr_rate'], weight_decay=cfg['weight_decay'])
 
     # 损失定义
     criterion = nn.MSELoss()
