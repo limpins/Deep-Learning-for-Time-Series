@@ -1,0 +1,80 @@
+Pp4->Dp1 pre ictal 实验 0
+model_id: 1
+[1/10] ===>> train_loss:  0.0365 | valid_loss:  0.0508
+[2/10] ===>> train_loss:  0.0408 | valid_loss:  0.0363
+[3/10] ===>> train_loss:  0.0279 | valid_loss:  0.0340
+[4/10] ===>> train_loss:  0.0385 | valid_loss:  0.0293
+[5/10] ===>> train_loss:  0.0224 | valid_loss:  0.0334
+[6/10] ===>> train_loss:  0.0369 | valid_loss:  0.0334
+[7/10] ===>> train_loss:  0.0241 | valid_loss:  0.0310
+[8/10] ===>> train_loss:  0.0635 | valid_loss:  0.0324
+[9/10] ===>> train_loss:  0.0226 | valid_loss:  0.0345
+[10/10] ===>> train_loss:  0.0505 | valid_loss:  0.0452
+model_id: 2
+[1/10] ===>> train_loss:  0.0236 | valid_loss:  0.0114
+[2/10] ===>> train_loss:  0.0199 | valid_loss:  0.0072
+[3/10] ===>> train_loss:  0.0072 | valid_loss:  0.0096
+[4/10] ===>> train_loss:  0.0227 | valid_loss:  0.0147
+[5/10] ===>> train_loss:  0.0171 | valid_loss:  0.0065
+[6/10] ===>> train_loss:  0.0252 | valid_loss:  0.0105
+[7/10] ===>> train_loss:  0.0261 | valid_loss:  0.0064
+[8/10] ===>> train_loss:  0.0294 | valid_loss:  0.0179
+[9/10] ===>> train_loss:  0.0701 | valid_loss:  0.0121
+[10/10] ===>> train_loss:  0.0150 | valid_loss:  0.0070
+model_id: 3
+[1/10] ===>> train_loss:  0.0602 | valid_loss:  0.0651
+[2/10] ===>> train_loss:  0.0381 | valid_loss:  0.0577
+[3/10] ===>> train_loss:  0.0530 | valid_loss:  0.0577
+[4/10] ===>> train_loss:  0.0488 | valid_loss:  0.0500
+[5/10] ===>> train_loss:  0.0433 | valid_loss:  0.0499
+[6/10] ===>> train_loss:  0.0908 | valid_loss:  0.0472
+[7/10] ===>> train_loss:  0.0348 | valid_loss:  0.0564
+[8/10] ===>> train_loss:  0.0446 | valid_loss:  0.0535
+[9/10] ===>> train_loss:  0.0232 | valid_loss:  0.0519
+[10/10] ===>> train_loss:  0.0387 | valid_loss:  0.0905
+model_id: 1
+[1/10] ===>> train_loss:  0.1396 | valid_loss:  0.1089
+[2/10] ===>> train_loss:  0.0316 | valid_loss:  0.0347
+[3/10] ===>> train_loss:  0.0420 | valid_loss:  0.0306
+[4/10] ===>> train_loss:  0.0962 | valid_loss:  0.0286
+[5/10] ===>> train_loss:  0.0463 | valid_loss:  0.0247
+[6/10] ===>> train_loss:  0.0664 | valid_loss:  0.0275
+[7/10] ===>> train_loss:  0.0250 | valid_loss:  0.0231
+[8/10] ===>> train_loss:  0.0241 | valid_loss:  0.0277
+[9/10] ===>> train_loss:  0.0309 | valid_loss:  0.0231
+[10/10] ===>> train_loss:  0.0268 | valid_loss:  0.0219
+model_id: 2
+[1/10] ===>> train_loss:  0.0099 | valid_loss:  0.1009
+[2/10] ===>> train_loss:  0.0185 | valid_loss:  0.0071
+[3/10] ===>> train_loss:  0.0137 | valid_loss:  0.0133
+[4/10] ===>> train_loss:  0.0160 | valid_loss:  0.0080
+[5/10] ===>> train_loss:  0.0832 | valid_loss:  0.0084
+[6/10] ===>> train_loss:  0.0061 | valid_loss:  0.0215
+[7/10] ===>> train_loss:  0.0151 | valid_loss:  0.0105
+[8/10] ===>> train_loss:  0.0085 | valid_loss:  0.0149
+[9/10] ===>> train_loss:  0.0266 | valid_loss:  0.0069
+[10/10] ===>> train_loss:  0.0154 | valid_loss:  0.0051
+model_id: 3
+[1/10] ===>> train_loss:  0.0867 | valid_loss:  0.0971
+[2/10] ===>> train_loss:  0.0523 | valid_loss:  0.0360
+[3/10] ===>> train_loss:  0.0242 | valid_loss:  0.0366
+[4/10] ===>> train_loss:  0.0469 | valid_loss:  0.0319
+[5/10] ===>> train_loss:  0.0291 | valid_loss:  0.0477
+[6/10] ===>> train_loss:  0.2438 | valid_loss:  0.0411
+[7/10] ===>> train_loss:  0.0199 | valid_loss:  0.0324
+[8/10] ===>> train_loss:  0.0420 | valid_loss:  0.0320
+[9/10] ===>> train_loss:  0.0624 | valid_loss:  0.0421
+[10/10] ===>> train_loss:  0.0285 | valid_loss:  0.0345
+model_id: 1
+Traceback (most recent call last):
+  File "seizure_WGCI.py", line 132, in <module>
+    WGCI_Pp4Dp1_pre_ictal += get_person_WGCI(f'{data_root}Pp4Dp1_pre_ictal.mat', 'Pp4Dp1_pre_ictal', cfg0)
+  File "seizure_WGCI.py", line 42, in get_person_WGCI
+    _, err_all = train_net(train_set, valid_set, test_set, cfg['in_dim'], cfg['out_dim'], cfg)
+  File "seizure_WGCI.py", line 75, in train_net
+    bt_sz=cfg['bt_sz'])
+  File "/home/lab/Github/Deep-Learning-for-Time-Series/core/loader.py", line 177, in make_loader
+    X_train, X_valid, X_test = normalize(X_train, X_valid, X_test)
+  File "/home/lab/Github/Deep-Learning-for-Time-Series/core/loader.py", line 88, in normalize
+    scaler = skp.StandardScaler().fit(train_data.reshape(-1, dim))
+ValueError: cannot reshape array of size 0 into shape (0)
