@@ -19,16 +19,17 @@ class RNN_Net(nn.Module):
         input_dim (int): 输入维度
         hidden_dim (int): 隐藏层维度
         output_dim (int): 输出维度
+        batchsize (int): batchsize
         rnn_type (str): RNN网络的类型，默认为 LSTM
         num_layers (int): 隐藏层的层数，默认为 1
         dropout (float): dropout概率值，默认为 0.
     """
 
-    def __init__(self, input_dim, hidden_dim, output_dim, rnn_type='LSTM', num_layers=1, dropout=0., bidirectional=False):
+    def __init__(self, input_dim, hidden_dim, output_dim, batchsize=64, rnn_type='LSTM', num_layers=1, dropout=0., bidirectional=False):
         super().__init__()
         self.hidden_dim = hidden_dim
         self.num_layers = num_layers
-        self.rnn_type=rnn_type
+        self.rnn_type = rnn_type
         self.bidirectional = 2 if bidirectional else 1
         dropout = 0. if num_layers == 1 else dropout
         if rnn_type in ['LSTM', 'GRU']:
@@ -42,6 +43,9 @@ class RNN_Net(nn.Module):
 
         # way2: 不使用激活函数
         self.fc = nn.Linear(hidden_dim * self.bidirectional, output_dim)
+        self.bn = BatchNorm1dFlat(hidden_dim * self.bidirectional)
+        # self.hidden = self.initHidden(batchsize)
+        self.hidden = self.initHidden(batchsize)
 
     def forward(self, x):
         """网络的前向传播
@@ -50,19 +54,22 @@ class RNN_Net(nn.Module):
             x (tensor): 输入
         """
 
-        hidden = self.initHidden(x.size(0))
-        y, _ = self.rnn(x, hidden)
+        # hidden = self.initHidden(x.size(0))  # 不保存每个 batch 的隐状态
+        y, hidden = self.rnn(x, self.hidden)
+        self.hidden = self.repackage_hidden(hidden)
 
         # pytorch的输入会记录所有时间点的输出，这里输出维度为 batchsize*seq_length*hidden_dim
         # 因为我们做的是预测模型也即多对一的RNN模型，所以取最后一个为输出即预测结果
+        # 同时我们需要保存隐藏状态
 
         # way1: 使用激活函数
         # out = self.ac(self.fc(y))
         # out = self.fc1(out)
 
         # way2: 不使用激活函数
-        out = self.fc(y)
-        return out[:, -1, :]
+        y = self.bn(y)    # BN
+        y = self.fc(y)
+        return y[:, -1, :]
 
     def initHidden(self, batchsize):
         """初始化RNN的隐变量
@@ -74,9 +81,8 @@ class RNN_Net(nn.Module):
             tuple: 返回初始化的隐变量
         """
 
-        # 获取并创建与weight属性相同的变量，数据类型，运行设备，requires_grad等
-        weight = next(self.parameters())
-        h0 = weight.new_zeros(self.num_layers * self.bidirectional, batchsize, self.hidden_dim).requires_grad_(False)
+        # GPU
+        h0 = torch.zeros(self.num_layers * self.bidirectional, batchsize, self.hidden_dim).cuda()
         if self.rnn_type == 'LSTM':
             return (h0, h0)
         else:
@@ -98,3 +104,13 @@ class RNN_Net(nn.Module):
             return hn.detach()
         else:
             return tuple(self.repackage_hidden(v) for v in hn)
+
+
+class BatchNorm1dFlat(nn.BatchNorm1d):
+    """`nn.BatchNorm1d`, but first flattens leading dimensions"""
+
+    def forward(self, x):
+        if x.dim() == 2: return super().forward(x)
+        *f, l = x.shape
+        x = x.contiguous().view(-1, l)
+        return super().forward(x).view(*f, l)

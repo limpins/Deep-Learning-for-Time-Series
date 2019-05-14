@@ -3,7 +3,7 @@ import torch
 from scipy.io import savemat
 from torch import nn, optim
 
-from Models import AdaBound, Modeler, RNN_Net
+from Models import AdaBound, AdaBoundW, Modeler, RNN_Net
 from core import (get_Granger_Causality, get_json_data, get_mat_data, make_loader, save_3Darray, set_device, time_series_split)
 
 
@@ -78,13 +78,16 @@ def train_net(train_set, valid_set, test_set, in_dim, out_dim, cfg):
     net = RNN_Net(in_dim,
                   cfg['hidden_dim'],
                   out_dim,
+                  batchsize=cfg['bt_sz'],
                   rnn_type=cfg['rnn_type'],
                   num_layers=cfg['num_layers'],
                   dropout=cfg['dropout'],
                   bidirectional=cfg['bidirectional'])
 
     # 优化器定义
-    opt = optim.RMSprop(net.parameters(), lr=cfg['lr_rate'], weight_decay=cfg['weight_decay'])
+    # opt = optim.RMSprop(net.parameters(), lr=cfg['lr_rate'], weight_decay=cfg['weight_decay'])
+    # opt = AdaBoundW(net.parameters(), lr=cfg['lr_rate'], weight_decay=cfg['weight_decay'])
+    opt = AdaBound(net.parameters(), lr=cfg['lr_rate'], weight_decay=cfg['weight_decay'])
 
     # 损失定义
     criterion = nn.MSELoss()

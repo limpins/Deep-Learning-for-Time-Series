@@ -105,6 +105,8 @@ class Modeler:
         """
 
         x, y = self.tsfm(x), self.tsfm(y)
+        # 测试时没有先验知识
+        self.model.hidden = self.model.initHidden(x.size(0))
         out = self.model(x).detach()
         return out, out - y
 

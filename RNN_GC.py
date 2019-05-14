@@ -6,10 +6,10 @@ Date: 2018/10/11
 import numpy as np
 import torch
 from torch import nn, optim
+import matplotlib.pyplot as plt
 
-from Models import Modeler, RNN_Net
-from core import (Timer, get_Granger_Causality, get_json_data, get_mat_data, make_loader,
-                  matshow, set_device, time_series_split)
+from Models import Modeler, RNN_Net, AdaBoundW, AdaBound
+from core import (Timer, get_Granger_Causality, get_json_data, get_mat_data, make_loader, matshow, set_device, time_series_split)
 
 
 def train_net(train_set, valid_set, test_set, in_dim, out_dim, cfg):
@@ -25,13 +25,16 @@ def train_net(train_set, valid_set, test_set, in_dim, out_dim, cfg):
     net = RNN_Net(in_dim,
                   cfg['hidden_dim'],
                   out_dim,
+                  batchsize=cfg['bt_sz'],
                   rnn_type=cfg['rnn_type'],
                   num_layers=cfg['num_layers'],
                   dropout=cfg['dropout'],
                   bidirectional=cfg['bidirectional'])
 
     # 优化器定义
-    opt = optim.RMSprop(net.parameters(), lr=cfg['lr_rate'], weight_decay=cfg['weight_decay'])
+    # opt = optim.RMSprop(net.parameters(), lr=cfg['lr_rate'], weight_decay=cfg['weight_decay'])
+    # opt = AdaBoundW(net.parameters(), lr=cfg['lr_rate'], weight_decay=cfg['weight_decay'])
+    opt = AdaBound(net.parameters(), lr=cfg['lr_rate'], weight_decay=cfg['weight_decay'])
 
     # 损失定义
     criterion = nn.MSELoss()
@@ -41,8 +44,8 @@ def train_net(train_set, valid_set, test_set, in_dim, out_dim, cfg):
 
     # 训练
     for epoch in range(cfg['num_epoch']):
-        train_loss = model.train_model(train_loader)  # 当前 epoch 的训练损失
-        valid_loss = model.evaluate_model(valid_loader)  # 当前 epoch 的验证损失
+        train_loss = model.train_model(train_loader)    # 当前 epoch 的训练损失
+        valid_loss = model.evaluate_model(valid_loader)    # 当前 epoch 的验证损失
         print(f"[{epoch + 1}/{cfg['num_epoch']}] ===>> train_loss: {train_loss: .4f} | valid_loss: {valid_loss: .4f}")
 
     # 训练结束 预测
@@ -68,16 +71,16 @@ def main(signal_type, all_signal_type, cfg):
     """
 
     if signal_type in all_signal_type[:3]:
-        origin_data = get_mat_data(f'Data/{signal_type}_noise1.mat', f'{signal_type}')  # 读取数据
+        origin_data = get_mat_data(f'Data/{signal_type}_noise1.mat', f'{signal_type}')    # 读取数据
     else:
-        origin_data = get_mat_data(f'Data/{signal_type}.mat', f'{signal_type}')  # 读取数据
+        origin_data = get_mat_data(f'Data/{signal_type}.mat', f'{signal_type}')    # 读取数据
 
     # 存储 WGCI
     WGCI = []
 
     # 分割 trial
     for trial in range(cfg['trials']):
-        start = int(trial * cfg['trial_points'] * cfg['overlap'])  # 50% 的 overlap
+        start = int(trial * cfg['trial_points'] * cfg['overlap'])    # 50% 的 overlap
         idx = slice(start, cfg['trial_points'] + start)
         trial_set = origin_data[idx]
 
@@ -95,13 +98,12 @@ def main(signal_type, all_signal_type, cfg):
         for ch in range(cfg['num_channel']):
             model_id += 1
             print(f'model_id: {model_id}')
-            idx = list(set(range(cfg['num_channel'])) - {ch})  # 剩余变量的索引
+            idx = list(set(range(cfg['num_channel'])) - {ch})    # 剩余变量的索引
             # 把要去掉的数据的某维变为 0
-            _, err = train_net(train_set[:, idx], valid_set[:, idx], test_set[:, idx], cfg['in_dim'] - 1,
-                               cfg['out_dim'] - 1, cfg)
+            _, err = train_net(train_set[:, idx], valid_set[:, idx], test_set[:, idx], cfg['in_dim'] - 1, cfg['out_dim'] - 1, cfg)
 
             temp += [err]
-        temp = torch.stack(temp)  # cfg['num_channel'] * num_point * out_dim
+        temp = torch.stack(temp)    # cfg['num_channel'] * num_point * out_dim
 
         # 扩充对角线
         err_cond = temp.new_zeros(temp.size(0), temp.size(1), cfg['num_channel'])
@@ -141,10 +143,9 @@ if __name__ == '__main__':
             print(f'signal type: {signal_type} 实验 {id + 1}')
             gc_matrix += main(signal_type, all_signal_type, cfg)
         gc_matrix = np.squeeze(gc_matrix / cfg['num_trials'])
-        gc_matrix[gc_matrix < cfg['threshold']] = 0.  # 阈值处理
+        gc_matrix[gc_matrix < cfg['threshold']] = 0.    # 阈值处理
         label = ['ch' + str(t + 1) for t in range(cfg['num_channel'])]
-        matshow(gc_matrix, label, label, f'{signal_type} Granger Causality Matrix',
-                f'images/without_NUE/{signal_type}_Granger_Matrix.png')
+        matshow(gc_matrix, label, label, f'{signal_type} Granger Causality Matrix', f'images/without_NUE/{signal_type}_Granger_Matrix.png')
 
         # 保存结果
         np.savetxt(f'checkpoints/without_NUE/{signal_type}_granger_matrix.txt', gc_matrix)

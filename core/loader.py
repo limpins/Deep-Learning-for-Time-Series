@@ -180,5 +180,6 @@ def make_loader(train_set, valid_set, test_set, idx_x=None, idx_y=None, seq_len=
     sub = [MakeSeqData(x, y) for x, y in zip([X_train, X_valid, X_test], [y_train, y_valid, y_test])]
 
     # 测试集不需要随机打乱
-    [train_loader, valid_loader, test_loader] = [DataLoader(t, batch_size=bt_sz, shuffle=sf, drop_last=False) for t, sf in zip(sub, [True, False, False])]
+    # 为了顺利训练 这里 drop-last 设置为 True
+    [train_loader, valid_loader, test_loader] = [DataLoader(t, batch_size=bt_sz, shuffle=sf, drop_last=True) for t, sf in zip(sub, [True, False, False])]
     return train_loader, valid_loader, test_loader

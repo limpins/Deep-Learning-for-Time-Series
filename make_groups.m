@@ -3,7 +3,7 @@ close all;
 figure(1)
 set(gcf, 'Position', 2 * [232/2   20   360   540], 'color', 'w'); % default  [232   246   560   420]
 root = './seizure/';
-Threld = 0.140; %
+Threld = 0.100; %
 
 for situation = 1:3
     abcd = 13; ccc = 2; aaa = 0.85; bbb = 0.74; bb = 0.82; b = 0.9; % bbb=0.9; bb=0.82; b=0.74;
@@ -11,14 +11,14 @@ for situation = 1:3
 
     switch (situation)
         case 1% pre-ictal for RNN-GC
-            fprintf('Results for RNN-GC');
+            fprintf('Results for RNN-GC pre-ictal');
             load([root, 'WGCI_pre_ictal.mat']);
 
         case 2% Ictal1 for RNN-GC
-            fprintf('Results for RNN-GC');
+            fprintf('Results for RNN-GC ictal 1');
             load([root, 'WGCI_ictal1.mat']);
         case 3% Ictal2 for RNN-GC
-            fprintf('Results for RNN-GC');
+            fprintf('Results for RNN-GC ictal 2');
             load([root, 'WGCI_ictal2.mat']);
     end
 
@@ -53,7 +53,6 @@ for situation = 1:3
         end
     end
 
-    C_RNN.'
     % this functon is used to plot figure
     graph_plot(C_RNN.', 1); % plot graph
     y_axis = get(gca, 'Ylim');
@@ -72,25 +71,6 @@ for situation = 1:3
     end
 
     show_LCI = 0;
-
-    if (show_LCI == 1)
-        switch (situation)
-            case 1
-                tol2 = 'Pre Ictal: RNN-GC';
-            case 2
-                tol2 = 'Ictal 1: RNN-GC';
-            case 3
-                tol2 = 'Ictal 2: RNN-GC';
-        end
-
-        fprintf('\n');
-        fprintf(tol2);
-        fprintf('\n');
-        fprintf('Case: ');
-        fprintf(['Cp1 ', 'Cp4 ', 'Pp1 ', 'Pp4 ', 'Pp8 ', 'Ap2 ', 'Ap6 ', 'Dp1 ', 'Dp5 ', 'Bp1 ', 'Tp1 ', 'Fp2 ']);
-        fprintf('\n Out:\t');
-    end
-
     LCI = zeros(1, n);
     LCI_in = LCI; % 12
     LCI_out = LCI; % 12
@@ -149,18 +129,18 @@ for situation = 1:3
     NodeIDs = {'Cp1', 'Cp4', 'Pp1', 'Pp4', 'Pp8', 'Ap2', 'Ap6', 'Dp1', 'Dp5', 'Bp1', 'Tp1', 'Fp2'};
 
     ShowWeightsValue = 'off';
-    % BGobj = biograph(C2,NodeIDs,'ShowWeights', ShowWeightsValue,'LayoutType','radial','EdgeType','straight','EdgeFontSize',4,'ArrowSize',2); % 'equilibrium','radial','hierarchical'
-    Group_O = cell(1, count_O); Group_P = cell(1, count_P - count_O); Group_T = cell(1, n - count_P);
-    fprintf('\n');
+    Group_O = cell(1, count_O);
+    Group_P = cell(1, count_P - count_O);
+    Group_T = cell(1, n - count_P);
     fprintf('\n');
 
     switch (situation)
         case 1
-            tol2 = 'Pre Ictal: RNN-GC';
+            tol2 = 'Groups for Pre Ictal';
+        case 2
+            tol2 = 'Groups for Ictal 1';
         case 3
-            tol2 = 'Ictal 1: RNN-GC';
-        case 5
-            tol2 = 'Ictal 2: RNN-GC';
+            tol2 = 'Groups for Ictal 2';
     end
 
     fprintf(tol2);
@@ -195,11 +175,10 @@ for situation = 1:3
     end
 
     fprintf('\n');
-    % fprintf(L_value(1,1:end));
-    for lll = 1:12
-        fprintf(sprintf('%%1.%df', 2), L_value(1, lll));
-        fprintf('\t');
-    end
+    % for lll = 1:12
+    %     fprintf(sprintf('%%1.%df', 2), L_value(1, lll));
+    %     fprintf('\t');
+    % end
 
     fprintf('\n');
 
@@ -226,12 +205,11 @@ for situation = 1:3
     H = [1 2 3 4 6 7 10 5 8 11 12 9];
     fprintf('\n');
 
-    for hh = 1:12
-        fprintf(sprintf('%%1.%df', 3), LCI(1, H(hh)));
-        fprintf('\n');
-    end
+    % for hh = 1:12
+    %     fprintf(sprintf('%%1.%df', 3), LCI(1, H(hh)));
+    %     fprintf('\n');
+    % end
 
-    C2.'
     graph_plot(C2.', 1); % plot graph
     y_axis = get(gca, 'Ylim');
     x_axis = get(gca, 'Xlim');
