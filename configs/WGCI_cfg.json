@@ -24,7 +24,7 @@
         "trial_points": 10000,
         "vis": false,
         "overlap": 0.5,
-        "trials": 5,
+        "trials": 1,
         "num_trials": 10
     },
     "nonlinear_signals": {
@@ -52,7 +52,7 @@
         "trial_points": 10000,
         "vis": false,
         "overlap": 0.5,
-        "trials": 5,
+        "trials": 1,
         "num_trials": 10
     },
     "longlag_nonlinear_signals": {
@@ -80,7 +80,7 @@
         "trial_points": 10000,
         "vis": false,
         "overlap": 0.5,
-        "trials": 5,
+        "trials": 1,
         "num_trials": 10
     },
     "EEG64s": {
@@ -108,7 +108,7 @@
         "trial_points": 10000,
         "vis": false,
         "overlap": 0.5,
-        "trials": 5,
+        "trials": 1,
         "num_trials": 10
     }
 }
