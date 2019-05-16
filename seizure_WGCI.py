@@ -132,7 +132,7 @@ if __name__ == '__main__':
         WGCI_Pp4Dp1_pre_ictal += get_person_WGCI(f'{data_root}Pp4Dp1_pre_ictal.mat', 'Pp4Dp1_pre_ictal', cfg0)
     WGCI_Pp4Dp1_pre_ictal /= cfg0['num_trials']
     # 阈值处理
-    WGCI_Pp4Dp1_pre_ictal[WGCI_Pp4Dp1_pre_ictal < cfg['threshold']] = 0.
+    # WGCI_Pp4Dp1_pre_ictal[WGCI_Pp4Dp1_pre_ictal < cfg['threshold']] = 0.
     print(WGCI_Pp4Dp1_pre_ictal)
     save_3Darray(f'{save_root}WGCI_Pp4Dp1_pre_ictal.txt', WGCI_Pp4Dp1_pre_ictal)
 
@@ -143,7 +143,7 @@ if __name__ == '__main__':
         WGCI_Pp4Dp1_ictal1 += get_person_WGCI(f'{data_root}Pp4Dp1_ictal1.mat', 'Pp4Dp1_ictal1', cfg0)
     WGCI_Pp4Dp1_ictal1 /= cfg0['num_trials']
     # 阈值处理
-    WGCI_Pp4Dp1_ictal1[WGCI_Pp4Dp1_ictal1 < cfg['threshold']] = 0.
+    # WGCI_Pp4Dp1_ictal1[WGCI_Pp4Dp1_ictal1 < cfg['threshold']] = 0.
     print(WGCI_Pp4Dp1_ictal1)
     save_3Darray(f'{save_root}WGCI_Pp4Dp1_ictal1.txt', WGCI_Pp4Dp1_ictal1)
 
@@ -154,7 +154,7 @@ if __name__ == '__main__':
         WGCI_Pp4Dp1_ictal2 += get_person_WGCI(f'{data_root}Pp4Dp1_ictal2.mat', 'Pp4Dp1_ictal2', cfg0)
     WGCI_Pp4Dp1_ictal2 /= cfg0['num_trials']
     # 阈值处理
-    WGCI_Pp4Dp1_ictal2[WGCI_Pp4Dp1_ictal2 < cfg['threshold']] = 0.
+    # WGCI_Pp4Dp1_ictal2[WGCI_Pp4Dp1_ictal2 < cfg['threshold']] = 0.
     print(WGCI_Pp4Dp1_ictal2)
     save_3Darray(f'{save_root}WGCI_Pp4Dp1_ictal2.txt', WGCI_Pp4Dp1_ictal2)
 
@@ -165,7 +165,7 @@ if __name__ == '__main__':
         WGCI_ictal1 += get_person_WGCI(f'{data_root}ictal1.mat', 'ictal1', cfg)
     WGCI_ictal1 /= cfg['num_trials']
     # 阈值处理
-    WGCI_ictal1[WGCI_ictal1 < cfg['threshold']] = 0.
+    # WGCI_ictal1[WGCI_ictal1 < cfg['threshold']] = 0.
     print(WGCI_ictal1)
     save_3Darray(f'{save_root}WGCI_ictal1.txt', WGCI_ictal1)
     savemat(f'{save_root}WGCI_ictal1.mat', {'data': np.squeeze(WGCI_ictal1)})
@@ -177,7 +177,7 @@ if __name__ == '__main__':
         WGCI_ictal2 += get_person_WGCI(f'{data_root}ictal2.mat', 'ictal2', cfg)
     WGCI_ictal2 /= cfg['num_trials']
     # 阈值处理
-    WGCI_ictal2[WGCI_ictal2 < cfg['threshold']] = 0.
+    # WGCI_ictal2[WGCI_ictal2 < cfg['threshold']] = 0.
     print(WGCI_ictal2)
     save_3Darray(f'{save_root}WGCI_ictal2.txt', WGCI_ictal2)
     savemat(f'{save_root}WGCI_ictal2.mat', {'data': np.squeeze(WGCI_ictal2)})
@@ -190,7 +190,7 @@ if __name__ == '__main__':
 
     WGCI_pre_ictal /= cfg1['num_trials']
     # 阈值处理
-    WGCI_pre_ictal[WGCI_pre_ictal < cfg['threshold']] = 0.
+    # WGCI_pre_ictal[WGCI_pre_ictal < cfg['threshold']] = 0.
     print(WGCI_pre_ictal)
     save_3Darray(f'{save_root}WGCI_pre_ictal.txt', WGCI_pre_ictal)
     savemat(f'{save_root}WGCI_pre_ictal.mat', {'data': np.squeeze(WGCI_pre_ictal)})

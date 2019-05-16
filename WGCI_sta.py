@@ -14,35 +14,37 @@ WGCI_persons, med_values, med_type_presons = {}, {}, {}
 file_name = rf'./configs/depression_no_overlap.json'
 # file_name = rf'./configs/depression512.json'
 cfg = ujson.load(open(file_name, 'r'))
-sta_type = 'median'  # 'median', 'mean
+sta_type = 'max'  # 'median', 'mean
 
 # 获取哈密顿分数信息
 data = pd.read_csv(r'Data/depression/info.csv')
-scores = {data.ix[i, 'subjects']: data.ix[i, 'score'] for i in range(data.shape[0])}
+scores = {data.loc[i, 'subjects']: data.loc[i, 'score'] for i in range(data.shape[0])}
 ret = sorted(scores.items(), key=lambda x: x[1])
 
 # 保存结果
-with open(data_root/ r'result/scores_persons.pkl', 'wb') as outfile:
-    pickle.dump(ret, outfile, 0)
+with open(data_root / r'result/scores_persons.pkl', 'wb') as outfile:
+    pickle.dump(ret, outfile)
+
 
 # 保存结果
-with open(data_root/ r'result/scores.pkl', 'wb') as outfile:
-    pickle.dump(scores, outfile, 0)
+with open(data_root/r'result/scores.pkl', 'wb') as outfile:
+    pickle.dump(scores, outfile)
 
 for id in range(1, 70):
     data = np.loadtxt(data_root / f'WGCI_{id}.txt', dtype=np.float32, skiprows=1, comments='#')
     WGCI_trials = data.reshape(cfg['trials'], 3, 3)
     WGCI_persons[id] = WGCI_trials
-    med_WGCI_persons = getattr(np, sta_type)(WGCI_trials, 0)  # 中值或均值
+    med_WGCI_persons = getattr(np, sta_type)(WGCI_trials, 0)  # 中值或均值或最大值
     med_values[id] = med_WGCI_persons
 
 # 保存结果
 with open(data_root/ r'result/WGCI_persons.pkl', 'wb') as outfile:
-    pickle.dump(WGCI_persons, outfile, 0)
+    pickle.dump(WGCI_persons, outfile)
 
 # 保存结果
 with open(data_root/ rf'result/WGCI_{sta_type}_persons.pkl', 'wb') as outfile:
-    pickle.dump(med_values, outfile, 0)
+    pickle.dump(med_values, outfile)
+
 
 # mat 格式
 WGCI_persons1 = []
@@ -50,6 +52,7 @@ for id in range(1, 70):
     WGCI_persons1.append(med_values[id])
 WGCI_persons1 = np.array(WGCI_persons1)
 sio.savemat(data_root / rf'result/WGCI_{sta_type}_persons.mat', {'WGCI_persons': WGCI_persons1})
+sio.savemat(f'./anova/input/WGCI_{sta_type}_persons.mat', {f'WGCI_{sta_type}_persons': WGCI_persons1})
 
 
 # 读取结果
