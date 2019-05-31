@@ -1,10 +1,10 @@
 {
     "rnn_type": "GRU",
     "num_layers": 1,
-    "dropout": 0.5,
+    "dropout": 0.0,
     "lr_rate": 0.001,
     "momentum": 0.9,
-    "weight_decay": 0.01,
+    "weight_decay": 0.0,
     "bt_sz": 32,
     "seq_len": 50,
     "num_channel": 12,

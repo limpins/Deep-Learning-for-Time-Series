@@ -165,7 +165,7 @@ for situation = 1:3
     end
 
     fprintf('\n');
-    fprintf('Group PT:\t');
+    fprintf('Group PS:\t');
 
     for kk = count_P + 1:n
         Tol = NodeIDs{1, Index(1, kk)};

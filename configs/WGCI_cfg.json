@@ -1,11 +1,11 @@
 {
     "linear_signals": {
-        "rnn_type": "GRU",
+        "rnn_type": "QRNN",
         "num_layers": 1,
-        "dropout": 0.5,
+        "dropout": 0.1,
         "lr_rate": 0.001,
         "momentum": 0.9,
-        "weight_decay": 0.1,
+        "weight_decay": 0.001,
         "bt_sz": 32,
         "seq_len": 50,
         "num_channel": 5,
@@ -28,12 +28,12 @@
         "num_trials": 10
     },
     "nonlinear_signals": {
-        "rnn_type": "GRU",
+        "rnn_type": "QRNN",
         "num_layers": 1,
-        "dropout": 0.5,
+        "dropout": 0.1,
         "lr_rate": 0.001,
         "momentum": 0.9,
-        "weight_decay": 0.01,
+        "weight_decay": 0.0,
         "bt_sz": 32,
         "seq_len": 50,
         "num_channel": 5,
@@ -56,12 +56,12 @@
         "num_trials": 10
     },
     "longlag_nonlinear_signals": {
-        "rnn_type": "GRU",
+        "rnn_type": "QRNN",
         "num_layers": 1,
-        "dropout": 0.5,
+        "dropout": 0.1,
         "lr_rate": 0.001,
         "momentum": 0.9,
-        "weight_decay": 0.01,
+        "weight_decay": 0.00,
         "bt_sz": 32,
         "seq_len": 50,
         "num_channel": 5,
@@ -84,12 +84,12 @@
         "num_trials": 10
     },
     "EEG64s": {
-        "rnn_type": "GRU",
+        "rnn_type": "QRNN",
         "num_layers": 1,
-        "dropout": 0.5,
+        "dropout": 0.1,
         "lr_rate": 0.001,
         "momentum": 0.9,
-        "weight_decay": 0.01,
+        "weight_decay": 0.0,
         "bt_sz": 32,
         "seq_len": 50,
         "num_channel": 20,

@@ -10,6 +10,7 @@ Ref:
 import torch
 import torch.nn.functional as F
 from torch import nn
+from fastai.text.models.qrnn import QRNN
 
 
 class RNN_Net(nn.Module):
@@ -25,25 +26,30 @@ class RNN_Net(nn.Module):
         dropout (float): dropout概率值，默认为 0.
     """
 
-    def __init__(self, input_dim, hidden_dim, output_dim, batchsize=64, rnn_type='LSTM', num_layers=1, dropout=0., bidirectional=False):
+    def __init__(self, input_dim, hidden_dim, output_dim, batchsize=64, rnn_type='LSTM', num_layers=1, dropout=0., bidirectional=False, reduction=16):
         super().__init__()
         self.hidden_dim = hidden_dim
         self.num_layers = num_layers
         self.rnn_type = rnn_type
         self.bidirectional = 2 if bidirectional else 1
         dropout = 0. if num_layers == 1 else dropout
+        assert rnn_type in ['LSTM', 'GRU', 'QRNN'], 'RNN type is not supported.'
         if rnn_type in ['LSTM', 'GRU']:
             self.rnn = getattr(nn, rnn_type)(input_dim, hidden_dim, num_layers=num_layers, batch_first=True, dropout=dropout, bidirectional=bidirectional)
         else:
-            raise ValueError("""An invalid option was supplied, options are ['LSTM', 'GRU']""")
+            self.rnn = QRNN(input_dim, hidden_dim, n_layers=num_layers, batch_first=True, dropout=dropout, bidirectional=bidirectional)
         # way1: 使用激活函数
         # self.fc = nn.Linear(hidden_dim * self.bidirectional, hidden_dim // 2)
         # self.ac = nn.Tanh()    # 注意预测区间是 [-1, 1] 激活函数应该选择 tanh, LSTM 输出门本身就做了 tanh 激活
         # self.fc1 = nn.Linear(hidden_dim // 2, output_dim)
 
         # way2: 不使用激活函数
-        self.fc = nn.Linear(hidden_dim * self.bidirectional, output_dim)
-        self.bn = BatchNorm1dFlat(hidden_dim * self.bidirectional)
+        dim1 = hidden_dim * self.bidirectional
+        self.bn = BatchNorm1dFlat(dim1)
+        self.fc = nn.Linear(dim1, output_dim)
+        # self.fc = nn.Linear(dim1, dim1 // reduction)
+        # self.bn1 = BatchNorm1dFlat(dim1 // reduction)
+        # self.fc1 = nn.Linear(dim1 // reduction, output_dim)
         # self.hidden = self.initHidden(batchsize)
         self.hidden = self.initHidden(batchsize)
 
@@ -69,6 +75,8 @@ class RNN_Net(nn.Module):
         # way2: 不使用激活函数
         y = self.bn(y)    # BN
         y = self.fc(y)
+        # y = self.bn1(y)    # BN
+        # y = self.fc1(y)
         return y[:, -1, :]
 
     def initHidden(self, batchsize):
